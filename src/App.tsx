@@ -2,27 +2,29 @@ import React, { useState } from 'react';
 import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
-import Logo from './assets/synergy.png';
+import Logo from './assets/synergylogo.png';
 
 function App() {
-  // State to track whether to show the login or register screen
+
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
 
   return (
-      <div className="App">
-        <header className="App-header">
-          <img src={Logo} alt={"Synergy"} className="App-logo" />
-
-          {/* Conditionally render Login or Register components */}
+      <div className="app">
+        <header className="app-header">
+          <img src={Logo} alt={"Synergy"} className="logo" />
           {isRegistering ? (
-              <div>
-                <Register />
-                <button onClick={() => setIsRegistering(false)}>Already have an account? Login</button>
+              <div className="container2">
+                  <Register/>
+                  <button onClick={() => setIsRegistering(false)}
+                          className="custom-button">Already have an account?
+                  </button>
               </div>
           ) : (
-              <div>
-                <Login />
-                <button onClick={() => setIsRegistering(true)}>Don't have an account? Register</button>
+              <div className="container">
+                  <Login/>
+                  <button onClick={() => setIsRegistering(true)}
+                          className="custom-button">Don't have an account?
+                  </button>
               </div>
           )}
         </header>
