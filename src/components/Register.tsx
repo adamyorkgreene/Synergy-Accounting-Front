@@ -21,12 +21,9 @@ const Register: React.FC = () => {
 
             if (response.ok) {
                 alert('Registration successful!');
-            } else if (response.status === 400) {
-                alert('Registration failed! Your password fields must match.');
-            } else if (response.status === 409) {
-                alert('Registration failed! This username already exists.');
             } else {
-                alert("Registration failed!");
+                const errorData = await response.json();
+                alert(`Registration failed: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error:', error);
