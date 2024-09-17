@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
+import Logo from './assets/synergy.png';
 
 function App() {
   // State to track whether to show the login or register screen
@@ -10,7 +11,7 @@ function App() {
   return (
       <div className="App">
         <header className="App-header">
-          <h1>Welcome to Synergy</h1>
+          <img src={Logo} alt={"Synergy"} className="App-logo" />
 
           {/* Conditionally render Login or Register components */}
           {isRegistering ? (

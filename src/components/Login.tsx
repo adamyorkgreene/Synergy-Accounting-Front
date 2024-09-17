@@ -19,6 +19,8 @@ const Login: React.FC = () => {
 
             if (response.ok) {
                 alert('Login successful!');
+            } else if (response.status === 401) {
+                alert('Login failed: Incorrect username or password.');
             } else {
                 alert('Login failed!');
             }
