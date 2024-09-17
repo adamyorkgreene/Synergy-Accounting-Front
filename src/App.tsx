@@ -1,25 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import Login from './components/Login';
+import Register from './components/Register';
 
 function App() {
+  // State to track whether to show the login or register screen
+  const [isRegistering, setIsRegistering] = useState<boolean>(false);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div className="App">
+        <header className="App-header">
+          <h1>Welcome to Synergy</h1>
+
+          {/* Conditionally render Login or Register components */}
+          {isRegistering ? (
+              <div>
+                <Register />
+                <button onClick={() => setIsRegistering(false)}>Already have an account? Login</button>
+              </div>
+          ) : (
+              <div>
+                <Login />
+                <button onClick={() => setIsRegistering(true)}>Don't have an account? Register</button>
+              </div>
+          )}
+        </header>
+      </div>
   );
 }
 
