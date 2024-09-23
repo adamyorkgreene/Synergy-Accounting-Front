@@ -1,5 +1,7 @@
 // src/components/Register.tsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { User } from '../Types'; // Assuming User type includes id
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState<string>('');
@@ -7,20 +9,30 @@ const Register: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [confpassword, setConfPassword] = useState<string>('');
 
+    const navigate = useNavigate(); // Create navigate function
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        // Check if passwords match
+        if (password !== confpassword) {
+            alert('Passwords do not match.');
+            return;
+        }
+
         try {
-            const response = await fetch('http://15.204.199.108:8080/api/users/register', {
+            const response = await fetch('/api/users/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({email, username, password, confpassword }),
+                body: JSON.stringify({ email, username, password, confpassword }),
             });
 
             if (response.ok) {
-                alert('Registration successful!');
+                const registeredUser: User = await response.json(); // Get registered user
+                const userId = registeredUser.userid; // Get the user ID from the response
+                navigate('/verify', { state: { userId } });
             } else {
                 const errorData = await response.json();
                 alert(`Registration failed: ${errorData.message}`);
@@ -45,14 +57,17 @@ const Register: React.FC = () => {
                 </div>
                 <div className="input-group">
                     <label className="label">Create a Password </label>
-                    <input type="text" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
                 </div>
                 <div className="input-group">
                     <label className="label">Confirm Password </label>
-                    <input type="text" value={confpassword} onChange={(e) => setConfPassword(e.target.value)}/>
+                    <input type="password" value={confpassword} onChange={(e) => setConfPassword(e.target.value)}/>
                 </div>
                 <button type="submit" className="custom-button">Register</button>
             </form>
+            <div className={"input-group"}>
+                <button onClick={() => (navigate('/'))} className="custom-button">Already have an account?</button>
+            </div>
         </div>
     );
 };
