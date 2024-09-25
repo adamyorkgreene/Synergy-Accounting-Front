@@ -1,15 +1,44 @@
 // src/components/ResetPasswordForm.tsx
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const ResetPasswordForm: React.FC = () => {
+
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
     const [password, setPassword] = useState<string>('');
     const [confPassword, setConfPassword] = useState<string>('');
+    const [tokenValid, setTokenValid] = useState<boolean>(false);
 
     const token = searchParams.get('token');
+
+    useEffect(() => {
+        const validateToken = async () => {
+            try {
+                const response = await fetch(`/api/users/password-reset?token=${token}`);
+                if (response.ok) {
+                    setTokenValid(true);
+                } else {
+                    setTokenValid(false);
+                    alert('Invalid or expired password reset token!');
+                    navigate('/');
+                }
+            } catch (error) {
+                console.error('Error Validating Token:', error);
+                alert('Error validating password reset token! Please try again.')
+                setTokenValid(false);
+                navigate('/');
+            }
+        }
+        validateToken().then(() => {
+
+        });
+    }, [token, navigate]);
+
+    if (!tokenValid) {
+        return null;
+    }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -35,7 +64,8 @@ const ResetPasswordForm: React.FC = () => {
 
             if (response.ok) {
                 alert('Password reset successfully.');
-                navigate('/login');
+                navigate('/');
+                return;
             } else {
                 alert('Password reset failed.');
             }

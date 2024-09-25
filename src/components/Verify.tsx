@@ -41,7 +41,7 @@ const Verify: React.FC = () => {
 
             if (response.ok) {
                 alert('Verification Successful!');
-                //navigate('/dashboard'); // Uncomment and replace this to redirect after verification
+                navigate('/dashboard'); // Uncomment and replace this to redirect after verification
             } else {
                 alert('Verification Failed!');
             }
