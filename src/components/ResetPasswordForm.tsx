@@ -30,7 +30,7 @@ const ResetPasswordForm: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(password),
+                body: JSON.stringify({password}),
             });
 
             if (response.ok) {

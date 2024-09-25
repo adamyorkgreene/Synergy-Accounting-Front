@@ -16,7 +16,7 @@ const ResetPassword: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(email),
+                body: JSON.stringify({email}),
             });
 
             if (response.ok) {
