@@ -5,6 +5,8 @@ import Register from './components/Register';
 import Verify from './components/Verify';
 import Logo from './assets/synergylogo.png';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ResetPassword from "./components/ResetPassword";
+import ResetPasswordForm from './components/ResetPasswordForm';
 
 function App() {
     return (
@@ -17,6 +19,8 @@ function App() {
                             <Route path="/" element={<Login />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/verify" element={<Verify />} />
+                            <Route path="/forgot-password" element={<ResetPassword />} />
+                            <Route path="/password-reset" element={<ResetPasswordForm />} />
                         </Routes>
                     </div>
                 </header>
