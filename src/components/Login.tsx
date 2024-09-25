@@ -39,8 +39,9 @@ const Login: React.FC = () => {
                         alert('User verification failed due to missing user ID.');
                     }
                 }
-            } else if (response.status === 401) {
-                alert('Login failed: Incorrect username or password.');
+            } else if (response.status === 401 || response.status === 423) {
+                const errorMessage = await response.text();
+                alert(errorMessage);
             } else {
                 alert('Login failed!');
             }
