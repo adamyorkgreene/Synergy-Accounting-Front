@@ -3,8 +3,8 @@ import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
 import Verify from './components/Verify';
-import Logo from './assets/synergylogo.png';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Logo from './assets/synergylogo.png'; // Ensure this path is correct
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'; // Ensure Link is imported
 import ResetPassword from "./components/ResetPassword";
 import ResetPasswordForm from './components/ResetPasswordForm';
 
@@ -13,7 +13,10 @@ function App() {
         <Router>
             <div className="app">
                 <header className="app-header">
-                    <img src={Logo} alt="Synergy" className="logo" />
+                    {/* Clickable logo to navigate to login page */}
+                    <Link to="/"> 
+                        <img src={Logo} alt="Synergy" className="logo" />
+                    </Link>
                     <div className={"container2"}>
                         <Routes>
                             <Route path="/" element={<Login />} />

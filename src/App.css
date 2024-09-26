@@ -48,9 +48,10 @@
 }
 
 .logo {
-  height: 25vmin;
-  pointer-events: none;
-  scale: 0.7;
+  height: 25vmin; 
+  cursor: pointer; 
+  transform: scale(0.7); 
+  margin-bottom: 20px; 
 }
 
 .container {
