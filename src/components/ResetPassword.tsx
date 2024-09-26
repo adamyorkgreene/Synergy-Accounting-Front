@@ -1,4 +1,4 @@
-// src/components/Verify.tsx
+// src/components/VerifyRequest.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,9 +33,10 @@ const ResetPassword: React.FC = () => {
 
     return (
         <div className="content">
-            <label className="center-text">Enter Your Email</label>
+            <label className="center-text">Reset your Password</label>
             <form onSubmit={handleSubmit}>
                 <div className="input-group">
+                    <label className="label">Enter your Email </label>
                     <input
                         type="text"
                         value={email}

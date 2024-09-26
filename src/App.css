@@ -37,14 +37,12 @@
 }
 
 .app-header {
-  min-height: 90vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: calc(10px + 2vmin);
-  color: white;
-  padding: 5vh;
-}
+  color: white;}
 
 .logo {
   height: 25vmin;
@@ -56,10 +54,14 @@
   padding: 10px;
 }
 
-.container2 {
-  padding-top: 25vmin;
+.container {
+  padding-top: 10vmin;
   scale: 1.2;
-  max-height: 40vmin;
+  max-height: 45vmin;
+}
+
+.container2 {
+  padding-top: 10vmin;
 }
 
 .content {
@@ -96,20 +98,32 @@
   align-items: center;
 }
 
+input[type="text"],
+input[type="date"],
+input[type="password"] {
+  width: 22.274vmin;
+  height: 2.778vmin;
+  padding: 0.4630vmin;
+  font-size: 1.4815vmin;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
 .custom-button {
   background-color: #ffffff;
   color: black;
-  border: none;
   cursor: pointer;
   outline: none;
   font-family: 'Copperplate', 'serif';
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 0.9259vmin;
+  width: 37.04vmin;
+  height: 2.778vmin;
+  padding: 0.4630vmin;
+  font-size: 1.4815vmin;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .custom-button:active {
   background-color: #aabdb8;
 }
-
-
-

@@ -12,12 +12,11 @@ const Register: React.FC = () => {
     const [birthDate, setBirthDate] = useState<Date>();
     const [address, setAddress] = useState<string>('');
 
-    const navigate = useNavigate(); // Create navigate function
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // Check if passwords match
         if (password !== confpassword) {
             alert('Passwords do not match.');
             return;
@@ -36,9 +35,9 @@ const Register: React.FC = () => {
                     body: JSON.stringify({ email, firstName, lastName, birthday, birthMonth, birthYear, address, password, confpassword }),
                 });
                 if (response.ok) {
-                    const registeredUser: User = await response.json(); // Get registered user
-                    const userId = registeredUser.userid; // Get the user ID from the response
-                    navigate('/verify', { state: { userId } });
+                    const registeredUser: User = await response.json();
+                    const userId = registeredUser.userid;
+                    navigate('/verify-request', { state: { userId } });
                 } else {
                     const errorData = await response.json();
                     alert(`Registration failed: ${errorData.message}`);
@@ -66,7 +65,7 @@ const Register: React.FC = () => {
                 </div>
                 <div className="input-group">
                     <label className="label">Last Name </label>
-                    <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}/>
+                    <input className="" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}/>
                 </div>
                 <div className="input-group">
                     <label className="label">Birthday </label>
@@ -78,7 +77,7 @@ const Register: React.FC = () => {
                 </div>
                 <div className="input-group">
                     <label className="label">Address </label>
-                    <input type="password" value={address} onChange={(e) => setAddress(e.target.value)}/>
+                    <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}/>
                 </div>
                 <div className="input-group">
                     <label className="label">Create a Password </label>
@@ -98,3 +97,6 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+
+
+

@@ -20,11 +20,11 @@ const Login: React.FC = () => {
             });
 
             if (response.ok) {
-                const loggedInUser: User = await response.json(); // Log the entire response for debugging
-                console.log("User data:", loggedInUser); // Debug the response to ensure it matches expectations
+                const loggedInUser: User = await response.json();
+                console.log("User data:", loggedInUser);
 
-                const isUserVerified = loggedInUser.isVerified ?? false; // Safely access the isVerified property
-                const userId = loggedInUser.userid ?? null; // Safely access userId, set null as fallback
+                const isUserVerified = loggedInUser.isVerified ?? false;
+                const userId = loggedInUser.userid ?? null;
                 const userType = loggedInUser.userType ?? UserType.DEFAULT;
 
                 if (isUserVerified) {
@@ -33,12 +33,11 @@ const Login: React.FC = () => {
                         navigate('/');
                         return;
                     }
-                    // Navigate to dashboard or wherever you want after successful login
-                    navigate('/dashboard'); // Make sure /dashboard is a valid route
+
+                    navigate('/dashboard');
                 } else {
                     if (userId) {
-                        // Navigate to the verify page with the userId
-                        navigate('/verify', { state: { userId } });
+                        alert('Your account is not yet verified. Please check your email.');
                     } else {
                         console.error('No userId found for unverified user.');
                         alert('User verification failed due to missing user ID.');
@@ -57,10 +56,10 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="content">
-            <label className="center-text">Please Login to Continue</label>
-            <form onSubmit={handleSubmit}>
-                <div className="form_group">
+        <div className="container2">
+            <div className="content">
+                <label className="center-text">Please Login to Continue</label>
+                <form onSubmit={handleSubmit}>
                     <div className="input-group">
                         <label className="label">Email </label>
                         <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}/>
@@ -69,16 +68,16 @@ const Login: React.FC = () => {
                         <label className="label">Password </label>
                         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
                     </div>
-                </div>
-                <div className="button-group">
                     <button type="submit" className="custom-button">Login</button>
+                </form>
+                <div className={"input-group"}>
                     <button onClick={() => (navigate('/register'))} className="custom-button">Don't have an account?
                     </button>
-                    <button onClick={() => (navigate('/forgot-password'))} className="custom-button">Forgot your
-                        password?
-                    </button>
                 </div>
-            </form>
+                <button onClick={() => (navigate('/forgot-password'))} className="custom-button">Forgot your
+                    password?
+                </button>
+            </div>
         </div>
     );
 };

@@ -1,4 +1,4 @@
-// src/components/ResetPasswordForm.tsx
+// src/components/ConfirmUser.tsx
 import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
@@ -21,7 +21,7 @@ const ConfirmUser: React.FC = () => {
                 }
             } catch (error) {
                 console.error('Error Validating Token:', error);
-                alert('Error validating password reset token! Please try again.')
+                alert('Error validating confirmation token! Please try again.')
                 navigate('/');
             }
         }
