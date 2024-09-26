@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User } from '../Types'; // Make sure User type is correct
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {User, UserType} from '../Types'; // Make sure User type is correct
 
 const Login: React.FC = () => {
-    const [username, setUsername] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const navigate = useNavigate(); // Create navigate function
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -16,7 +16,7 @@ const Login: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ email, password }),
             });
 
             if (response.ok) {
@@ -25,9 +25,14 @@ const Login: React.FC = () => {
 
                 const isUserVerified = loggedInUser.isVerified ?? false; // Safely access the isVerified property
                 const userId = loggedInUser.userid ?? null; // Safely access userId, set null as fallback
+                const userType = loggedInUser.userType ?? UserType.DEFAULT;
 
                 if (isUserVerified) {
-                    alert('Login Successful!');
+                    if (userType === UserType.DEFAULT) {
+                        alert('Your account has not yet been confirmed by an administrator.')
+                        navigate('/');
+                        return;
+                    }
                     // Navigate to dashboard or wherever you want after successful login
                     navigate('/dashboard'); // Make sure /dashboard is a valid route
                 } else {
@@ -55,24 +60,25 @@ const Login: React.FC = () => {
         <div className="content">
             <label className="center-text">Please Login to Continue</label>
             <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label className="label">Username </label>
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}/>
+                <div className="form_group">
+                    <div className="input-group">
+                        <label className="label">Email </label>
+                        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                    </div>
+                    <div className="input-group">
+                        <label className="label">Password </label>
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                    </div>
                 </div>
-                <div className="input-group">
-                    <label className="label">Password </label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                <div className="button-group">
+                    <button type="submit" className="custom-button">Login</button>
+                    <button onClick={() => (navigate('/register'))} className="custom-button">Don't have an account?
+                    </button>
+                    <button onClick={() => (navigate('/forgot-password'))} className="custom-button">Forgot your
+                        password?
+                    </button>
                 </div>
-                <button type="submit" className="custom-button">Login</button>
             </form>
-            <div className={"input-group"}>
-                <button onClick={() => (navigate('/register'))} className="custom-button">Don't have an account?
-                </button>
-            </div>
-            <div className={"input-group"}>
-                <button onClick={() => (navigate('/forgot-password'))} className="custom-button">Forgot your password?
-                </button>
-            </div>
         </div>
     );
 };

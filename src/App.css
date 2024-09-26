@@ -1,4 +1,3 @@
-
 @keyframes change-color {
   0% {
     background-position: 0% 100%;
@@ -53,10 +52,8 @@
   scale: 0.7;
 }
 
-.container {
-  padding-top: 30vmin;
-  scale: 1.2;
-  max-height: 35vmin;
+.form_group {
+  padding: 10px;
 }
 
 .container2 {
@@ -92,6 +89,13 @@
   font-weight: bold;
 }
 
+.button-group {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .custom-button {
   background-color: #ffffff;
   color: black;
@@ -100,9 +104,12 @@
   outline: none;
   font-family: 'Copperplate', 'serif';
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .custom-button:active {
   background-color: #aabdb8;
 }
+
+
 

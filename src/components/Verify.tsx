@@ -1,6 +1,7 @@
 // src/components/Verify.tsx
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {User} from "../Types";
 
 const Verify: React.FC = () => {
     const location = useLocation(); // Get the state passed by navigate
@@ -40,8 +41,24 @@ const Verify: React.FC = () => {
             });
 
             if (response.ok) {
-                alert('Verification Successful!');
-                navigate('/dashboard'); // Uncomment and replace this to redirect after verification
+                const user: User = await response.json();
+                const response1 = await fetch('/api/users/request-confirm-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userid: user.userid, // Pass the userId as part of the request body
+                    }),
+                });
+                if (response1.ok) {
+                    alert('All set up! You will receive an email once your credentials are confirmed by an administrator.');
+                    navigate('/'); // Uncomment and replace this to redirect after verification
+                } else {
+                    alert('Your account was verified but there was an issue sending your account confirmation to an administrator. ' +
+                        'Please directly contact the administration team at: ');
+                    navigate('/'); // Uncomment and replace this to redirect after verification
+                }
             } else {
                 alert('Verification Failed!');
             }
