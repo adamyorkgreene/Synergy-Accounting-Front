@@ -4,72 +4,93 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { User } from '../Types'; // Assuming User type includes id
 
 const Register: React.FC = () => {
-    const [email, setEmail] = useState<string>('');
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [confpassword, setConfPassword] = useState<string>('');
+    const [firstName, setFirstName] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
+    const [emailAddress, setEmailAddress] = useState<string>('');
+    const [dob, setDob] = useState<string>('');
 
     const navigate = useNavigate(); // Create navigate function
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        // Check if passwords match
-        if (password !== confpassword) {
-            alert('Passwords do not match.');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/users/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, username, password, confpassword }),
-            });
-
-            if (response.ok) {
-                const registeredUser: User = await response.json(); // Get registered user
-                const userId = registeredUser.userid; // Get the user ID from the response
-                navigate('/verify', { state: { userId } });
-            } else {
-                const errorData = await response.json();
-                alert(`Registration failed: ${errorData.message}`);
+    
+            // Validate information has been entered
+            if (!firstName || !lastName || !emailAddress || !dob) {
+                alert('Please fill out all fields.');
+                return;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        }
-    };
 
-    return (
-        <div className="content">
-            <label className="center-text">Create an Account</label>
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label className="label">Enter your Email </label>
-                    <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}/>
+            try {
+                const response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ firstName, lastName, emailAddress, dob }),
+                });
+    
+                if (response.ok) {
+                    // If registration request is successful, notify user
+                    alert('Registration request submitted. Please wait for approval.');
+                    navigate('/'); // Redirect to login page after submission
+                } else {
+                    const errorData = await response.json();
+                    alert(`Registration failed: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        };
+    
+        return (
+            <div className="content">
+                <label className="center-text">Create a New User</label>
+                <form onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <label className="label">First Name </label>
+                        <input 
+                            type="text" 
+                            value={firstName} 
+                            onChange={(e) => setFirstName(e.target.value)} 
+                            required 
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label className="label">Last Name </label>
+                        <input 
+                            type="text" 
+                            value={lastName} 
+                            onChange={(e) => setLastName(e.target.value)} 
+                            required 
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label className="label">Email Address </label>
+                        <input 
+                            type="text" 
+                            value={emailAddress} 
+                            onChange={(e) => setEmailAddress(e.target.value)} 
+                            required 
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label className="label">Date of Birth </label>
+                        <input 
+                            type="date" 
+                            value={dob} 
+                            onChange={(e) => setDob(e.target.value)} 
+                            required 
+                        />
+                    </div>
+                    <button type="submit" className="custom-button">Request Access</button>
+                </form>
+                <div className={"input-group"}>
+                    <button onClick={() => navigate('/')} className="custom-button">Already have an account?</button>
                 </div>
-                <div className="input-group">
-                    <label className="label">Create a Username </label>
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}/>
-                </div>
-                <div className="input-group">
-                    <label className="label">Create a Password </label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                </div>
-                <div className="input-group">
-                    <label className="label">Confirm Password </label>
-                    <input type="password" value={confpassword} onChange={(e) => setConfPassword(e.target.value)}/>
-                </div>
-                <button type="submit" className="custom-button">Register</button>
-            </form>
-            <div className={"input-group"}>
-                <button onClick={() => (navigate('/'))} className="custom-button">Already have an account?</button>
             </div>
-        </div>
-    );
-};
+        );
+    };
+    
+    export default Register;
 
-export default Register;

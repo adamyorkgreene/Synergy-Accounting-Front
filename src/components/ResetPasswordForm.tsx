@@ -1,73 +1,58 @@
-// src/components/ResetPasswordForm.tsx
-import React, {useEffect, useState} from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ResetPasswordForm: React.FC = () => {
-
-    const [searchParams] = useSearchParams();
+    const [email, setEmail] = useState<string>('');
+    const [userId, setUserId] = useState<string>('');
+    const [securityAnswer, setSecurityAnswer] = useState<string>('');
+    const [step, setStep] = useState<number>(1); // Track the step in the process
+    const [question, setQuestion] = useState<string>(''); // Security question
     const navigate = useNavigate();
 
-    const [password, setPassword] = useState<string>('');
-    const [confPassword, setConfPassword] = useState<string>('');
-    const [tokenValid, setTokenValid] = useState<boolean>(false);
-
-    const token = searchParams.get('token');
-
-    useEffect(() => {
-        const validateToken = async () => {
-            try {
-                const response = await fetch(`/api/users/password-reset?token=${token}`);
-                if (response.ok) {
-                    setTokenValid(true);
-                } else {
-                    setTokenValid(false);
-                    alert('Invalid or expired password reset token!');
-                    navigate('/');
-                }
-            } catch (error) {
-                console.error('Error Validating Token:', error);
-                alert('Error validating password reset token! Please try again.')
-                setTokenValid(false);
-                navigate('/');
-            }
-        }
-        validateToken().then(() => {
-
-        });
-    }, [token, navigate]);
-
-    if (!tokenValid) {
-        return null;
-    }
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleNextStep = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        if (!token) {
-            alert('Invalid or missing token.');
-            return;
-        }
-
-        if (password !== confPassword) {
-            alert('Passwords do not match!');
-            return;
-        }
-
+        
         try {
-            const response = await fetch(`/api/users/password-reset?token=${token}`, {
+            const response = await fetch('/api/users/forgot-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({password}),
+                body: JSON.stringify({ email, userId }),
             });
 
             if (response.ok) {
-                alert('Password reset successfully.');
-                navigate('/');
-                return;
+                const data = await response.json();
+                setQuestion(data.securityQuestion); // Assume backend sends back a security question
+                setStep(2); // Move to the next step for security answer
             } else {
-                alert('Password reset failed.');
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    };
+
+    const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('/api/users/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, userId, securityAnswer }),
+            });
+
+            if (response.ok) {
+                alert('Password reset successfully. You can now log in.');
+                navigate('/login'); // Redirect to login page after successful reset
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -77,18 +62,44 @@ const ResetPasswordForm: React.FC = () => {
 
     return (
         <div className="content">
-            <label className="center-text">Reset your Password</label>
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label className="label">New Password </label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                </div>
-                <div className="input-group">
-                    <label className="label">Confirm Password </label>
-                    <input type="password" value={confPassword} onChange={(e) => setConfPassword(e.target.value)}/>
-                </div>
-                <button type="submit" className="custom-button">Change Password</button>
-            </form>
+            {step === 1 ? (
+                <form onSubmit={handleNextStep}>
+                    <label className="center-text">Forgot Password</label>
+                    <div className="input-group">
+                        <label className="label">Email Address</label>
+                        <input 
+                            type="email" 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
+                            required 
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label className="label">User ID</label>
+                        <input 
+                            type="text" 
+                            value={userId} 
+                            onChange={(e) => setUserId(e.target.value)} 
+                            required 
+                        />
+                    </div>
+                    <button type="submit" className="custom-button">Next</button>
+                </form>
+            ) : (
+                <form onSubmit={handleResetPassword}>
+                    <label className="center-text">Security Question</label>
+                    <div className="input-group">
+                        <label className="label">{question}</label>
+                        <input 
+                            type="text" 
+                            value={securityAnswer} 
+                            onChange={(e) => setSecurityAnswer(e.target.value)} 
+                            required 
+                        />
+                    </div>
+                    <button type="submit" className="custom-button">Reset Password</button>
+                </form>
+            )}
         </div>
     );
 };
