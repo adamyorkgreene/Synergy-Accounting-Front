@@ -1,7 +1,8 @@
 // src/components/Register.tsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import { User } from '../Types'; // Assuming User type includes id
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {MessageResponse} from '../Types';
+import {getCsrf} from "../utilities/csrfutility";
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState<string>('');
@@ -12,7 +13,40 @@ const Register: React.FC = () => {
     const [birthDate, setBirthDate] = useState<Date>();
     const [address, setAddress] = useState<string>('');
 
+    const [csrfToken, setCsrfToken] = useState<string>('');
+
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const csrfTokenPass = (location.state as { csrfTokenPass: string })?.csrfTokenPass;
+
+    useEffect(() => {
+        if (!csrfTokenPass) {
+            const fetchCsrfToken = async () => {
+                const token = await getCsrf();
+                setCsrfToken(token);
+            };
+            fetchCsrfToken().then();
+        } else {
+            setCsrfToken(csrfTokenPass);
+        }
+    }, []);
+
+    const validatePassword = (password: string): boolean => {
+        const minLength = 8;
+        const startsWithLetter = /^[A-Za-z]/.test(password);
+        const containsLetter = /[A-Za-z]/.test(password);
+        const containsNumber = /\d/.test(password);
+        const containsSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        return (
+            password.length >= minLength &&
+            startsWithLetter &&
+            containsLetter &&
+            containsNumber &&
+            containsSpecialChar
+        );
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -22,26 +56,33 @@ const Register: React.FC = () => {
             return;
         }
 
+        if (!firstName || !lastName || !email || !address) {
+            alert('Please fill out all fields.');
+            return;
+        }
+
+        if (!validatePassword(password)) {
+            alert('Password must be at least 8 characters long, start with a letter, and include a letter, number, and special character.');
+            return;
+        }
+
         try {
             if (birthDate) {
                 const birthday = birthDate.getDate() + 1;
                 const birthMonth = birthDate.getMonth() + 1;
                 const birthYear = birthDate.getFullYear();
-                const response = await fetch('/api/users/register', {
+                const response = await fetch('https://synergyaccounting.app/api/users/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ email, firstName, lastName, birthday, birthMonth, birthYear, address, password, confpassword }),
                 });
-                if (response.ok) {
-                    const registeredUser: User = await response.json();
-                    const userId = registeredUser.userid;
-                    navigate('/verify-request', { state: { userId } });
-                } else {
-                    const errorData = await response.json();
-                    alert(`Registration failed: ${errorData.message}`);
-                }
+                const msgResponse: MessageResponse = await response.json();
+                alert (msgResponse.message);
+                navigate('/login');
             } else {
                 alert('Birthday cannot be left empty!')
             }
@@ -90,7 +131,7 @@ const Register: React.FC = () => {
                 <button type="submit" className="custom-button">Register</button>
             </form>
             <div className={"input-group"}>
-                <button onClick={() => (navigate('/'))} className="custom-button">Already have an account?</button>
+                <button onClick={() => (navigate('/login',  { state: { csrfToken } }))} className="custom-button">Already have an account?</button>
             </div>
         </div>
     );

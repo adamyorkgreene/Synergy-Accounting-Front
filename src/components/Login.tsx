@@ -1,22 +1,46 @@
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {User, UserType} from '../Types'; // Make sure User type is correct
+import React, {useEffect, useState} from 'react';
+import { getCsrf } from '../utilities/csrfutility';  // Adjust path to match your project structure
+import {useLocation, useNavigate} from 'react-router-dom';
+import {MessageResponse, User, UserType} from '../Types'; // Make sure User type is correct
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+
+    const [csrfToken, setCsrfToken] = useState<string>('');
+
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const csrfTokenPass = (location.state as { csrfTokenPass: string })?.csrfTokenPass;
+
+    useEffect(() => {
+        if (!csrfTokenPass) {
+            const fetchCsrfToken = async () => {
+                const token = await getCsrf();
+                setCsrfToken(token);
+            };
+            fetchCsrfToken().then();
+        } else {
+            setCsrfToken(csrfTokenPass);
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         try {
-            const response = await fetch('/api/users/login', {
+            const response = await fetch('https://synergyaccounting.app/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                }),
+                credentials: 'include'
             });
 
             if (response.ok) {
@@ -30,11 +54,10 @@ const Login: React.FC = () => {
                 if (isUserVerified) {
                     if (userType === UserType.DEFAULT) {
                         alert('Your account has not yet been confirmed by an administrator.')
-                        navigate('/');
+                        navigate('/login');
                         return;
                     }
-
-                    navigate('/dashboard');
+                    navigate('/dashboard', { state: { csrfToken } });
                 } else {
                     if (userId) {
                         alert('Your account is not yet verified. Please check your email.');
@@ -43,11 +66,9 @@ const Login: React.FC = () => {
                         alert('User verification failed due to missing user ID.');
                     }
                 }
-            } else if (response.status === 401 || response.status === 423) {
-                const errorMessage = await response.text();
-                alert(errorMessage);
             } else {
-                alert('Login failed!');
+                const message: MessageResponse = await response.json();
+                alert(message.message);
             }
         } catch (error) {
             console.error('Error during login:', error);
@@ -58,6 +79,8 @@ const Login: React.FC = () => {
     return (
         <div className="container2">
             <div className="content">
+                <meta name="_csrf" content="${_csrf.token}"/>
+                <meta name="_csrf_header" content="${_csrf.headerName}"/>
                 <label className="center-text">Please Login to Continue</label>
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
@@ -71,10 +94,10 @@ const Login: React.FC = () => {
                     <button type="submit" className="custom-button">Login</button>
                 </form>
                 <div className={"input-group"}>
-                    <button onClick={() => (navigate('/register'))} className="custom-button">Don't have an account?
+                    <button onClick={() => (navigate('/register', { state: { csrfToken } }))} className="custom-button">Don't have an account?
                     </button>
                 </div>
-                <button onClick={() => (navigate('/forgot-password'))} className="custom-button">Forgot your
+                <button onClick={() => (navigate('/forgot-password', { state: { csrfToken } }))} className="custom-button">Forgot your
                     password?
                 </button>
             </div>

@@ -1,14 +1,12 @@
-// src/components/ConfirmUser.tsx
+// src/components/Verify.tsx
 import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import {getCsrf} from "../utilities/csrfutility";
 import {MessageResponse} from "../Types";
+import {getCsrf} from "../utilities/csrfutility";
 
-const ConfirmUser: React.FC = () => {
+const Verify: React.FC = () => {
 
     const [searchParams] = useSearchParams();
-
-    const token = searchParams.get('token');
 
     const [csrfToken, setCsrfToken] = useState<string>('');
 
@@ -23,10 +21,12 @@ const ConfirmUser: React.FC = () => {
         fetchCsrfToken().then(); // Fetch the CSRF token
     }, []);
 
+    const token = searchParams.get('token');
+
     useEffect(() => {
         const validateToken = async () => {
             try {
-                const response = await fetch(`https://synergyaccounting.app/api/users/confirm-user?token=${token}`, {
+                const response = await fetch(`https://synergyaccounting.app/api/users/verify?token=${token}`, {
                     method: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken
@@ -38,7 +38,7 @@ const ConfirmUser: React.FC = () => {
                 navigate('/login');
             } catch (error) {
                 console.error('Error Validating Token:', error);
-                alert('Error validating confirmation token! Please try again.')
+                alert('Error validating verification token! Please try again.')
                 navigate('/login');
             }
         }
@@ -48,4 +48,4 @@ const ConfirmUser: React.FC = () => {
     return null;
 };
 
-export default ConfirmUser;
+export default Verify;

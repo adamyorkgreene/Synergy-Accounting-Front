@@ -13,6 +13,10 @@ export interface User {
     isVerified: boolean;
 }
 
+export interface MessageResponse {
+    message: string;
+}
+
 export enum UserType {
     DEFAULT = "DEFAULT",
     USER = "USER",
