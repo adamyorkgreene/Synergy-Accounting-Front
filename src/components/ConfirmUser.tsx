@@ -1,30 +1,21 @@
-// src/components/ConfirmUser.tsx
-import React, {useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import {getCsrf} from "../utilities/csrfutility";
-import {MessageResponse} from "../Types";
+import { MessageResponse } from "../Types";
+import { useCsrf } from '../utilities/CsrfContext';
 
 const ConfirmUser: React.FC = () => {
-
     const [searchParams] = useSearchParams();
-
     const token = searchParams.get('token');
-
-    const [csrfToken, setCsrfToken] = useState<string>('');
-
+    const { csrfToken } = useCsrf();
     const navigate = useNavigate();
-
-    // Fetch the CSRF token when the component mounts
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
-            const token = await getCsrf();
-            setCsrfToken(token);
-        };
-        fetchCsrfToken().then(); // Fetch the CSRF token
-    }, []);
 
     useEffect(() => {
         const validateToken = async () => {
+            if (!csrfToken) {
+                console.error('CSRF token is not available.');
+                return;
+            }
+
             try {
                 const response = await fetch(`https://synergyaccounting.app/api/users/confirm-user?token=${token}`, {
                     method: 'GET',
@@ -33,17 +24,27 @@ const ConfirmUser: React.FC = () => {
                     },
                     credentials: 'include'
                 });
-                const message: MessageResponse = await response.json();
-                alert(message.message);
-                navigate('/login');
+
+                if (response.ok) {
+                    const message: MessageResponse = await response.json();
+                    alert(message.message);
+                    navigate('/login');
+                } else {
+                    const message: MessageResponse = await response.json();
+                    alert(message.message);
+                    navigate('/login');
+                }
             } catch (error) {
-                console.error('Error Validating Token:', error);
-                alert('Error validating confirmation token! Please try again.')
+                console.error('Error validating token:', error);
+                alert('Error validating confirmation token! Please try again.');
                 navigate('/login');
             }
+        };
+
+        if (token) {
+            validateToken();
         }
-        validateToken().then();
-    }, [token, navigate]);
+    }, [csrfToken, token, navigate]);
 
     return null;
 };

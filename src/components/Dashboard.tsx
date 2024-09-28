@@ -1,25 +1,39 @@
 import React, { useEffect } from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
-import { validateUser } from '../utilities/csrfutility';  // Adjust path to match your project structure
+import { useNavigate } from 'react-router-dom';
+import { useCsrf } from '../utilities/CsrfContext';
+import { useUser } from '../utilities/UserContext';
 
 const Dashboard: React.FC = () => {
-    const location = useLocation();
     const navigate = useNavigate();
-
-    const csrfToken = (location.state as { csrfToken: string })?.csrfToken;
+    const { csrfToken, isReady: csrfIsReady } = useCsrf();
+    const { user: loggedInUser } = useUser();
 
     useEffect(() => {
-        if (csrfToken) {
-            validateUser(csrfToken, '/dashboard').then();  // Validate user using the utility
-        } else {
-            navigate('/login');  // Redirect to login if no CSRF token is found
+        // Wait for CSRF context to be ready before evaluating user status
+        if (csrfIsReady) {
+            if (!loggedInUser) {
+                console.log('No logged-in user found, redirecting to login...');
+                navigate('/login');
+            }
         }
-    }, [csrfToken, navigate]);
+    }, [csrfIsReady, loggedInUser, navigate]);
 
+    // Wait until CSRF and user data are ready
+    if (!csrfIsReady || !loggedInUser) {
+        return <div>Loading...</div>;
+    }
     return (
-        <div>
+        <div className="dashboard">
+            <img
+                className="profile-icon"
+                src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser.username}.jpg`}
+                alt="Profile Picture"
+            />
             <h1>Dashboard</h1>
-            {/* Your dashboard content */}
+            <button onClick={() => (navigate('/upload-image', {state: {csrfToken, loggedInUser}}))}
+                    className="custom-button">
+                Upload Image
+            </button>
         </div>
     );
 };

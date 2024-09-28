@@ -1,32 +1,18 @@
-// src/components/ResetPasswordForm.tsx
 import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import {MessageResponse} from "../Types";
-import {getCsrf} from "../utilities/csrfutility";
+import { MessageResponse } from "../Types";
+import { useCsrf } from "../utilities/CsrfContext";
 
 const ResetPasswordForm: React.FC = () => {
-
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const {csrfToken} = useCsrf();
 
     const [password, setPassword] = useState<string>('');
     const [confPassword, setConfPassword] = useState<string>('');
-
     const [tokenValid, setTokenValid] = useState<boolean>(false);
 
     const token = searchParams.get('token');
-
-    const [csrfToken, setCsrfToken] = useState<string>('');
-
-
-    // Fetch the CSRF token when the component mounts
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
-            const token = await getCsrf();
-            setCsrfToken(token);
-        };
-        fetchCsrfToken().then(); // Fetch the CSRF token
-    }, []);
 
     useEffect(() => {
         const validateToken = async () => {
@@ -34,7 +20,7 @@ const ResetPasswordForm: React.FC = () => {
                 const response = await fetch(`/api/users/password-reset?token=${token}`, {
                     method: 'GET',
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': csrfToken || ''
                     },
                     credentials: 'include'
                 });
@@ -43,18 +29,19 @@ const ResetPasswordForm: React.FC = () => {
                 } else {
                     const message: MessageResponse = await response.json();
                     alert(message.message);
+                    navigate('/login');
                 }
             } catch (error) {
                 console.error('Error Validating Token:', error);
-                alert('Error validating password reset token! Please try again.')
+                alert('Error validating password reset token! Please try again.');
                 setTokenValid(false);
                 navigate('/login');
             }
+        };
+        if (csrfToken && token) {
+            validateToken();
         }
-        validateToken().then(() => {
-
-        });
-    }, [token, navigate]);
+    }, [csrfToken, token, navigate]);
 
     if (!tokenValid) {
         return null;
@@ -99,13 +86,19 @@ const ResetPasswordForm: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
+                    'X-CSRF-TOKEN': csrfToken || ''
                 },
                 body: JSON.stringify({password}),
+                credentials: 'include'
             });
-            const message: MessageResponse = await response.json();
-            alert(message.message);
-            navigate('/login');
+            if (response.ok) {
+                const message: MessageResponse = await response.json();
+                alert(message.message);
+                navigate('/login');
+            } else {
+                const message: MessageResponse = await response.json();
+                alert(message.message);
+            }
         } catch (error) {
             console.error('Error:', error);
             alert('An error occurred. Please try again.');

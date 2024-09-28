@@ -9,6 +9,7 @@ import ResetPasswordForm from './components/ResetPasswordForm';
 import ConfirmUser from "./components/ConfirmUser";
 import Verify from "./components/Verify";
 import Dashboard from "./components/Dashboard";
+import ImageUpload from "./components/ImageUploader";
 
 function App() {
     return (
@@ -26,6 +27,7 @@ function App() {
                             <Route path="/password-reset" element={<ResetPasswordForm />} />
                             <Route path="/confirm-user" element={<ConfirmUser />} />
                             <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/upload-image" element={<ImageUpload />} />
                         </Routes>
                     </div>
                 </header>

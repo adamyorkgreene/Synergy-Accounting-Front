@@ -3,14 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {CsrfProvider} from "./utilities/CsrfContext";
+import {UserProvider} from "./utilities/UserContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <CsrfProvider>
+        <UserProvider>
+            <React.StrictMode>
+                <App />
+            </React.StrictMode>
+        </UserProvider>
+    </CsrfProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

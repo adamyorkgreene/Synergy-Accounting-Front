@@ -1,8 +1,7 @@
-// src/components/Register.tsx
-import React, {useEffect, useState} from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
-import {MessageResponse} from '../Types';
-import {getCsrf} from "../utilities/csrfutility";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MessageResponse } from '../Types';
+import { useCsrf } from '../utilities/CsrfContext';
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState<string>('');
@@ -13,24 +12,9 @@ const Register: React.FC = () => {
     const [birthDate, setBirthDate] = useState<Date>();
     const [address, setAddress] = useState<string>('');
 
-    const [csrfToken, setCsrfToken] = useState<string>('');
-
     const navigate = useNavigate();
-    const location = useLocation();
 
-    const csrfTokenPass = (location.state as { csrfTokenPass: string })?.csrfTokenPass;
-
-    useEffect(() => {
-        if (!csrfTokenPass) {
-            const fetchCsrfToken = async () => {
-                const token = await getCsrf();
-                setCsrfToken(token);
-            };
-            fetchCsrfToken().then();
-        } else {
-            setCsrfToken(csrfTokenPass);
-        }
-    }, []);
+    const {csrfToken} = useCsrf();
 
     const validatePassword = (password: string): boolean => {
         const minLength = 8;
@@ -66,6 +50,11 @@ const Register: React.FC = () => {
             return;
         }
 
+        if (!csrfToken) {
+            alert('Failed to get CSRF token. Please try again.');
+            return;
+        }
+
         try {
             if (birthDate) {
                 const birthday = birthDate.getDate() + 1;
@@ -81,14 +70,20 @@ const Register: React.FC = () => {
                     body: JSON.stringify({ email, firstName, lastName, birthday, birthMonth, birthYear, address, password, confpassword }),
                 });
                 const msgResponse: MessageResponse = await response.json();
-                alert (msgResponse.message);
-                navigate('/login');
+
+                if (response.ok) {
+                    alert(msgResponse.message);
+                    navigate('/login');
+                } else {
+                    alert(msgResponse.message);
+                }
             } else {
                 alert('Birthday cannot be left empty!')
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            alert('Your session has expired. Refreshing page..');
+            navigate('/register');
         }
     };
 

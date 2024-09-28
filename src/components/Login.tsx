@@ -1,45 +1,39 @@
-import React, {useEffect, useState} from 'react';
-import { getCsrf } from '../utilities/csrfutility';  // Adjust path to match your project structure
-import {useLocation, useNavigate} from 'react-router-dom';
-import {MessageResponse, User, UserType} from '../Types'; // Make sure User type is correct
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MessageResponse, User, UserType } from '../Types';
+import { useCsrf } from '../utilities/CsrfContext';
+import {useUser} from "../utilities/UserContext";
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-
-    const [csrfToken, setCsrfToken] = useState<string>('');
-
+    const { setUser } = useUser();
+    const { csrfToken, fetchCsrfToken, isReady } = useCsrf();
     const navigate = useNavigate();
-    const location = useLocation();
-
-    const csrfTokenPass = (location.state as { csrfTokenPass: string })?.csrfTokenPass;
 
     useEffect(() => {
-        if (!csrfTokenPass) {
-            const fetchCsrfToken = async () => {
-                const token = await getCsrf();
-                setCsrfToken(token);
-            };
-            fetchCsrfToken().then();
-        } else {
-            setCsrfToken(csrfTokenPass);
+        if (!isReady) {
+            fetchCsrfToken();
         }
-    }, []);
+    }, [isReady, fetchCsrfToken]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!csrfToken) {
+            alert('Failed to get CSRF token. Please try again.');
+            return;
+        }
+
+        console.log("Submitting login form with email:", email);
         try {
             const response = await fetch('https://synergyaccounting.app/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
+                    'X-CSRF-TOKEN': csrfToken,
                 },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                }),
+                body: JSON.stringify({ email, password }),
                 credentials: 'include'
             });
 
@@ -48,23 +42,17 @@ const Login: React.FC = () => {
                 console.log("User data:", loggedInUser);
 
                 const isUserVerified = loggedInUser.isVerified ?? false;
-                const userId = loggedInUser.userid ?? null;
                 const userType = loggedInUser.userType ?? UserType.DEFAULT;
 
                 if (isUserVerified) {
                     if (userType === UserType.DEFAULT) {
-                        alert('Your account has not yet been confirmed by an administrator.')
-                        navigate('/login');
+                        alert('Your account has not yet been confirmed by an administrator.');
                         return;
                     }
-                    navigate('/dashboard', { state: { csrfToken } });
+                    setUser(loggedInUser);
+                    navigate('/dashboard');
                 } else {
-                    if (userId) {
-                        alert('Your account is not yet verified. Please check your email.');
-                    } else {
-                        console.error('No userId found for unverified user.');
-                        alert('User verification failed due to missing user ID.');
-                    }
+                    alert('Your account is not yet verified. Please check your email.');
                 }
             } else {
                 const message: MessageResponse = await response.json();
@@ -75,6 +63,10 @@ const Login: React.FC = () => {
             alert('An error occurred. Please try again.');
         }
     };
+
+    if (!isReady) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="container2">
