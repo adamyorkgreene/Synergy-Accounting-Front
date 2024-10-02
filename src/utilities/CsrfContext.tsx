@@ -3,7 +3,6 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 interface CsrfContextType {
     csrfToken: string | null;
     fetchCsrfToken: () => Promise<void>;
-    isReady: boolean;
 }
 
 const CsrfContext = createContext<CsrfContextType | undefined>(undefined);
@@ -14,7 +13,6 @@ interface CsrfProviderProps {
 
 export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
     const [csrfToken, setCsrfToken] = useState<string | null>(null);
-    const [isReady, setIsReady] = useState<boolean>(false);
 
     const fetchCsrfToken = async () => {
         console.log("Fetching CSRF Token...");
@@ -27,7 +25,6 @@ export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
                 const csrfData = await response.json();
                 setCsrfToken(csrfData.token);
                 console.log("CSRF Token fetched successfully:", csrfData.token);
-                setIsReady(true); // Set to true after fetching CSRF token
             } else {
                 console.error('Failed to fetch CSRF token:', response.status);
             }
@@ -43,12 +40,8 @@ export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
         });
     }, []);
 
-    if (!isReady) {
-        return <div>Loading...</div>; // Show loading until CSRF token is ready
-    }
-
     return (
-        <CsrfContext.Provider value={{ csrfToken, fetchCsrfToken, isReady }}>
+        <CsrfContext.Provider value={{ csrfToken, fetchCsrfToken}}>
             {children}
         </CsrfContext.Provider>
     );

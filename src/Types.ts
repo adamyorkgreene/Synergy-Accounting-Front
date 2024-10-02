@@ -5,12 +5,15 @@ export interface User {
     email: string;
     firstName: string;
     lastName: string;
-    birthday: number;
-    birthMonth: number;
-    birthYear: number;
+    birthday: Date;
     address: string;
     verificationCode: string;
     isVerified: boolean;
+    isActive: boolean;
+    joinDate: Date;
+    failedLoginAttempts: number;
+    tempLeaveStart: Date;
+    tempLeaveEnd: Date;
 }
 
 export interface MessageResponse {

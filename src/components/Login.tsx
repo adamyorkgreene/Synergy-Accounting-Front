@@ -3,19 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { MessageResponse, User, UserType } from '../Types';
 import { useCsrf } from '../utilities/CsrfContext';
 import {useUser} from "../utilities/UserContext";
+import Logo from "../assets/synergylogo.png";
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const { setUser } = useUser();
-    const { csrfToken, fetchCsrfToken, isReady } = useCsrf();
+    const { csrfToken, fetchCsrfToken} = useCsrf();
+    const [loading, setLoading] = useState<boolean>(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!isReady) {
-            fetchCsrfToken();
-        }
-    }, [isReady, fetchCsrfToken]);
+        const initCsrf = async () => {
+            await fetchCsrfToken();
+            setLoading(false);
+        };
+        initCsrf().then();
+    }, [navigate]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -48,6 +52,13 @@ const Login: React.FC = () => {
                     if (userType === UserType.DEFAULT) {
                         alert('Your account has not yet been confirmed by an administrator.');
                         return;
+                    } else {
+                        const leaveDate: Date = new Date(loggedInUser.tempLeaveStart);
+                        const returnDate: Date = new Date(loggedInUser.tempLeaveEnd);
+                        if (leaveDate.getTime() < Date.now() && Date.now() < returnDate.getTime()) {
+                            alert('Your account is inactive while out on leave.');
+                            return;
+                        }
                     }
                     setUser(loggedInUser);
                     navigate('/dashboard');
@@ -64,37 +75,48 @@ const Login: React.FC = () => {
         }
     };
 
-    if (!isReady) {
+    if (loading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <div className="container2">
-            <div className="content">
-                <meta name="_csrf" content="${_csrf.token}"/>
-                <meta name="_csrf_header" content="${_csrf.headerName}"/>
-                <label className="center-text">Please Login to Continue</label>
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label className="label">Email </label>
-                        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}/>
+            <header className="app-header">
+                <img src={Logo} alt="Synergy" className="logo"/>
+                <div className={"container"}>
+                    <div className="content">
+                        <label className="center-text">Please Login to Continue</label>
+                        <div className="extra-margin"></div>
+                        <form onSubmit={handleSubmit}>
+                            <div className="input-group">
+                                <label className="label">Email </label>
+                                <input type="text" className="custom-input5" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                            </div>
+                            <div className="input-group">
+                                <label className="label">Password </label>
+                                <input className="custom-input5" type="password" value={password}
+                                       onChange={(e) => setPassword(e.target.value)}/>
+                            </div>
+                            <div className="extra-margin"></div>
+                            <div className="input-group">
+                                <button type="submit" className="custom-button">Login</button>
+                            </div>
+                            <div className="input-group">
+                                <button onClick={() => (navigate('/register', {state: {csrfToken}}))}
+                                        className="custom-button">Don't have an account?
+                                </button>
+                            </div>
+                            <div className="input-group">
+                                <button onClick={() => (navigate('/forgot-password', {state: {csrfToken}}))}
+                                        className="custom-button">Forgot your
+                                    password?
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div className="input-group">
-                        <label className="label">Password </label>
-                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                    </div>
-                    <button type="submit" className="custom-button">Login</button>
-                </form>
-                <div className={"input-group"}>
-                    <button onClick={() => (navigate('/register', { state: { csrfToken } }))} className="custom-button">Don't have an account?
-                    </button>
                 </div>
-                <button onClick={() => (navigate('/forgot-password', { state: { csrfToken } }))} className="custom-button">Forgot your
-                    password?
-                </button>
-            </div>
-        </div>
+            </header>
     );
 };
+
 
 export default Login;

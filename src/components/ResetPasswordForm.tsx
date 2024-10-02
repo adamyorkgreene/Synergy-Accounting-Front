@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MessageResponse } from "../Types";
 import { useCsrf } from "../utilities/CsrfContext";
+import Logo from "../assets/synergylogo.png";
 
 const ResetPasswordForm: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -106,20 +107,32 @@ const ResetPasswordForm: React.FC = () => {
     };
 
     return (
-        <div className="content">
-            <label className="center-text">Reset your Password</label>
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label className="label">New Password </label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+
+        <header className="app-header">
+            <img src={Logo} alt="Synergy" className="logo"/>
+            <div className={"container"}>
+                <div className="content">
+                    <label className="center-text">Reset your Password</label>
+                    <div className="extra-margin"></div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="input-group">
+                            <label className="label">New Password </label>
+                            <input className="custom-input5" type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                        </div>
+                        <div className="input-group">
+                            <label className="label">Confirm Password </label>
+                            <input className="custom-input5" type="password" value={confPassword}
+                                   onChange={(e) => setConfPassword(e.target.value)}/>
+                        </div>
+                        <div className="extra-margin"></div>
+                        <div className="input-group">
+                            <button type="submit" className="custom-button">Change Password</button>
+                        </div>
+                    </form>
                 </div>
-                <div className="input-group">
-                    <label className="label">Confirm Password </label>
-                    <input type="password" value={confPassword} onChange={(e) => setConfPassword(e.target.value)}/>
-                </div>
-                <button type="submit" className="custom-button">Change Password</button>
-            </form>
-        </div>
+            </div>
+        </header>
+
     );
 };
 

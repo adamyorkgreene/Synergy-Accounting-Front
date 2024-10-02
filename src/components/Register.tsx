@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageResponse } from '../Types';
 import { useCsrf } from '../utilities/CsrfContext';
+import Logo from "../assets/synergylogo.png";
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState<string>('');
@@ -9,7 +10,7 @@ const Register: React.FC = () => {
     const [confpassword, setConfPassword] = useState<string>('');
     const [firstName, setFirstName] = useState<string>('');
     const [lastName, setLastName] = useState<string>('');
-    const [birthDate, setBirthDate] = useState<Date>();
+    const [birthday, setBirthday] = useState<Date>();
     const [address, setAddress] = useState<string>('');
 
     const navigate = useNavigate();
@@ -56,10 +57,8 @@ const Register: React.FC = () => {
         }
 
         try {
-            if (birthDate) {
-                const birthday = birthDate.getDate() + 1;
-                const birthMonth = birthDate.getMonth() + 1;
-                const birthYear = birthDate.getFullYear();
+
+            if (birthday) {
                 const response = await fetch('https://synergyaccounting.app/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -67,7 +66,15 @@ const Register: React.FC = () => {
                         'X-CSRF-TOKEN': csrfToken
                     },
                     credentials: 'include',
-                    body: JSON.stringify({ email, firstName, lastName, birthday, birthMonth, birthYear, address, password, confpassword }),
+                    body: JSON.stringify({
+                        email,
+                        firstName,
+                        lastName,
+                        birthday,
+                        address,
+                        password,
+                        confpassword
+                    }),
                 });
                 const msgResponse: MessageResponse = await response.json();
 
@@ -88,48 +95,68 @@ const Register: React.FC = () => {
     };
 
     return (
-        <div className="content">
-            <label className="center-text">Create an Account</label>
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label className="label">Enter your Email </label>
-                    <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}/>
+
+        <header className="app-header">
+            <img src={Logo} alt="Synergy" className="logo"/>
+            <div className={"container"}>
+                <div className="content">
+                    <label className="center-text">Create an Account</label>
+                    <div className="extra-margin"></div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="input-group">
+                            <label className="label">Enter your Email </label>
+                            <input type="text"
+                                   className="custom-input5" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                        </div>
+                        <div className="input-group">
+                            <label className="label">First Name </label>
+                            <input type="text"
+                                   className="custom-input5" value={firstName} onChange={(e) => setFirstName(e.target.value)}/>
+                        </div>
+                        <div className="input-group">
+                            <label className="label">Last Name </label>
+                            <input className="custom-input5" type="text" value={lastName}
+                                   onChange={(e) => setLastName(e.target.value)}/>
+                        </div>
+                        <div className="input-group">
+                            <label className="label">Birthday </label>
+                            <input className="custom-input5"
+                                type="date"
+                                value={birthday ? birthday.toISOString().substring(0, 10) : ""}
+                                onChange={(e) => setBirthday(e.target.value ? new Date(e.target.value) : undefined)}
+                            />
+                        </div>
+                        <div className="input-group">
+                            <label className="label">Address </label>
+                            <input type="text"
+                                   className="custom-input5" value={address} onChange={(e) => setAddress(e.target.value)}/>
+                        </div>
+                        <div className="input-group">
+                            <label className="label">Create a Password </label>
+                            <input className="custom-input5" type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                        </div>
+                        <div className="input-group">
+                            <label className="label">Confirm Password </label>
+                            <input className="custom-input5" type="password" value={confpassword}
+                                   onChange={(e) => setConfPassword(e.target.value)}/>
+                        </div>
+                        <div className="extra-margin"></div>
+                        <div className="input-group">
+                            <button type="submit" className="custom-button">Register</button>
+                        </div>
+                        <div className={"input-group"}>
+                            <button onClick={() => (navigate('/login', {state: {csrfToken}}))}
+                                    className="custom-button">Already have an
+                                account?
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div className="input-group">
-                    <label className="label">First Name </label>
-                    <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}/>
-                </div>
-                <div className="input-group">
-                    <label className="label">Last Name </label>
-                    <input className="" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}/>
-                </div>
-                <div className="input-group">
-                    <label className="label">Birthday </label>
-                    <input
-                        type="date"
-                        value={birthDate ? birthDate.toISOString().substring(0, 10) : ""}
-                        onChange={(e) => setBirthDate(e.target.value ? new Date(e.target.value) : undefined)}
-                    />
-                </div>
-                <div className="input-group">
-                    <label className="label">Address </label>
-                    <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}/>
-                </div>
-                <div className="input-group">
-                    <label className="label">Create a Password </label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                </div>
-                <div className="input-group">
-                    <label className="label">Confirm Password </label>
-                    <input type="password" value={confpassword} onChange={(e) => setConfPassword(e.target.value)}/>
-                </div>
-                <button type="submit" className="custom-button">Register</button>
-            </form>
-            <div className={"input-group"}>
-                <button onClick={() => (navigate('/login',  { state: { csrfToken } }))} className="custom-button">Already have an account?</button>
             </div>
-        </div>
-    );
+        </header>
+
+    )
+        ;
 };
 
 export default Register;

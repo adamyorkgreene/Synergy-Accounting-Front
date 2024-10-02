@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageResponse } from "../Types";
 import { useCsrf } from '../utilities/CsrfContext';
+import Logo from "../assets/synergylogo.png";
 
 const ResetPassword: React.FC = () => {
     const [email, setEmail] = useState<string>('');
@@ -18,7 +19,7 @@ const ResetPassword: React.FC = () => {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken || ''
                 },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({email}),
                 credentials: 'include'
             });
 
@@ -37,20 +38,32 @@ const ResetPassword: React.FC = () => {
     };
 
     return (
-        <div className="content">
-            <label className="center-text">Reset your Password</label>
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label className="label">Enter your Email </label>
-                    <input
-                        type="text"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+
+        <header className="app-header">
+            <img src={Logo} alt="Synergy" className="logo"/>
+            <div className={"container"}>
+                <div className="content">
+                    <label className="center-text">Reset your Password</label>
+                    <div className="extra-margin"></div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="input-group">
+                            <label className="label">Enter your Email </label>
+                            <input
+                                type="text"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="custom-input5"
+                            />
+                        </div>
+                        <div className="extra-margin"></div>
+                        <div className="input-group">
+                            <button type="submit" className="custom-button">Send Reset Link</button>
+                        </div>
+                    </form>
                 </div>
-                <button type="submit" className="custom-button">Send Reset Link</button>
-            </form>
-        </div>
+            </div>
+        </header>
+
     );
 };
 
