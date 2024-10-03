@@ -92,17 +92,6 @@
   font-weight: bold;
 }
 
-.custom-input-5[type="text"],
-.custom-input-5[type="date"],
-.custom-input-5[type="password"] {
-  width: 22.274vmin;
-  height: 2.778vmin;
-  padding: 0.4630vmin;
-  font-size: 1.4815vmin;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-
 .custom-input input[type="text"],
 .custom-input input[type="date"],
 .custom-input input[type="password"] {
@@ -397,4 +386,15 @@
   border: 1px solid #ccc;
   box-sizing: border-box;
   /*transform: translateX(-17vw);*/
+}
+
+.custom-input5[type="text"],
+.custom-input5[type="date"],
+.custom-input5[type="password"] {
+  width: 22.274vmin;
+  height: 2.778vmin;
+  padding: 0.4630vmin;
+  font-size: 1.4815vmin;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
