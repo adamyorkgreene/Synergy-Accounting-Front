@@ -14,6 +14,7 @@ export interface User {
     failedLoginAttempts: number;
     tempLeaveStart: Date;
     tempLeaveEnd: Date;
+    emailPassword: string;
 }
 
 export interface MessageResponse {
