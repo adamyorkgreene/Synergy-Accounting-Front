@@ -15,11 +15,17 @@ const Login: React.FC = () => {
 
     useEffect(() => {
         const initCsrf = async () => {
-            await fetchCsrfToken();
-            setLoading(false);
+            setLoading(true);
+            try {
+                await fetchCsrfToken();
+            } catch (error) {
+                console.error('Failed to fetch CSRF token:', error);
+            } finally {
+                setLoading(false);
+            }
         };
         initCsrf().then();
-    }, [navigate]);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -101,7 +107,7 @@ const Login: React.FC = () => {
                                 <button type="submit" className="custom-button">Login</button>
                             </div>
                             <div className="input-group">
-                                <button onClick={() => (navigate('/register', {state: {csrfToken}}))}
+                                <button onClick={() => (navigate('/register', {state: {csrfToken}}))} disabled={loading}
                                         className="custom-button">Don't have an account?
                                 </button>
                             </div>

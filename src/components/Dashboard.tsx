@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import Logo from "../assets/synergylogo.png";
+import {UserType} from "../Types";
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -22,9 +23,6 @@ const Dashboard: React.FC = () => {
     }
     return (
         <div className="dashboard">
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center">
-            </div>
             <div className="right-dashboard">
                 <div className="username-label">{loggedInUser.username}</div>
                 <div className="profile-container"
@@ -40,8 +38,7 @@ const Dashboard: React.FC = () => {
                         <div className="label2">Admin Panel</div>
                         <button
                             onClick={() => navigate('/dashboard/admin/add-user', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Add
-                            User
+                            className="control-button">Add User
                         </button>
                         <button onClick={() => navigate('/dashboard/admin/update-user-search', {
                             state: {
@@ -59,12 +56,26 @@ const Dashboard: React.FC = () => {
                     </>
                 ) : null}
                 <div className="label2">User Panel</div>
-                <button className="control-button" onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home</button>
+                <button className="control-button"
+                        onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home
+                </button>
                 <button className="control-button">Settings</button>
                 <button className="control-button" onClick={() => (navigate("/logout"))}>Log Out</button>
             </div>
-        </div>
+            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
+            <div className="update-user-dash">
+                <div className="update-user-column">
+                    <button className="control-button" onClick={() => (navigate("/dashboard/chart-of-accounts",
+                        {state: {csrfToken, loggedInUser}}))}>Chart of Accounts</button>
+                </div>
+                <div className="update-user-column">
 
+                </div>
+                <div className="update-user-column">
+
+                </div>
+            </div>
+        </div>
     );
 };
 

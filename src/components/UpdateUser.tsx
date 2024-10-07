@@ -10,7 +10,7 @@ const UpdateUser: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {csrfToken} = useCsrf();
-    const { user: loggedInUser } = useUser();
+    const { user: loggedInUser, setUser } = useUser();
 
     const [email, setEmail] = useState<string>('');
     const [emailPassword, setEmailPassword] = useState<string>('');
@@ -118,6 +118,11 @@ const UpdateUser: React.FC = () => {
             if (response.ok) {
                 const userResponse: User = await response.json();
                 alert("User: " + userResponse.username + " has been updated");
+
+                if (loggedInUser && loggedInUser.userid === userResponse.userid) {
+                    setUser(userResponse)
+                }
+
                 navigate('/dashboard/admin/update-user', {state: {csrfToken, loggedInUser, userResponse}});
             } else {
                 const msgResponse: MessageResponse = await response.json();
@@ -151,9 +156,13 @@ const UpdateUser: React.FC = () => {
                             className="control-button">Add
                             User
                         </button>
-                        <button
-                            onClick={() => navigate('/dashboard/admin/update-user', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Update User
+                        <button onClick={() => navigate('/dashboard/admin/update-user-search', {
+                            state: {
+                                csrfToken,
+                                loggedInUser
+                            }
+                        })}
+                                className="control-button">Update User
                         </button>
                         <button
                             onClick={() => navigate('/dashboard/admin/send-email', {state: {csrfToken, loggedInUser}})}
@@ -163,7 +172,9 @@ const UpdateUser: React.FC = () => {
                     </>
                 ) : null}
                 <div className="label2">User Panel</div>
-                <button className="control-button" onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home</button>
+                <button className="control-button"
+                        onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home
+                </button>
                 <button className="control-button">Settings</button>
                 <button className="control-button" onClick={() => (navigate("/logout"))}>Log Out</button>
             </div>
@@ -221,34 +232,34 @@ const UpdateUser: React.FC = () => {
                             </div>
                             <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
                                 <label className="label">Username </label>
-                                <input type="text" className={"custom-input"} value={username}
+                                <input type="text" className="custom-input5" value={username}
                                        onChange={(e) => setUsername(e.target.value)}/>
                             </div>
                             <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
                                 <label className="label">Email </label>
-                                <input type="text" className={"custom-input"} value={email}
+                                <input type="text" className="custom-input5" value={email}
                                        onChange={(e) => setEmail(e.target.value)}/>
                             </div>
                             <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
                                 <label className="label">First Name </label>
-                                <input type="text" className={"custom-input"} value={firstName}
+                                <input type="text" className="custom-input5" value={firstName}
                                        onChange={(e) => setFirstName(e.target.value)}/>
                             </div>
                             <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
                                 <label className="label">Last Name </label>
-                                <input type="text" className={"custom-input"} value={lastName}
+                                <input type="text" className="custom-input5" value={lastName}
                                        onChange={(e) => setLastName(e.target.value)}/>
                             </div>
                             <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
                                 <label className="label">Birthday </label>
-                                <input type="date" className={"custom-input"} value={formattedBirthDate}
+                                <input type="date" className="custom-input5" value={formattedBirthDate}
                                        onChange={(e) => setBirthday(e.target.value ?
                                            new Date(e.target.value) : undefined)}
                                 />
                             </div>
                             <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
                                 <label className="label">Address </label>
-                                <input type="text" className={"custom-input"} value={address}
+                                <input type="text" className="custom-input5" value={address}
                                        onChange={(e) => setAddress(e.target.value)}/>
                             </div>
                         </div>
@@ -257,14 +268,14 @@ const UpdateUser: React.FC = () => {
                          style={{alignItems: "center", transform: "translateX(0)", justifyContent: "flex-end"}}>
                         <label className="label">Start Temporary Leave </label>
                         <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                            <input type="date" className={"custom-input"} value={formattedLeaveStart}
+                            <input type="date" className="custom-input5" value={formattedLeaveStart}
                                    onChange={(e) => setTempLeaveStart(e.target.value ?
                                        new Date(e.target.value) : undefined)}
                             />
                         </div>
                         <label className="label">End Temporary Leave </label>
                         <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                            <input type="date" className={"custom-input"} value={formattedLeaveEnd}
+                            <input type="date" className="custom-input5" value={formattedLeaveEnd}
                                    onChange={(e) => setTempLeaveEnd(e.target.value ?
                                        new Date(e.target.value) : undefined)}
                             />

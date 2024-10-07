@@ -4,6 +4,7 @@ import { MessageResponse } from "../Types";
 import { useCsrf } from '../utilities/CsrfContext';
 
 const ConfirmUser: React.FC = () => {
+
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
     const { csrfToken } = useCsrf();
@@ -42,7 +43,7 @@ const ConfirmUser: React.FC = () => {
         };
 
         if (token) {
-            validateToken();
+            validateToken().then();
         }
     }, [csrfToken, token, navigate]);
 

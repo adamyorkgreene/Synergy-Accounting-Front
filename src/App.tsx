@@ -13,6 +13,7 @@ import AddUser from "./components/AddUser";
 import UpdateUserSearch from "./components/UpdateUserSearch";
 import UpdateUser from "./components/UpdateUser";
 import AdminEmail from "./components/AdminEmail";
+import ChartOfAccounts from "./components/ChartOfAccounts";
 
 function App() {
     return (
@@ -33,6 +34,7 @@ function App() {
                     <Route path="/dashboard/admin/update-user-search" element={<UpdateUserSearch/>}/>
                     <Route path="/dashboard/admin/update-user" element={<UpdateUser/>}/>
                     <Route path="/dashboard/admin/send-email" element={<AdminEmail/>}/>
+                    <Route path="/dashboard/chart-of-accounts" element={<ChartOfAccounts/>}/>
                 </Routes>
             </Router>
         </div>
