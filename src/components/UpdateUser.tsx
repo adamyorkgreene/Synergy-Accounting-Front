@@ -4,6 +4,7 @@ import {MessageResponse, User, UserType} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
 import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
+import RightDashboard from "./RightDashboard";
 
 const UpdateUser: React.FC = () => {
 
@@ -138,44 +139,7 @@ const UpdateUser: React.FC = () => {
 
     return (
         <div className="dashboard" style={{height: "auto", fontFamily: "Copperplate,serif"}}>
-            <div className="right-dashboard">
-                <div className="label large-font">{loggedInUser.username}</div>
-                <div className="profile-container"
-                     onClick={() => navigate('/upload-image', {state: {csrfToken, loggedInUser}})}>
-                    <img
-                        className="profile-icon"
-                        src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser.username}.jpg`}
-                        alt="Profile Picture"
-                    />
-                </div>
-                {loggedInUser.userType === "ADMINISTRATOR" && (
-                    <>
-                        <div className="label">Admin Panel</div>
-                        <button
-                            onClick={() => navigate('/dashboard/admin/add-user', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Add User
-                        </button>
-                        <button onClick={() => navigate('/dashboard/admin/update-user-search', {
-                            state: {
-                                csrfToken,
-                                loggedInUser
-                            }
-                        })} className="control-button">Update User
-                        </button>
-                        <button
-                            onClick={() => navigate('/dashboard/admin/inbox', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Mailbox
-                        </button>
-                        <div className="extra-margin"></div>
-                    </>
-                )}
-                <div className="label">User Panel</div>
-                <button className="control-button"
-                        onClick={() => navigate("/dashboard", {state: {csrfToken, loggedInUser}})}>Home
-                </button>
-                <button className="control-button">Settings</button>
-                <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
-            </div>
+            <RightDashboard loggedInUser={loggedInUser} csrfToken={csrfToken} />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="update-user-dash">
                 <div className="update-user-column">
