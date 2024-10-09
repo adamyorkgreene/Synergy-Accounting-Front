@@ -8,24 +8,31 @@ import RightDashboard from "./RightDashboard";
 const SendAdminEmail: React.FC = () => {
 
     const navigate = useNavigate();
+
     const { csrfToken } = useCsrf();
-    const { user: loggedInUser } = useUser();
+    const { user: loggedInUser, fetchUser } = useUser();
 
     const [to, setTo] = useState<string>('');
     const [subject, setSubject] = useState<string>('');
     const [body, setBody] = useState<string>('');
 
-    useEffect(() => {
+    const [isLoading, setIsLoading] = useState(true);
 
-        if (!loggedInUser) {
-            console.log('No logged-in user found, redirecting to login...');
+    useEffect(() => {
+        const init = async () => {
+            if (!loggedInUser) {
+                await fetchUser();
+            }
+            setIsLoading(false);
+        };
+        init().then();
+    }, [loggedInUser, fetchUser]);
+
+    useEffect(() => {
+        if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
             navigate('/login');
         }
-    }, [loggedInUser, navigate]);
-
-    if (!loggedInUser) {
-        return <div>Loading...</div>;
-    }
+    }, [loggedInUser, isLoading, navigate]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -48,7 +55,7 @@ const SendAdminEmail: React.FC = () => {
                     'X-CSRF-TOKEN': csrfToken
                 },
                 credentials: 'include',
-                body: JSON.stringify({ to, from: loggedInUser.username, subject, body }),
+                body: JSON.stringify({ to, from: loggedInUser?.username, subject, body }),
             });
 
             if (response.ok) {
@@ -61,18 +68,22 @@ const SendAdminEmail: React.FC = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while sending the email. Please try again.');
+            alert('An error occurred. Please try again.');
         }
     };
 
+    if (isLoading || !csrfToken) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="dashboard">
-            <RightDashboard loggedInUser={loggedInUser} csrfToken={csrfToken} />
+            <RightDashboard />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center" style={{justifyContent: "center"}}>
                 <div className="email-dashboard">
                     <form onSubmit={handleSubmit}>
-                        <label className="label default-font"
+                        <label htmlFor="emailbody" className="label default-font"
                                style={{marginBottom: "20px", textAlign: "center", display: "block"}}>Send an
                             Email</label>
                         <div className="input-group">
@@ -80,6 +91,7 @@ const SendAdminEmail: React.FC = () => {
                                 type="text"
                                 className="custom-input"
                                 value={to}
+                                name="recipient email"
                                 onChange={(e) => setTo(e.target.value)}
                                 placeholder="Recipient email address"
                                 style={{width: "100%"}}
@@ -90,6 +102,7 @@ const SendAdminEmail: React.FC = () => {
                                 type="text"
                                 className="custom-input"
                                 value={subject}
+                                name="email subject"
                                 onChange={(e) => setSubject(e.target.value)}
                                 placeholder="Email subject"
                                 style={{width: "100%"}}
@@ -99,6 +112,8 @@ const SendAdminEmail: React.FC = () => {
                     <textarea
                         className="custom-textarea"
                         value={body}
+                        name="emailbody"
+                        id="emailbody"
                         style={{width: "75vmin"}}
                         onChange={(e) => setBody(e.target.value)}
                         placeholder="Email body"

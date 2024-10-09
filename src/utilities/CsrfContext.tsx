@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {MessageResponse} from "../Types";
 
 interface CsrfContextType {
     csrfToken: string | null;
@@ -28,7 +29,8 @@ export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
                     console.log("CSRF Token fetched successfully:", csrfData.token);
                     return;
                 } else {
-                    console.error('Failed to fetch CSRF token:', response.status);
+                    const message: MessageResponse = await response.json();
+                    console.error(message);
                 }
             } catch (error) {
                 console.error('Error fetching CSRF token:', error);

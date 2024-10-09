@@ -3,53 +3,70 @@ import { useNavigate } from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import Logo from "../assets/synergylogo.png";
-import {Account} from "../Types";
+import {Account, MessageResponse} from "../Types";
 import RightDashboard from "./RightDashboard";
 
 const ChartOfAccounts: React.FC = () => {
 
     const navigate = useNavigate();
+
     const { csrfToken } = useCsrf();
-    const { user: loggedInUser } = useUser();
+    const { user: loggedInUser, fetchUser } = useUser();
 
     const [accounts, setAccounts] = useState<Account[]>([]);
 
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
+        const init = async () => {
+            if (!loggedInUser) {
+                await fetchUser();
+            }
+            setIsLoading(false);
+        };
+        init().then();
+    }, [loggedInUser, fetchUser]);
 
-        if (!loggedInUser) {
-            console.log('No logged-in user found, redirecting to login...');
+    useEffect(() => {
+        if (!isLoading && (!loggedInUser || loggedInUser.userType === "DEFAULT")) {
             navigate('/login');
+        } else {
+            getAccounts().then();
         }
+    }, [loggedInUser, isLoading, navigate]);
 
-        const getAccounts = async () => {
+    const getAccounts = async () => {
+        if (!csrfToken) {
+            console.error('CSRF token is not available.');
+            return;
+        }
+        try {
+            const response = await fetch(`https://synergyaccounting.app/api/accounts/chart-of-accounts`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'include'
+            });
 
-            if (!csrfToken) {
-                console.error('CSRF token is not available.');
+            if (response.ok) {
+                const accounts: Account[] = await response.json();
+                setAccounts(accounts);
+            } else if (response.status === 403) {
+                alert('You do not have permission to access this resource.');
+                navigate('/dashboard');
+                return;
+            } else {
+                const message: MessageResponse = await response.json();
+                alert(message);
+                navigate('/dashboard');
                 return;
             }
-
-            try {
-                const response = await fetch(`https://synergyaccounting.app/api/accounts/chart-of-accounts`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    const accounts: Account[] = await response.json();
-                    setAccounts(accounts);
-                }
-            } catch (error) {
-                alert('An error has occurred. Please try again! Please try again.');
-                navigate('/dashboard');
-            }
-        };
-
-        getAccounts().then();
-
-    }, [loggedInUser, navigate]);
+        } catch (error) {
+            alert('An error has occurred. Please try again! Please try again.');
+            navigate('/dashboard');
+        }
+    };
 
     const handleSort = (key: keyof Account) => {
         const sortedAccounts = [...accounts].sort((a, b) => {
@@ -75,13 +92,13 @@ const ChartOfAccounts: React.FC = () => {
         setAccounts(sortedAccounts);
     };
 
-    if (!loggedInUser) {
+    if (isLoading || !csrfToken) {
         return <div>Loading...</div>;
     }
 
     return (
         <div className="dashboard" style={{height: "auto", minHeight: "100vh"}}>
-            <RightDashboard loggedInUser={loggedInUser} csrfToken={csrfToken} />
+            <RightDashboard />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center" style={{top: "unset", justifyContent: "unset"}}>
                 <div className="chart-container">

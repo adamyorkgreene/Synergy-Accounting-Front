@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {MessageResponse, User, UserType} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
@@ -6,12 +6,18 @@ import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
 import RightDashboard from "./RightDashboard";
 
-const UpdateUser: React.FC = () => {
+interface UpdateUserProps {
+    userResponse: User | null;
+    setUserResponse: (userResponse: User | null) => void;
+}
+
+const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) => {
 
     const navigate = useNavigate();
     const location = useLocation();
+
     const {csrfToken} = useCsrf();
-    const { user: loggedInUser, setUser } = useUser();
+    const { user: loggedInUser, setUser: setLoggedInUser, fetchUser } = useUser();
 
     const [email, setEmail] = useState<string>('');
     const [emailPassword, setEmailPassword] = useState<string>('');
@@ -31,15 +37,41 @@ const UpdateUser: React.FC = () => {
 
     const [birthday, setBirthday] = useState<Date>();
 
+    useEffect(() => {
+        if (location.state && location.state.userResponse) {
+            setUserResponse(location.state.userResponse as User);
+        }
+    }, [location.state, userResponse, setUserResponse]);
+
     const formattedBirthDate: string = birthday instanceof Date && !isNaN(birthday.getTime()) ? birthday.toISOString().substring(0, 10) : '';
     const formattedLeaveStart: string = tempLeaveStart instanceof Date && !isNaN(tempLeaveStart.getTime()) ? tempLeaveStart.toISOString().substring(0, 10) : '';
     const formattedLeaveEnd: string = tempLeaveEnd instanceof Date && !isNaN(tempLeaveEnd.getTime()) ? tempLeaveEnd.toISOString().substring(0, 10) : '';
 
-    const userResponse: User = location.state?.userResponse;
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const init = async () => {
+            if (!loggedInUser) {
+                await fetchUser();
+            }
+            setIsLoading(false);
+        };
+        init().then();
+    }, [loggedInUser, fetchUser]);
+
+    useEffect(() => {
+        if (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR") {
+            navigate('/login');
+        }
+    }, [loggedInUser, isLoading, navigate]);
+    useEffect(() => {
+        if (!csrfToken) {
+            navigate('/login');
+        }
+    }, [csrfToken, navigate]);
 
     useEffect(() => {
         if (!loggedInUser) {
-            console.log('No logged-in user found, redirecting to login...');
             navigate('/login');
         }
         if (!userResponse) {
@@ -47,7 +79,7 @@ const UpdateUser: React.FC = () => {
             navigate('/dashboard')
             return;
         }
-
+        console.log('adjusting user data now...')
         setEmail(userResponse.email ?? "");
         setUsername(userResponse.username ?? "");
         setUserType(userResponse.userType ?? UserType.DEFAULT);
@@ -63,11 +95,10 @@ const UpdateUser: React.FC = () => {
         setTempLeaveStart(userResponse.tempLeaveStart ? new Date(userResponse.tempLeaveStart) : undefined);
         setTempLeaveEnd(userResponse.tempLeaveEnd ? new Date(userResponse.tempLeaveEnd) : undefined);
         setEmailPassword(userResponse.emailPassword ?? "");
-
-
+        console.log('user data adjusted..')
     }, [loggedInUser, navigate, userResponse]);
 
-    if (!loggedInUser) {
+    if (isLoading || !csrfToken) {
         return <div>Loading...</div>;
     }
 
@@ -77,21 +108,16 @@ const UpdateUser: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         if (!firstName || !lastName || !email) {
             alert('First name, last name, and email must be kept at a minimum.');
             return;
         }
-
         if (!csrfToken) {
             alert('Failed to get CSRF token. Please try again.');
             return;
         }
-
         try {
-
             const response = await fetch('https://synergyaccounting.app/api/admin/updateuser', {
-
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -115,39 +141,34 @@ const UpdateUser: React.FC = () => {
                     emailPassword
                 }),
             });
-
             if (response.ok) {
-                const userResponse: User = await response.json();
-                alert("User: " + userResponse.username + " has been updated");
-
-                if (loggedInUser && loggedInUser.userid === userResponse.userid) {
-                    setUser(userResponse)
+                const updatedUser: User = await response.json();
+                alert("User: " + updatedUser.username + " has been updated");
+                if (updatedUser.userid === loggedInUser?.userid) {
+                    setLoggedInUser(updatedUser);
                 }
-
-                navigate('/dashboard/admin/update-user', {state: {csrfToken, loggedInUser, userResponse}});
+                setUserResponse(updatedUser);
+                navigate('/dashboard/admin/update-user', {state: ({userResponse: updatedUser})});
             } else {
                 const msgResponse: MessageResponse = await response.json();
                 alert(msgResponse.message);
             }
-
         } catch (error) {
             console.error('Error:', error);
-            alert('Your session has expired. Refreshing page..');
-            navigate('/login');
+            alert('An error occurred. Please try again.');
         }
     };
-
     return (
         <div className="dashboard" style={{height: "auto", fontFamily: "Copperplate,serif"}}>
-            <RightDashboard loggedInUser={loggedInUser} csrfToken={csrfToken} />
+            <RightDashboard />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="update-user-dash">
                 <div className="update-user-column">
                     <div className="profile-container"
-                         onClick={() => navigate('/upload-image', {state: {csrfToken, userResponse}})}>
+                         onClick={() => navigate('/upload-image', {state: {userResponse}})}>
                         <img
                             className="profile-icon"
-                            src={`https://synergyaccounting.app/api/dashboard/uploads/${userResponse.username}.jpg`}
+                            src={`https://synergyaccounting.app/api/dashboard/uploads/${userResponse?.userid.toString()}.jpg`}
                             alt="Profile Picture"
                         />
                     </div>
@@ -179,13 +200,14 @@ const UpdateUser: React.FC = () => {
                     </div>
                     <div>
                         <div className="input-group">
-                            <label className="label">Role </label>
+                            <label htmlFor="updaterole" className="label">Role </label>
                             <select
-                                id="dropdown"
+                                id="updaterole"
                                 value={userType}
                                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange(e)}
                                 className="dropdown-custom"
                                 style={{height: "3.771vmin"}}
+                                name="role"
                             >
                                 <option value={UserType.USER}>User</option>
                                 <option value={UserType.MANAGER}>Manager</option>
@@ -199,25 +221,23 @@ const UpdateUser: React.FC = () => {
                             {label: 'Last Name', value: lastName, setValue: setLastName},
                             {
                                 label: 'Birthday',
-                                value: formattedBirthDate,
-                                setValue: (e: React.ChangeEvent<HTMLInputElement>) => setBirthday(e.target.value ? new Date(e.target.value) : undefined),
+                                value: formattedBirthDate || '',
+                                setValue: (dateString: string) => setBirthday(dateString ? new Date(dateString) : undefined),
                                 type: 'date'
                             },
                             {label: 'Address', value: address, setValue: setAddress}
                         ].map(({label, value, setValue, type = 'text'}, index) => (
                             <div className="input-group" key={index}
                                  style={{margin: "1.5625vmin 0", height: "3.771vmin"}}>
-                                <label className="label">{label} </label>
+                                <label htmlFor={"update" + label} className="label">{label} </label>
                                 <input
                                     type={type}
+                                    name={label}
+                                    id={"update" + label}
                                     className="custom-input"
-                                    value={value}
+                                    value={value || ''}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                        if (type === 'date') {
-                                            setValue((e.target.value ? new Date(e.target.value) : undefined) as any);
-                                        } else {
-                                            setValue(e.target.value as any);
-                                        }
+                                        setValue(e.target.value as any);
                                     }}
                                 />
                             </div>
@@ -226,14 +246,14 @@ const UpdateUser: React.FC = () => {
                 </div>
                 <div style={{width: "12.5vmin"}}></div>
                 <div className="update-user-column" style={{justifyContent: "space-around"}}>
-                    <label className="label">Start Temporary Leave </label>
+                    <label htmlFor="updatestarttempleave" className="label">Start Temporary Leave </label>
                     <div className="input-group" style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
-                        <input type="date" className="custom-input" value={formattedLeaveStart}
+                        <input type="date" className="custom-input" value={formattedLeaveStart} name="leavestart" id="updatestarttempleave"
                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveStart(e.target.value ? new Date(e.target.value) : undefined)}/>
                     </div>
-                    <label className="label">End Temporary Leave </label>
+                    <label htmlFor="updateendtempleave" className="label">End Temporary Leave </label>
                     <div className="input-group" style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
-                        <input type="date" className="custom-input" value={formattedLeaveEnd}
+                        <input type="date" className="custom-input" value={formattedLeaveEnd} name="leaveend" id="updateendtempleave"
                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveEnd(e.target.value ? new Date(e.target.value) : undefined)}/>
                     </div>
                     <form style={{marginTop: "auto"}} onSubmit={handleSubmit}>

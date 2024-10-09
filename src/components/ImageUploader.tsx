@@ -1,21 +1,32 @@
 import React, {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
+import {User} from "../Types";
 
 const ImageUpload: React.FC = () => {
+
     const [image, setImage] = useState<File | null>(null);
     const [message, setMessage] = useState<string>('');
+
+    const location = useLocation();
+
+    const userResponse: User = location.state?.userResponse;
+
     const navigate = useNavigate();
+
     const { csrfToken } = useCsrf();
     const { user: loggedInUser } = useUser();
 
     useEffect(() => {
-        if (!loggedInUser) {
-            alert('You need to be logged in to access this page.');
+        if (!loggedInUser || loggedInUser.userType === "DEFAULT") {
             navigate('/login');
         }
     }, [loggedInUser, navigate]);
+
+    if (!loggedInUser || !csrfToken) {
+        return <div>Loading...</div>;
+    }
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
@@ -25,28 +36,24 @@ const ImageUpload: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
         if (!image) {
             alert("Please select an image to upload");
             return;
         }
-
-        if (!loggedInUser || !csrfToken) {
-            alert("You need to be logged in to upload an image");
-            navigate('/login');
+        if (!csrfToken || !loggedInUser) {
+            console.error('User is not properly authenticated.');
+            alert("You are not properly authenticated. Please try again.")
             return;
         }
-
         const formData = new FormData();
         formData.append('file', image);
-
         try {
             const response = await fetch('https://synergyaccounting.app/api/dashboard/upload-image', {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
-                    'user': loggedInUser.username
+                    'user': userResponse ? userResponse.userid.toString() : loggedInUser.userid.toString()
                 },
                 credentials: 'include'
             });

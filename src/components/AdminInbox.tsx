@@ -10,64 +10,73 @@ import RightDashboard from "./RightDashboard";
 const AdminInbox: React.FC = () => {
 
     const navigate = useNavigate();
+
     const { csrfToken } = useCsrf();
-    const { user: loggedInUser } = useUser();
+    const { user: loggedInUser, fetchUser } = useUser();
 
     const [emails, setEmails] = useState<Email[] | null>([]);
     const [selectedEmails, setSelectedEmails] = useState<Email[]>([]);
-
     const [clickedEmail, setClickedEmail] = useState<Email | null>();
-
     const [isEmailOpen, setIsEmailOpen] = useState(false);
 
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
-
-        if (!loggedInUser) {
-            console.log('No logged-in user found, redirecting to login...');
-            navigate('/login');
-        }
-
-        const getEmails = async () => {
-
-            if (!csrfToken) {
-                console.error('CSRF token is not available.');
-                return;
+        const init = async () => {
+            if (!loggedInUser) {
+                await fetchUser();
             }
-
-            try {
-                const response = await fetch(`https://synergyaccounting.app/api/admin/emails/${loggedInUser?.username}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    credentials: 'include'
-                });
-
-                if (!(response.status === 204)) {
-                    if (response.ok) {
-                        const emails: Email[] = await response.json();
-                        const sortedEmails = emails.sort((a, b) => {
-                            return new Date(b.date).getTime() - new Date(a.date).getTime();
-                        });
-                        setEmails(sortedEmails);
-                    } else {
-                        const message: MessageResponse = await response.json();
-                        alert(message.message);
-                    }
-                } else {
-                    setEmails(null);
-                }
-
-            } catch (error) {
-                alert('An error has occurred. Please try again.');
-                console.log(error);
-                navigate('/dashboard');
-            }
+            setIsLoading(false);
         };
+        init().then();
+    }, [loggedInUser, fetchUser]);
 
-        getEmails().then();
+    useEffect(() => {
+        if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
+            navigate('/login');
+        } else {
+            getEmails().then();
+        }
+    }, [loggedInUser, isLoading, navigate]);
 
-    }, [loggedInUser, navigate]);
+    const getEmails = async () => {
+        if (!csrfToken) {
+            console.error('CSRF token is not available.');
+            return;
+        }
+        try {
+            const response = await fetch(`https://synergyaccounting.app/api/admin/emails/${loggedInUser?.username}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'include'
+            });
+
+            if (response.status === 403) {
+                alert('You do not have permission to view these emails.');
+                navigate('/dashboard');
+                return;
+            } else if (response.status === 204) {
+                setEmails(null);
+                return;
+            } else if (response.ok) {
+                const emails: Email[] = await response.json();
+                const sortedEmails = emails.sort((a, b) => {
+                    return new Date(b.date).getTime() - new Date(a.date).getTime();
+                });
+                setEmails(sortedEmails);
+            } else {
+                const message: MessageResponse = await response.json();
+                alert(message.message);
+            }
+
+        } catch (error) {
+            alert('An error has occurred. Please try again.');
+            console.log(error);
+            navigate('/dashboard');
+        }
+    };
 
     const handleChange = async (email: Email, isChecked: boolean) => {
         if (emails) {
@@ -105,6 +114,11 @@ const AdminInbox: React.FC = () => {
                 credentials: 'include',
                 body: JSON.stringify(selectedEmails)
             });
+
+            if (response.status === 403) {
+                alert('You do not have permission to delete these emails.');
+                return;
+            }
 
             const responseMsg: MessageResponse = await response.json();
             alert(responseMsg.message)
@@ -145,19 +159,19 @@ const AdminInbox: React.FC = () => {
             });
             setEmails(sortedEmails);
         }
-    };
+    }
 
-    if (!loggedInUser) {
+    if (isLoading || !csrfToken) {
         return <div>Loading...</div>;
     }
 
     return (
         <div className="dashboard" style={{height: "auto", minHeight: "100vh"}}>
-            <RightDashboard loggedInUser={loggedInUser} csrfToken={csrfToken} />
+            <RightDashboard />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center" style={{top: "unset", justifyContent: "unset"}}>
                 <div className="chart-container">
-                    <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>Inbox</label>
+                    <div className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin", display: "unset"}}>Inbox</div>
                     <button className="control-button add-account-button"
                             onClick={handleDelete}
                             disabled={selectedEmails?.length === 0}
