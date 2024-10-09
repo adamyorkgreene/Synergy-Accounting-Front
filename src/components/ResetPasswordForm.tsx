@@ -107,21 +107,21 @@ const ResetPasswordForm: React.FC = () => {
     };
 
     return (
-
         <header className="app-header">
             <img src={Logo} alt="Synergy" className="logo"/>
-            <div className={"container"}>
+            <div className="container">
                 <div className="content">
                     <label className="center-text">Reset your Password</label>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">
                             <label className="label">New Password </label>
-                            <input className="custom-input5" type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                            <input className="custom-input" type="password" value={password}
+                                   onChange={(e) => setPassword(e.target.value)}/>
                         </div>
                         <div className="input-group">
                             <label className="label">Confirm Password </label>
-                            <input className="custom-input5" type="password" value={confPassword}
+                            <input className="custom-input" type="password" value={confPassword}
                                    onChange={(e) => setConfPassword(e.target.value)}/>
                         </div>
                         <div className="extra-margin"></div>
@@ -132,7 +132,6 @@ const ResetPasswordForm: React.FC = () => {
                 </div>
             </div>
         </header>
-
     );
 };
 

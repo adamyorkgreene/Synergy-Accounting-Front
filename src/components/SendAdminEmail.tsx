@@ -4,7 +4,7 @@ import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import Logo from "../assets/synergylogo.png";
 
-const AdminEmail: React.FC = () => {
+const SendAdminEmail: React.FC = () => {
 
     const navigate = useNavigate();
     const { csrfToken } = useCsrf();
@@ -47,14 +47,13 @@ const AdminEmail: React.FC = () => {
                     'X-CSRF-TOKEN': csrfToken
                 },
                 credentials: 'include',
-                body: JSON.stringify({ to, from: loggedInUser, subject, body }),
+                body: JSON.stringify({ to, from: loggedInUser.username, subject, body }),
             });
 
             if (response.ok) {
                 alert('Email has been sent successfully.');
-                setTo('');
-                setSubject('');
-                setBody('');
+                navigate('/dashboard/admin/inbox')
+
             } else {
                 const errorResponse = await response.json();
                 alert(`Failed to send email: ${errorResponse.message}`);
@@ -67,85 +66,89 @@ const AdminEmail: React.FC = () => {
 
     return (
         <div className="dashboard">
-            <img src={Logo} alt="Synergy" className="dashboard-logo" />
+            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center" style={{justifyContent: "center"}}>
                 <div className="email-dashboard">
                     <form onSubmit={handleSubmit}>
-                        <label className="label3">Send an Email</label>
-                        <div className="input-group3">
+                        <label className="label default-font"
+                               style={{marginBottom: "20px", textAlign: "center", display: "block"}}>Send an
+                            Email</label>
+                        <div className="input-group">
                             <input
                                 type="text"
-                                className="custom-input3"
+                                className="custom-input"
                                 value={to}
                                 onChange={(e) => setTo(e.target.value)}
                                 placeholder="Recipient email address"
+                                style={{width: "100%"}}
                             />
                         </div>
-                        <div className="input-group3">
+                        <div className="input-group">
                             <input
                                 type="text"
-                                className="custom-input3"
+                                className="custom-input"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
                                 placeholder="Email subject"
+                                style={{width: "100%"}}
                             />
                         </div>
-                        <div className="input-group3">
-                            <textarea
-                                className="custom-textarea3 custom-input3"
-                                value={body}
-                                style={{width: "75vmin"}}
-                                onChange={(e) => setBody(e.target.value)}
-                                placeholder="Email body"
-                                rows={10}
-                            />
+                        <div className="input-group">
+                    <textarea
+                        className="custom-textarea"
+                        value={body}
+                        style={{width: "75vmin"}}
+                        onChange={(e) => setBody(e.target.value)}
+                        placeholder="Email body"
+                        rows={10}
+                    />
                         </div>
-
-                        <div className="input-group3">
-                            <button type="submit" className="custom-button3">Send Email</button>
+                        <div className="input-group">
+                            <button type="submit" className="custom-button">Send Email</button>
                         </div>
                     </form>
                 </div>
             </div>
             <div className="right-dashboard">
-                <div className="username-label">{loggedInUser.username}</div>
+                <div className="label large-font">{loggedInUser.username}</div>
                 <div className="profile-container"
-                     onClick={() => (navigate('/upload-image', {state: {csrfToken, loggedInUser}}))}>
+                     onClick={() => navigate('/upload-image', {state: {csrfToken, loggedInUser}})}>
                     <img
                         className="profile-icon"
                         src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser.username}.jpg`}
                         alt="Profile Picture"
                     />
                 </div>
-                {loggedInUser.userType === "ADMINISTRATOR" ? (
+                {loggedInUser.userType === "ADMINISTRATOR" && (
                     <>
-                        <div className="label2">Admin Panel</div>
+                        <div className="label large-font">Admin Panel</div>
                         <button
                             onClick={() => navigate('/dashboard/admin/add-user', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Add
-                            User
+                            className="control-button">Add User
                         </button>
                         <button onClick={() => navigate('/dashboard/admin/update-user-search', {
-                            state: {csrfToken, loggedInUser}
+                            state: {
+                                csrfToken,
+                                loggedInUser
+                            }
                         })} className="control-button">Update User
                         </button>
                         <button
-                            onClick={() => navigate('/dashboard/admin/send-email', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Send Email
+                            onClick={() => navigate('/dashboard/admin/inbox', {state: {csrfToken, loggedInUser}})}
+                            className="control-button">Mailbox
                         </button>
-                        <div className="add_space"></div>
+                        <div className="extra-margin"></div>
                     </>
-                ) : null}
-                <div className="label2">User Panel</div>
+                )}
+                <div className="label large-font">User Panel</div>
                 <button className="control-button"
-                        onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home
+                        onClick={() => navigate("/dashboard", {state: {csrfToken, loggedInUser}})}>Home
                 </button>
                 <button className="control-button">Settings</button>
-                <button className="control-button" onClick={() => (navigate("/logout"))}>Log Out</button>
+                <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
             </div>
         </div>
-
     );
 };
 
-export default AdminEmail;
+export default SendAdminEmail;

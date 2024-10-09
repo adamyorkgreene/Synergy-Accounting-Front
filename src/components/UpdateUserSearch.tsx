@@ -76,35 +76,36 @@ const UpdateUserSearch: React.FC = () => {
     return (
         <div className="dashboard">
             <div className="right-dashboard">
-                <div className="username-label">{loggedInUser.username}</div>
+                <div className="label large-font">{loggedInUser.username}</div>
                 <div className="profile-container"
-                     onClick={() => (navigate('/upload-image', {state: {csrfToken, loggedInUser}}))}>
+                     onClick={() => navigate('/upload-image', {state: {csrfToken, loggedInUser}})}>
                     <img
                         className="profile-icon"
                         src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser.username}.jpg`}
                         alt="Profile Picture"
                     />
                 </div>
-                {loggedInUser.userType === "ADMINISTRATOR" ? (
+                {loggedInUser.userType === "ADMINISTRATOR" && (
                     <>
-                        <div className="label2">Admin Panel</div>
+                        <div className="label large-font">Admin Panel</div>
                         <button
                             onClick={() => navigate('/dashboard/admin/add-user', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Add
-                            User
+                            className="control-button">Add User
                         </button>
                         <button className="control-button">Update User</button>
                         <button
-                            onClick={() => navigate('/dashboard/admin/send-email', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Send Email
+                            onClick={() => navigate('/dashboard/admin/inbox', {state: {csrfToken, loggedInUser}})}
+                            className="control-button">Mailbox
                         </button>
-                        <div className="add_space"></div>
+                        <div className="extra-margin"></div>
                     </>
-                ) : null}
-                <div className="label2">User Panel</div>
-                <button className="control-button" onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home</button>
+                )}
+                <div className="label large-font">User Panel</div>
+                <button className="control-button"
+                        onClick={() => navigate("/dashboard", {state: {csrfToken, loggedInUser}})}>Home
+                </button>
                 <button className="control-button">Settings</button>
-                <button className="control-button" onClick={() => (navigate("/logout"))}>Log Out</button>
+                <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
             </div>
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center">
@@ -114,15 +115,17 @@ const UpdateUserSearch: React.FC = () => {
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">
                             <label className="label">Email </label>
-                            <input type="text" className="custom-input5" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                            <input type="text" className="custom-input" value={email}
+                                   onChange={(e) => setEmail(e.target.value)}/>
                         </div>
                         <div className="input-group">
                             <label className="label">User ID </label>
-                            <input type="text" className="custom-input5" value={userid} onChange={(e) => setUserid(e.target.value)}/>
+                            <input type="text" className="custom-input" value={userid}
+                                   onChange={(e) => setUserid(e.target.value)}/>
                         </div>
                         <div className="input-group">
                             <label className="label">Username </label>
-                            <input className="custom-input5" type="text" value={username}
+                            <input type="text" className="custom-input" value={username}
                                    onChange={(e) => setUsername(e.target.value)}/>
                         </div>
                         <div className="extra-margin"></div>
@@ -134,7 +137,6 @@ const UpdateUserSearch: React.FC = () => {
             </div>
         </div>
     );
-
 };
 
 export default UpdateUserSearch;

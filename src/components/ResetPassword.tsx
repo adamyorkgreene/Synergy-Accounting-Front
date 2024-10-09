@@ -38,11 +38,10 @@ const ResetPassword: React.FC = () => {
     };
 
     return (
-
         <header className="app-header">
             <img src={Logo} alt="Synergy" className="logo"/>
-            <div className={"container"}>
-                <div className="content">
+            <div className="container" style={{paddingTop: "20vh"}}>
+                <div className="content" style={{scale: "1.3"}}>
                     <label className="center-text">Reset your Password</label>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
@@ -52,7 +51,7 @@ const ResetPassword: React.FC = () => {
                                 type="text"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="custom-input5"
+                                className="custom-input"
                             />
                         </div>
                         <div className="extra-margin"></div>
@@ -63,7 +62,6 @@ const ResetPassword: React.FC = () => {
                 </div>
             </div>
         </header>
-
     );
 };
 

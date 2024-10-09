@@ -12,8 +12,9 @@ import ImageUpload from "./components/ImageUploader";
 import AddUser from "./components/AddUser";
 import UpdateUserSearch from "./components/UpdateUserSearch";
 import UpdateUser from "./components/UpdateUser";
-import AdminEmail from "./components/AdminEmail";
+import SendAdminEmail from "./components/SendAdminEmail";
 import ChartOfAccounts from "./components/ChartOfAccounts";
+import AdminInbox from "./components/AdminInbox";
 
 function App() {
     return (
@@ -33,7 +34,8 @@ function App() {
                     <Route path="/dashboard/admin/add-user" element={<AddUser/>}/>
                     <Route path="/dashboard/admin/update-user-search" element={<UpdateUserSearch/>}/>
                     <Route path="/dashboard/admin/update-user" element={<UpdateUser/>}/>
-                    <Route path="/dashboard/admin/send-email" element={<AdminEmail/>}/>
+                    <Route path="/dashboard/admin/send-email" element={<SendAdminEmail/>}/>
+                    <Route path="/dashboard/admin/inbox" element={<AdminInbox/>}/>
                     <Route path="/dashboard/chart-of-accounts" element={<ChartOfAccounts/>}/>
                 </Routes>
             </Router>

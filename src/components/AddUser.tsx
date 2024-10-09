@@ -109,18 +109,18 @@ const AddUser: React.FC = () => {
     return (
         <div className="dashboard">
             <div className="right-dashboard">
-                <div className="username-label">{loggedInUser.username}</div>
+                <div className="label large-font">{loggedInUser.username}</div>
                 <div className="profile-container"
-                     onClick={() => (navigate('/upload-image', {state: {csrfToken, loggedInUser}}))}>
+                     onClick={() => navigate('/upload-image', {state: {csrfToken, loggedInUser}})}>
                     <img
                         className="profile-icon"
                         src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser.username}.jpg`}
                         alt="Profile Picture"
                     />
                 </div>
-                {loggedInUser.userType === "ADMINISTRATOR" ? (
+                {loggedInUser.userType === "ADMINISTRATOR" && (
                     <>
-                        <div className="label2">Admin Panel</div>
+                        <div className="label large-font">Admin Panel</div>
                         <button className="control-button">Add User</button>
                         <button onClick={() => navigate('/dashboard/admin/update-user-search', {
                             state: {
@@ -131,16 +131,18 @@ const AddUser: React.FC = () => {
                                 className="control-button">Update User
                         </button>
                         <button
-                            onClick={() => navigate('/dashboard/admin/send-email', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Send Email
+                            onClick={() => navigate('/dashboard/admin/inbox', {state: {csrfToken, loggedInUser}})}
+                            className="control-button">Mailbox
                         </button>
-                        <div className="add_space"></div>
+                        <div className="extra-margin"></div>
                     </>
-                ) : null}
-                <div className="label2">User Panel</div>
-                <button className="control-button" onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home</button>
+                )}
+                <div className="label large-font">User Panel</div>
+                <button className="control-button"
+                        onClick={() => navigate("/dashboard", {state: {csrfToken, loggedInUser}})}>Home
+                </button>
                 <button className="control-button">Settings</button>
-                <button className="control-button" onClick={() => (navigate("/logout"))}>Log Out</button>
+                <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
             </div>
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center">
@@ -148,32 +150,26 @@ const AddUser: React.FC = () => {
                     <label className="center-text">Add a new User</label>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
-                        <div className="input-group">
-                            <label className="label">User Email </label>
-                            <input type="text" className="custom-input5" value={email} onChange={(e) => setEmail(e.target.value)}/>
-                        </div>
-                        <div className="input-group">
-                            <label className="label">Confirm Email </label>
-                            <input type="text"
-                                   className="custom-input5" value={confEmail} onChange={(e) => setConfEmail(e.target.value)}/>
-                        </div>
-                        <div className="input-group">
-                            <label className="label">First Name </label>
-                            <input type="text"
-                                   className="custom-input5" value={firstName} onChange={(e) => setFirstName(e.target.value)}/>
-                        </div>
-                        <div className="input-group">
-                            <label className="label">Last Name </label>
-                            <input className="custom-input5" type="text" value={lastName}
-                                   onChange={(e) => setLastName(e.target.value)}/>
-                        </div>
+                        {[
+                            {label: 'User Email', value: email, setValue: setEmail},
+                            {label: 'Confirm Email', value: confEmail, setValue: setConfEmail},
+                            {label: 'First Name', value: firstName, setValue: setFirstName},
+                            {label: 'Last Name', value: lastName, setValue: setLastName},
+                            {label: 'Address', value: address, setValue: setAddress}
+                        ].map(({label, value, setValue}, index) => (
+                            <div className="input-group" key={index}>
+                                <label className="label">{label}</label>
+                                <input type="text" className="custom-input" value={value}
+                                       onChange={(e) => setValue(e.target.value)}/>
+                            </div>
+                        ))}
                         <div className="input-group">
                             <label className="label">Role </label>
                             <select
                                 id="dropdown"
                                 value={userType}
                                 onChange={handleChange}
-                                className="dropdown-custom"
+                                className="custom-input"
                             >
                                 <option value={UserType.USER}>User</option>
                                 <option value={UserType.MANAGER}>Manager</option>
@@ -184,14 +180,10 @@ const AddUser: React.FC = () => {
                             <label className="label">Birthday </label>
                             <input
                                 type="date"
-                                className="custom-input5"
+                                className="custom-input"
                                 value={birthDate ? birthDate.toISOString().substring(0, 10) : ""}
                                 onChange={(e) => setBirthDate(e.target.value ? new Date(e.target.value) : undefined)}
                             />
-                        </div>
-                        <div className="input-group">
-                            <label className="label">Address </label>
-                            <input type="text" className="custom-input5" value={address} onChange={(e) => setAddress(e.target.value)}/>
                         </div>
                         <div className="extra-margin"></div>
                         <div className="input-group">

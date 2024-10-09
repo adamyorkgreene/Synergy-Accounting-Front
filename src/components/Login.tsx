@@ -86,41 +86,42 @@ const Login: React.FC = () => {
     }
 
     return (
-            <header className="app-header">
-                <img src={Logo} alt="Synergy" className="logo"/>
-                <div className={"container"}>
-                    <div className="content">
-                        <label className="center-text">Please Login to Continue</label>
+        <header className="app-header">
+            <img src={Logo} alt="Synergy" className="logo"/>
+            <div className="container" style={{paddingTop: "5vh"}}>
+                <div className="content" style={{scale: "1.3", transform: "translateY(5vh)"}}>
+                    <label className="center-text">Please Login to Continue</label>
+                    <div className="extra-margin"></div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="input-group">
+                            <label className="label">Email </label>
+                            <input type="text" className="custom-input" value={email}
+                                   onChange={(e) => setEmail(e.target.value)}/>
+                        </div>
+                        <div className="input-group">
+                            <label className="label">Password </label>
+                            <input className="custom-input" type="password" value={password}
+                                   onChange={(e) => setPassword(e.target.value)}/>
+                        </div>
                         <div className="extra-margin"></div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="input-group">
-                                <label className="label">Email </label>
-                                <input type="text" className="custom-input5" value={email} onChange={(e) => setEmail(e.target.value)}/>
-                            </div>
-                            <div className="input-group">
-                                <label className="label">Password </label>
-                                <input className="custom-input5" type="password" value={password}
-                                       onChange={(e) => setPassword(e.target.value)}/>
-                            </div>
-                            <div className="extra-margin"></div>
-                            <div className="input-group">
-                                <button type="submit" className="custom-button">Login</button>
-                            </div>
-                            <div className="input-group">
-                                <button onClick={() => (navigate('/register', {state: {csrfToken}}))} disabled={loading}
-                                        className="custom-button">Don't have an account?
-                                </button>
-                            </div>
-                            <div className="input-group">
-                                <button onClick={() => (navigate('/forgot-password', {state: {csrfToken}}))}
-                                        className="custom-button">Forgot your
-                                    password?
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div className="input-group">
+                            <button type="submit" className="custom-button">Login</button>
+                        </div>
+                        <div className="input-group">
+                            <button onClick={() => navigate('/register', {state: {csrfToken}})} disabled={loading}
+                                    className="custom-button">Don't have an account?
+                            </button>
+                        </div>
+                        <div className="input-group">
+                            <button onClick={() => navigate('/forgot-password', {state: {csrfToken}})}
+                                    className="custom-button">Forgot your password?
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </header>
+            </div>
+        </header>
+
     );
 };
 

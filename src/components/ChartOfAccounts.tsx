@@ -41,8 +41,8 @@ const ChartOfAccounts: React.FC = () => {
                     setAccounts(accounts);
                 }
             } catch (error) {
-                alert('Error validating confirmation token! Please try again.');
-                navigate('/login');
+                alert('An error has occurred. Please try again! Please try again.');
+                navigate('/dashboard');
             }
         };
 
@@ -79,91 +79,79 @@ const ChartOfAccounts: React.FC = () => {
     }
 
     return (
-        <div className="dashboard">
+        <div className="dashboard" style={{height: "auto", minHeight: "100vh"}}>
             <div className="right-dashboard">
-                <div className="username-label">{loggedInUser.username}</div>
+                <div className="label large-font">{loggedInUser.username}</div>
                 <div className="profile-container"
-                     onClick={() => (navigate('/upload-image', {state: {csrfToken, loggedInUser}}))}>
+                     onClick={() => navigate('/upload-image', {state: {csrfToken, loggedInUser}})}>
                     <img
                         className="profile-icon"
                         src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser.username}.jpg`}
                         alt="Profile Picture"
                     />
                 </div>
-                {loggedInUser.userType === "ADMINISTRATOR" ? (
+                {loggedInUser.userType === "ADMINISTRATOR" && (
                     <>
-                        <div className="label2">Admin Panel</div>
+                        <div className="label large-font">Admin Panel</div>
                         <button
                             onClick={() => navigate('/dashboard/admin/add-user', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Add
-                            User
+                            className="control-button">Add User
                         </button>
-                        <button onClick={() => navigate('/dashboard/admin/update-user-search', {
-                            state: {
-                                csrfToken,
-                                loggedInUser
-                            }
-                        })}
-                                className="control-button">Update User
-                        </button>
+                        <button className="control-button">Update User</button>
                         <button
-                            onClick={() => navigate('/dashboard/admin/send-email', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Send Email
+                            onClick={() => navigate('/dashboard/admin/inbox', {state: {csrfToken, loggedInUser}})}
+                            className="control-button">Mailbox
                         </button>
-                        <div className="add_space"></div>
+                        <div className="extra-margin"></div>
                     </>
-                ) : null}
-                <div className="label2">User Panel</div>
+                )}
+                <div className="label large-font">User Panel</div>
                 <button className="control-button"
-                        onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home
+                        onClick={() => navigate("/dashboard", {state: {csrfToken, loggedInUser}})}>Home
                 </button>
                 <button className="control-button">Settings</button>
-                <button className="control-button" onClick={() => (navigate("/logout"))}>Log Out</button>
+                <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
             </div>
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="coa-user-dash">
-                <div className="dashboard-columns">
-                    <div className="update-user-column" style={{width: "25%"}}></div>
-                    <div className="update-user-column" style={{width: "50%", flexDirection: "unset"}}>
-                        <label className="center-text" style={{color: "black", fontSize: "5vmin"}}>Chart of
-                            Accounts</label>
-                    </div>
-                    <div className="update-user-column" style={{width: "25%", flexDirection: "row-reverse"}}>
-                        <button className="control-button" style={{width: "unset", height: "unset"}}>+</button>
-                    </div>
-                </div>
-                <table id="chartOfAccountsTable">
-                    <thead>
-                    <tr>
-                        <th onClick={() => handleSort('accountNumber')}>Account Number</th>
-                        <th onClick={() => handleSort('accountName')}>Account Name</th>
-                        <th onClick={() => handleSort('accountDescription')}>Account Description</th>
-                        <th onClick={() => handleSort('accountCategory')}>Category</th>
-                        <th onClick={() => handleSort('accountSubCategory')}>Subcategory</th>
-                        <th onClick={() => handleSort('initialBalance')}>Initial Balance</th>
-                        <th onClick={() => handleSort('currentBalance')}>Current Balance</th>
-                        <th onClick={() => handleSort('dateAdded')}>Date Added</th>
-                        <th onClick={() => handleSort('creator')}>Creator</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {accounts.map((account) => (
-                        <tr key={account.accountNumber}>
-                            <td>{account.accountNumber}</td>
-                            <td>{account.accountName}</td>
-                            <td>{account.accountDescription}</td>
-                            <td>{account.accountCategory}</td>
-                            <td>{account.accountSubCategory}</td>
-                            <td>{account.initialBalance.toFixed(2)}</td>
-                            <td>{account.currentBalance.toFixed(2)}</td>
-                            <td>{new Date(account.dateAdded).toLocaleDateString()}</td>
-                            <td>{account.creator.username}</td>
+            <div className="dashboard-center" style={{top: "unset", justifyContent: "unset"}}>
+                <div className="chart-container">
+                    <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>Chart of
+                        Accounts</label>
+                    <button className="control-button add-account-button">+</button>
+                    <table id="chartOfAccountsTable">
+                        <thead>
+                        <tr>
+                            <th onClick={() => handleSort('accountNumber')}>Account Number</th>
+                            <th onClick={() => handleSort('accountName')}>Account Name</th>
+                            <th onClick={() => handleSort('accountDescription')}>Account Description</th>
+                            <th onClick={() => handleSort('accountCategory')}>Category</th>
+                            <th onClick={() => handleSort('accountSubCategory')}>Subcategory</th>
+                            <th onClick={() => handleSort('initialBalance')}>Initial Balance</th>
+                            <th onClick={() => handleSort('currentBalance')}>Current Balance</th>
+                            <th onClick={() => handleSort('dateAdded')}>Date Added</th>
+                            <th onClick={() => handleSort('creator')}>Creator</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {accounts.map((account) => (
+                            <tr key={account.accountNumber}>
+                                <td>{account.accountNumber}</td>
+                                <td>{account.accountName}</td>
+                                <td>{account.accountDescription}</td>
+                                <td>{account.accountCategory}</td>
+                                <td>{account.accountSubCategory}</td>
+                                <td>{account.initialBalance.toFixed(2)}</td>
+                                <td>{account.currentBalance.toFixed(2)}</td>
+                                <td>{new Date(account.dateAdded).toLocaleDateString()}</td>
+                                <td>{account.creator.username}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
     );
 };
 

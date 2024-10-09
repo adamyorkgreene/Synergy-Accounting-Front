@@ -36,6 +36,14 @@ export interface Account {
     creator: User;
 }
 
+export interface Email {
+    to: string;
+    from: string;
+    date: string;
+    subject: string;
+    body: string;
+    id: string;
+}
 
 export enum AccountType {
     DEBIT = "DEBIT",

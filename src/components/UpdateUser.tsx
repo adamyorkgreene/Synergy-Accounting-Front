@@ -137,154 +137,146 @@ const UpdateUser: React.FC = () => {
     };
 
     return (
-        <div className="dashboard">
+        <div className="dashboard" style={{height: "auto", fontFamily: "Copperplate,serif"}}>
             <div className="right-dashboard">
-                <div className="username-label">{loggedInUser.username}</div>
+                <div className="label large-font">{loggedInUser.username}</div>
                 <div className="profile-container"
-                     onClick={() => (navigate('/upload-image', {state: {csrfToken, loggedInUser}}))}>
+                     onClick={() => navigate('/upload-image', {state: {csrfToken, loggedInUser}})}>
                     <img
                         className="profile-icon"
                         src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser.username}.jpg`}
                         alt="Profile Picture"
                     />
                 </div>
-                {loggedInUser.userType === "ADMINISTRATOR" ? (
+                {loggedInUser.userType === "ADMINISTRATOR" && (
                     <>
-                        <div className="label2">Admin Panel</div>
+                        <div className="label">Admin Panel</div>
                         <button
                             onClick={() => navigate('/dashboard/admin/add-user', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Add
-                            User
+                            className="control-button">Add User
                         </button>
                         <button onClick={() => navigate('/dashboard/admin/update-user-search', {
                             state: {
                                 csrfToken,
                                 loggedInUser
                             }
-                        })}
-                                className="control-button">Update User
+                        })} className="control-button">Update User
                         </button>
                         <button
-                            onClick={() => navigate('/dashboard/admin/send-email', {state: {csrfToken, loggedInUser}})}
-                            className="control-button">Send Email
+                            onClick={() => navigate('/dashboard/admin/inbox', {state: {csrfToken, loggedInUser}})}
+                            className="control-button">Mailbox
                         </button>
-                        <div className="add_space"></div>
+                        <div className="extra-margin"></div>
                     </>
-                ) : null}
-                <div className="label2">User Panel</div>
+                )}
+                <div className="label">User Panel</div>
                 <button className="control-button"
-                        onClick={() => (navigate("/dashboard", {state: {csrfToken, loggedInUser}}))}>Home
+                        onClick={() => navigate("/dashboard", {state: {csrfToken, loggedInUser}})}>Home
                 </button>
                 <button className="control-button">Settings</button>
-                <button className="control-button" onClick={() => (navigate("/logout"))}>Log Out</button>
+                <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
             </div>
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-                <div className="update-user-dash">
-                    <div className="update-user-column">
-                        <div className="profile-container"
-                             onClick={() => (navigate('/upload-image', {state: {csrfToken, userResponse}}))}>
-                            <img
-                                className="profile-icon"
-                                src={`https://synergyaccounting.app/api/dashboard/uploads/${userResponse.username}.jpg`}
-                                alt="Profile Picture"
-                            />
-                        </div>
-                        {userType === UserType.DEFAULT ? (
-                            <button className="control-button" onClick={() => setUserType(UserType.USER)}>Approve
-                                User</button>
-                        ) : (
-                            <button className="empty-button" disabled>Approve User</button>
-                        )}
-                        {failedLoginAttempts && failedLoginAttempts >= 3 ? (
-                            <button className="control-button" onClick={() => setFailedLoginAttempts(0)}>Unlock
-                                Account</button>
-                        ) : (
-                            <button className="empty-button" disabled>Unlock Account</button>
-                        )}
-                        <button className="control-button" onClick={() => setIsActive(false)}>Deactivate Account
-                        </button>
-                        <button className="control-button">Delete User</button>
+            <div className="update-user-dash">
+                <div className="update-user-column">
+                    <div className="profile-container"
+                         onClick={() => navigate('/upload-image', {state: {csrfToken, userResponse}})}>
+                        <img
+                            className="profile-icon"
+                            src={`https://synergyaccounting.app/api/dashboard/uploads/${userResponse.username}.jpg`}
+                            alt="Profile Picture"
+                        />
                     </div>
-                    <div className="update-user-column-2">
-                        <div className={"update-user-dash-header"}>{firstName} {lastName}</div>
-                        <div style={{transform: "translateX(5vmin)", justifySelf: "flex-start", marginBottom: "5vmin"}}>
-                            <br/>
-                            Username: {username}<br/>
-                            User ID: {userid?.toString()}<br/>
-                            Verified: {isVerified ? "True" : "False"}<br/>
-                            Role: {userType.toString()}<br/>
-                            Member Since: {joinDate?.toDateString()}<br/>
+                    {userType === UserType.DEFAULT ? (
+                        <button className="control-button" onClick={() => setUserType(UserType.USER)}>Approve
+                            User</button>
+                    ) : (
+                        <button className="empty-button" disabled>Approve User</button>
+                    )}
+                    {failedLoginAttempts && failedLoginAttempts >= 3 ? (
+                        <button className="control-button" onClick={() => setFailedLoginAttempts(0)}>Unlock
+                            Account</button>
+                    ) : (
+                        <button className="empty-button" disabled>Unlock Account</button>
+                    )}
+                    <button className="control-button" onClick={() => setIsActive(false)}>Deactivate Account</button>
+                    <button className="control-button">Delete User</button>
+                </div>
+                <div style={{width: "12.5vmin"}}></div>
+                <div className="update-user-column" style={{justifyContent: "flex-end"}}>
+                    <div className="label-large">{firstName} {lastName}</div>
+                    <div style={{marginBottom: "auto", fontSize: "2.5vmin"}}>
+                        <br/>
+                        Username: {username}<br/>
+                        User ID: {userid?.toString()}<br/>
+                        Verified: {isVerified ? "True" : "False"}<br/>
+                        Role: {userType.toString()}<br/>
+                        Member Since: {joinDate?.toDateString()}<br/>
+                    </div>
+                    <div>
+                        <div className="input-group">
+                            <label className="label">Role </label>
+                            <select
+                                id="dropdown"
+                                value={userType}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange(e)}
+                                className="dropdown-custom"
+                                style={{height: "3.771vmin"}}
+                            >
+                                <option value={UserType.USER}>User</option>
+                                <option value={UserType.MANAGER}>Manager</option>
+                                <option value={UserType.ADMINISTRATOR}>Administrator</option>
+                            </select>
                         </div>
-                        <div style={{transform: "translateY(-0.55vmin", justifySelf: "flex-end", marginTop: "6vh"}}>
-                            <div className="input-group">
-                                <label className="label">Role </label>
-                                <select
-                                    id="dropdown"
-                                    value={userType}
-                                    onChange={handleChange}
-                                    className="dropdown-custom"
-                                    style={{height: "3.771vmin"}}
-                                >
-                                    <option value={UserType.USER}>User</option>
-                                    <option value={UserType.MANAGER}>Manager</option>
-                                    <option value={UserType.ADMINISTRATOR}>Administrator</option>
-                                </select>
-                            </div>
-                            <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                                <label className="label">Username </label>
-                                <input type="text" className="custom-input5" value={username}
-                                       onChange={(e) => setUsername(e.target.value)}/>
-                            </div>
-                            <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                                <label className="label">Email </label>
-                                <input type="text" className="custom-input5" value={email}
-                                       onChange={(e) => setEmail(e.target.value)}/>
-                            </div>
-                            <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                                <label className="label">First Name </label>
-                                <input type="text" className="custom-input5" value={firstName}
-                                       onChange={(e) => setFirstName(e.target.value)}/>
-                            </div>
-                            <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                                <label className="label">Last Name </label>
-                                <input type="text" className="custom-input5" value={lastName}
-                                       onChange={(e) => setLastName(e.target.value)}/>
-                            </div>
-                            <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                                <label className="label">Birthday </label>
-                                <input type="date" className="custom-input5" value={formattedBirthDate}
-                                       onChange={(e) => setBirthday(e.target.value ?
-                                           new Date(e.target.value) : undefined)}
+                        {[
+                            {label: 'Username', value: username, setValue: setUsername},
+                            {label: 'Email', value: email, setValue: setEmail},
+                            {label: 'First Name', value: firstName, setValue: setFirstName},
+                            {label: 'Last Name', value: lastName, setValue: setLastName},
+                            {
+                                label: 'Birthday',
+                                value: formattedBirthDate,
+                                setValue: (e: React.ChangeEvent<HTMLInputElement>) => setBirthday(e.target.value ? new Date(e.target.value) : undefined),
+                                type: 'date'
+                            },
+                            {label: 'Address', value: address, setValue: setAddress}
+                        ].map(({label, value, setValue, type = 'text'}, index) => (
+                            <div className="input-group" key={index}
+                                 style={{margin: "1.5625vmin 0", height: "3.771vmin"}}>
+                                <label className="label">{label} </label>
+                                <input
+                                    type={type}
+                                    className="custom-input"
+                                    value={value}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                        if (type === 'date') {
+                                            setValue((e.target.value ? new Date(e.target.value) : undefined) as any);
+                                        } else {
+                                            setValue(e.target.value as any);
+                                        }
+                                    }}
                                 />
                             </div>
-                            <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                                <label className="label">Address </label>
-                                <input type="text" className="custom-input5" value={address}
-                                       onChange={(e) => setAddress(e.target.value)}/>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="update-user-column-2"
-                         style={{alignItems: "center", transform: "translateX(0)", justifyContent: "flex-end"}}>
-                        <label className="label">Start Temporary Leave </label>
-                        <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                            <input type="date" className="custom-input5" value={formattedLeaveStart}
-                                   onChange={(e) => setTempLeaveStart(e.target.value ?
-                                       new Date(e.target.value) : undefined)}
-                            />
-                        </div>
-                        <label className="label">End Temporary Leave </label>
-                        <div className="input-group" style={{margin: "1.5625vmin 0;", height: "3.771vmin"}}>
-                            <input type="date" className="custom-input5" value={formattedLeaveEnd}
-                                   onChange={(e) => setTempLeaveEnd(e.target.value ?
-                                       new Date(e.target.value) : undefined)}
-                            />
-                        </div>
-                        <form onSubmit={handleSubmit}>
-                            <button className="control-button">Save Changes</button>
-                        </form>
+                        ))}
                     </div>
                 </div>
+                <div style={{width: "12.5vmin"}}></div>
+                <div className="update-user-column" style={{justifyContent: "space-around"}}>
+                    <label className="label">Start Temporary Leave </label>
+                    <div className="input-group" style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
+                        <input type="date" className="custom-input" value={formattedLeaveStart}
+                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveStart(e.target.value ? new Date(e.target.value) : undefined)}/>
+                    </div>
+                    <label className="label">End Temporary Leave </label>
+                    <div className="input-group" style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
+                        <input type="date" className="custom-input" value={formattedLeaveEnd}
+                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveEnd(e.target.value ? new Date(e.target.value) : undefined)}/>
+                    </div>
+                    <form style={{marginTop: "auto"}} onSubmit={handleSubmit}>
+                        <button type="submit" className="control-button">Save Changes</button>
+                    </form>
+                </div>
+            </div>
         </div>
     );
 };
