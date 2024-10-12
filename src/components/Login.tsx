@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MessageResponse, User, UserType } from '../Types';
-import { useCsrf } from '../utilities/CsrfContext';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {MessageResponse, User, UserType} from '../Types';
+import {useCsrf} from '../utilities/CsrfContext';
 import {useUser} from "../utilities/UserContext";
 import Logo from "../assets/synergylogo.png";
 
@@ -59,7 +59,8 @@ const Login: React.FC = () => {
             if (response.ok) {
 
                 const loggedInUser: User = await response.json();
-                const isUserVerified = loggedInUser.isVerified ?? false;
+                console.log('logged in user: ', loggedInUser)
+                const isUserVerified = loggedInUser.user_security.isVerified ?? false;
                 const userType = loggedInUser.userType ?? UserType.DEFAULT;
 
                 if (isUserVerified) {
@@ -67,8 +68,8 @@ const Login: React.FC = () => {
                         alert('Your account has not yet been confirmed by an administrator.');
                         return;
                     } else {
-                        const leaveDate: Date = new Date(loggedInUser.tempLeaveStart);
-                        const returnDate: Date = new Date(loggedInUser.tempLeaveEnd);
+                        const leaveDate: Date = new Date(loggedInUser.user_date?.tempLeaveStart || '');
+                        const returnDate: Date = new Date(loggedInUser.user_date?.tempLeaveEnd || '');
                         if (leaveDate.getTime() < Date.now() && Date.now() < returnDate.getTime()) {
                             alert('Your account is inactive while out on leave.');
                             return;

@@ -346,7 +346,30 @@
   right: 5vmin;
 }
 
-#chartOfAccountsTable {
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Aligns the buttons to the right */
+  gap: 10px; /* Adds space between the buttons */
+  position: absolute;
+  right: 5vmin; /* Maintains the right positioning */
+  top: 0; /* Adjust this based on your layout */
+  margin-top: 6.5vmin;
+}
+
+.transaction-button {
+  width: auto;
+  height: auto;
+  padding: 0.5vmin 1vmin;
+  background-color: #ffffff;
+  color: black;
+  font-family: 'Copperplate', serif;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+#chartOfAccountsTable,
+#transactionTable {
   width: 100%;
   max-width: 100%;
   table-layout: fixed;
@@ -359,33 +382,40 @@
 }
 
 #chartOfAccountsTable th,
-#chartOfAccountsTable td {
+#chartOfAccountsTable td,
+#transactionTable th,
+#transactionTable td {
   border: 1px solid #ccc;
   padding: 1.5vmin;
   text-align: left;
 }
 
-#chartOfAccountsTable th {
+#chartOfAccountsTable th,
+#transactionTable th {
   background-color: #aabdb8;
   color: black;
   font-weight: bold;
 }
 
-#chartOfAccountsTable tr:nth-child(even) {
+#chartOfAccountsTable tr:nth-child(even),
+#transactionTable tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-#chartOfAccountsTable tr:nth-child(odd) {
+#chartOfAccountsTable tr:nth-child(odd),
+#transactionTable tr:nth-child(odd) {
   background-color: #ffffff;
 }
 
-#chartOfAccountsTable tr:hover {
+#chartOfAccountsTable tr:hover,
+#transactionTable tr:hover {
   background-color: #104d42;
   color: white;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#chartOfAccountsTable th:hover {
+#chartOfAccountsTable th:hover,
+#transactionTable th:hover {
   background-color: #136b57;
   cursor: pointer;
 }

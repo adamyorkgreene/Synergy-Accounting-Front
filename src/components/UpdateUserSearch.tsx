@@ -59,6 +59,7 @@ const UpdateUserSearch: React.FC = () => {
 
             if (response.ok) {
                 const userResponse: User = await response.json();
+                console.log('user: ',  userResponse);
                 navigate('/dashboard/admin/update-user', {state: {userResponse}});
             } else {
                 const msgResponse: MessageResponse = await response.json();

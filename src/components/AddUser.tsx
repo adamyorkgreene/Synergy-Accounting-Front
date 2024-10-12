@@ -131,7 +131,7 @@ const AddUser: React.FC = () => {
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center">
                 <div className="dashboard-center-container">
-                    <div className="center-text">Add a new User</div>
+                    <div className="center-text">Add a New User</div>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         {[

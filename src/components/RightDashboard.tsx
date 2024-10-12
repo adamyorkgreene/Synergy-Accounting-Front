@@ -45,6 +45,12 @@ const RightDashboard: React.FC = () => {
                     alt="Profile Picture"
                 />
             </div>
+            <div style={{marginRight: "unset"}} className="label large-font">User Panel</div>
+            <button className="control-button"
+                    onClick={() => navigate("/dashboard")}>Home
+            </button>
+            <button className="control-button">Settings</button>
+            <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
             {loggedInUser?.userType === "ADMINISTRATOR" && (
                 <>
                     <div style={{marginRight: "unset"}} className="label large-font">Admin Panel</div>
@@ -62,12 +68,6 @@ const RightDashboard: React.FC = () => {
                     <div className="extra-margin"></div>
                 </>
             )}
-            <div style={{marginRight: "unset"}} className="label large-font">User Panel</div>
-            <button className="control-button"
-                    onClick={() => navigate("/dashboard")}>Home
-            </button>
-            <button className="control-button">Settings</button>
-            <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
         </div>
     );
 };

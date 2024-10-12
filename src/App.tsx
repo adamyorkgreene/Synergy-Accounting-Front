@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
-import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import ResetPassword from "./components/ResetPassword";
 import ResetPasswordForm from './components/ResetPasswordForm';
 import ConfirmUser from "./components/ConfirmUser";
@@ -17,6 +17,9 @@ import ChartOfAccounts from "./components/ChartOfAccounts";
 import AdminInbox from "./components/AdminInbox";
 import Logout from "./components/Logout";
 import {User} from "./Types";
+import AddAccount from "./components/AddAccount";
+import AddTransaction from "./components/AddTransaction";
+import UpdateTransaction from "./components/UpdateTransaction";
 
 function App() {
 
@@ -43,6 +46,9 @@ function App() {
                     <Route path="/dashboard/admin/send-email" element={<SendAdminEmail/>}/>
                     <Route path="/dashboard/admin/inbox" element={<AdminInbox/>}/>
                     <Route path="/dashboard/chart-of-accounts" element={<ChartOfAccounts/>}/>
+                    <Route path="/dashboard/chart-of-accounts/add" element={<AddAccount/>}/>
+                    <Route path="/dashboard/chart-of-accounts/add-transaction" element={<AddTransaction/>}/>
+                    <Route path="/dashboard/chart-of-accounts/update-transaction" element={<UpdateTransaction/>}/>
                 </Routes>
             </Router>
         </div>

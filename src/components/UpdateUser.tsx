@@ -43,9 +43,11 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
         }
     }, [location.state, userResponse, setUserResponse]);
 
-    const formattedBirthDate: string = birthday instanceof Date && !isNaN(birthday.getTime()) ? birthday.toISOString().substring(0, 10) : '';
-    const formattedLeaveStart: string = tempLeaveStart instanceof Date && !isNaN(tempLeaveStart.getTime()) ? tempLeaveStart.toISOString().substring(0, 10) : '';
-    const formattedLeaveEnd: string = tempLeaveEnd instanceof Date && !isNaN(tempLeaveEnd.getTime()) ? tempLeaveEnd.toISOString().substring(0, 10) : '';
+    const formattedBirthDate = birthday ? birthday.toISOString().split('T')[0] : '';
+    const formattedJoinDate = joinDate ? joinDate.toISOString().split('T')[0] : '';
+    const formattedLeaveStart = tempLeaveStart ? tempLeaveStart.toISOString().split('T')[0] : '';
+    const formattedLeaveEnd = tempLeaveEnd ? tempLeaveEnd.toISOString().split('T')[0] : '';
+
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -79,22 +81,24 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
             navigate('/dashboard')
             return;
         }
-        console.log('adjusting user data now...')
+        console.log('adjusting user data now...');
+        console.log('user:', userResponse);
+        console.log('birthday', userResponse.user_date?.birthday)
         setEmail(userResponse.email ?? "");
         setUsername(userResponse.username ?? "");
         setUserType(userResponse.userType ?? UserType.DEFAULT);
         setUserid(userResponse.userid ?? BigInt(0));
         setFirstName(userResponse.firstName ?? "");
         setLastName(userResponse.lastName ?? "");
-        setIsActive(userResponse.isActive ?? false);
-        setIsVerified(userResponse.isVerified ?? false);
+        setIsActive(userResponse.user_security.isActive ?? false);
+        setIsVerified(userResponse.user_security.isVerified ?? false);
         setAddress(userResponse.address ?? "");
-        setFailedLoginAttempts(userResponse.failedLoginAttempts ?? 0);
-        setBirthday(userResponse.birthday ? new Date(userResponse.birthday) : undefined);
-        setJoinDate(userResponse.joinDate ? new Date(userResponse.joinDate) : undefined);
-        setTempLeaveStart(userResponse.tempLeaveStart ? new Date(userResponse.tempLeaveStart) : undefined);
-        setTempLeaveEnd(userResponse.tempLeaveEnd ? new Date(userResponse.tempLeaveEnd) : undefined);
-        setEmailPassword(userResponse.emailPassword ?? "");
+        //setFailedLoginAttempts(userResponse.user_security ?? 0);
+        setBirthday(userResponse.user_date?.birthday ? new Date(userResponse.user_date.birthday) : undefined);
+        setJoinDate(userResponse.user_date?.joinDate ? new Date(userResponse.user_date.joinDate) : undefined);
+        setTempLeaveStart(userResponse.user_date?.tempLeaveStart ? new Date(userResponse.user_date.tempLeaveStart) : undefined);
+        setTempLeaveEnd(userResponse.user_date?.tempLeaveEnd ? new Date(userResponse.user_date.tempLeaveEnd): undefined);
+        setEmailPassword(userResponse.user_security.emailPassword ?? "");
         console.log('user data adjusted..')
     }, [loggedInUser, navigate, userResponse]);
 

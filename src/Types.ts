@@ -1,20 +1,26 @@
 export interface User {
     userid: bigint;
-    userType: UserType;
-    username: string;
+    address: string;
     email: string;
     firstName: string;
     lastName: string;
-    birthday: Date;
-    address: string;
-    verificationCode: string;
+    userType: UserType;
+    username: string;
+    user_security: UserSecurity
+    user_date: UserDate
+}
+
+export interface UserSecurity {
+    emailPassword: string;
     isVerified: boolean;
     isActive: boolean;
+}
+
+export interface UserDate {
+    birthday: Date;
     joinDate: Date;
-    failedLoginAttempts: number;
     tempLeaveStart: Date;
     tempLeaveEnd: Date;
-    emailPassword: string;
 }
 
 export interface MessageResponse {
@@ -33,7 +39,16 @@ export interface Account {
     creditBalance: number;
     currentBalance: number;
     dateAdded: Date;
-    creator: User;
+    username: string;
+}
+
+export interface Transaction {
+    transactionId: number;
+    transactionAccount: Account;
+    transactionDate: Date;
+    transactionDescription: string;
+    transactionAmount: number;
+    transactionType: AccountType;
 }
 
 export interface Email {
