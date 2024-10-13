@@ -456,3 +456,22 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+.calendar-container {
+  position: fixed;
+  top: 20px;       
+  left: 20px;      
+  z-index: 1000;   
+}
+
+.calendar-button {
+  background: none; 
+  border: none;     
+  cursor: pointer;  
+  outline: none;    
+}
+
+.calendar-icon {
+  width: 40px;      
+  height: 40px;     
+}
