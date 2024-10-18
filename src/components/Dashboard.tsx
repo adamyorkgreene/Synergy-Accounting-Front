@@ -4,6 +4,7 @@ import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import Logo from "../assets/synergylogo.png";
 import RightDashboard from "./RightDashboard";
+import Calendar from "./Calandar";
 
 const Dashboard: React.FC = () => {
 
@@ -36,6 +37,7 @@ const Dashboard: React.FC = () => {
 
     return (
         <div className="dashboard">
+            <Calendar />
             <RightDashboard />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="update-user-dash">

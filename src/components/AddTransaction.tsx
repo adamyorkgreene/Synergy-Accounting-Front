@@ -5,6 +5,7 @@ import {useCsrf} from '../utilities/CsrfContext';
 import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
 import RightDashboard from "./RightDashboard";
+import Calendar from "./Calandar";
 
 const AddTransaction: React.FC = () => {
 
@@ -104,6 +105,7 @@ const AddTransaction: React.FC = () => {
 
     return (
         <div className="dashboard">
+            <Calendar />
             <RightDashboard />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center">

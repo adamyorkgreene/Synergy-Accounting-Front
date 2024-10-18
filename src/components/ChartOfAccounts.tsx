@@ -6,6 +6,7 @@ import Logo from "../assets/synergylogo.png";
 import {Account, AccountCategory, AccountType, MessageResponse, Transaction} from "../Types";
 import RightDashboard from "./RightDashboard";
 import trashCanIcon from "../assets/trashcan.png";
+import Calendar from "./Calandar";
 
 const ChartOfAccounts: React.FC = () => {
 
@@ -252,6 +253,7 @@ const ChartOfAccounts: React.FC = () => {
 
     return (
         <div className="dashboard" style={{height: "auto", minHeight: "100vh"}}>
+            <Calendar />
             <RightDashboard />
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
             <div className="dashboard-center" style={{top: "unset", justifyContent: "unset"}}>
