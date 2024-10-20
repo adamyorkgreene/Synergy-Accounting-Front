@@ -40,6 +40,7 @@ export interface Account {
     currentBalance: number;
     dateAdded: Date;
     username: string;
+    isActive: boolean;
 }
 
 export interface Transaction {
