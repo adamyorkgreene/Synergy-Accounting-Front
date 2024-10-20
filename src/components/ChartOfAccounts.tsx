@@ -21,8 +21,6 @@ const ChartOfAccounts: React.FC = () => {
 
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
     const [selectedTransactions, setSelectedTransactions] = useState<Transaction[]>([]);
-    const [selectedAccounts, setSelectedAccounts] = useState<Account[]>([]);
-
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -61,7 +59,7 @@ const ChartOfAccounts: React.FC = () => {
             if (response.ok) {
                 const accounts: Account[] = await response.json();
                 setAccounts(accounts);
-
+                console.log('Accounts: ', accounts)
                 if (location.state && location.state.selectedAccount) {
                     await handleAccountClick(location.state.selectedAccount);
                 }
@@ -88,16 +86,6 @@ const ChartOfAccounts: React.FC = () => {
                 setSelectedTransactions(prev => [...prev, transaction]);
             } else {
                 setSelectedTransactions(prev => prev.filter(id => id !== transaction));
-            }
-        }
-    }
-
-    const handleAccountChange = async (account: Account, isChecked: boolean) => {
-        if (transactions) {
-            if (isChecked) {
-                setSelectedAccounts(prev => [...prev, account]);
-            } else {
-                setSelectedAccounts(prev => prev.filter(id => id !== account));
             }
         }
     }
@@ -186,44 +174,39 @@ const ChartOfAccounts: React.FC = () => {
         }
     };
 
-    const handleDeactivateAccounts = async () => {
+    const handleUpdateActivation = async () => {
         if (!csrfToken) {
             console.error('CSRF token is not available.');
             return;
         }
-        for (let a of selectedAccounts) {
-            if (a.currentBalance !== 0) {
-                alert("You cannot deactivate an account with a standing balance.");
-                return;
-            }
-        }
         try {
-            const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/deactivate-accounts', {
+            const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/update-activation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
                 credentials: 'include',
-                body: JSON.stringify(selectedAccounts)
+                body: JSON.stringify(selectedAccount)
             });
-
             if (response.status === 403) {
-                alert('You do not have permission to deactivate these accounts.');
+                alert('You do not have permission to change this account activation.');
                 return;
             }
-            const responseMsg: MessageResponse = await response.json();
-            alert(responseMsg.message)
             if (!(response.status === 204) && transactions && selectedTransactions) {
                 if (response.ok) {
-                    setAccounts(accounts.filter(account => !selectedAccounts.includes(account)));
-                    setSelectedAccounts([]);
-                    getAccounts().then();
+                    const AccountResponse: Account = await response.json();
+                    const index: number = selectedAccount ? accounts.indexOf(selectedAccount) : -1;
+                    accounts[index] = AccountResponse;
+                    setSelectedAccount(AccountResponse);
+                } else {
+                    const MsgResponse: MessageResponse = await response.json();
+                    alert(MsgResponse.message);
                 }
             }
 
         } catch (error) {
-            alert('An error occurred while deactivating accounts.');
+            alert('An error occurred while deactivating account.');
             console.log(error);
         }
     };
@@ -261,9 +244,6 @@ const ChartOfAccounts: React.FC = () => {
                     {selectedAccount === null ? <>
                         <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>Chart of
                             Accounts</label>
-                        <button style={{right: "unset", left: "5vmin"}} onClick={() => handleDeactivateAccounts()}
-                                className="control-button add-account-button">Deactivate Selected Account
-                        </button>
                         <button
                             onClick={() => navigate('/dashboard/chart-of-accounts/add',
                                 {state: {selectedAccount}})}
@@ -273,7 +253,6 @@ const ChartOfAccounts: React.FC = () => {
                         <table id="chartOfAccountsTable">
                             <thead>
                             <tr>
-                                <th style={{width: 'min-content'}}>Select</th>
                                 <th onClick={() => handleSort('accountNumber')}>Account Number</th>
                                 <th onClick={() => handleSort('accountName')}>Account Name</th>
                                 <th onClick={() => handleSort('accountDescription')}>Account Description</th>
@@ -293,17 +272,11 @@ const ChartOfAccounts: React.FC = () => {
                                     : account.creditBalance - account.debitBalance;
                                 const statementType = getStatementType(account.accountCategory);
                                 return (
-                                    <tr key={account.accountNumber} onClick={() => handleAccountClick(account)}>
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                onClick={(e) => e.stopPropagation()}
-                                                onChange={(e) =>
-                                                    handleAccountChange(account, e.target.checked)
-                                                }
-                                            />
-                                        </td>
-                                        <td>{account.accountNumber}</td>
+                                    <tr
+                                        key={account.accountNumber}
+                                        onClick={() => handleAccountClick(account)}
+                                        style={{opacity: account.isActive ? 1 : 0.5}}
+                                    >                                        <td>{account.accountNumber}</td>
                                         <td>{account.accountName}</td>
                                         <td>{account.accountDescription}</td>
                                         <td>{account.normalSide}</td>
@@ -325,6 +298,15 @@ const ChartOfAccounts: React.FC = () => {
                         <button style={{right: "unset", left: "5vmin"}} onClick={() => handleGoBack()}
                                 className="control-button add-account-button">Go Back
                         </button>
+                        {selectedAccount.isActive ? (
+                            <button style={{right: "unset", left: "22vmin"}} onClick={() => handleUpdateActivation()}
+                                    className="control-button add-account-button">Deactivate Account
+                            </button>
+                        ) : (
+                            <button style={{right: "unset", left: "22vmin"}} onClick={() => handleUpdateActivation()}
+                                    className="control-button add-account-button">Activate Account
+                            </button>
+                        )}
                         <div className="button-container">
                             <button onClick={handleDeleteTransactions}
                                     className="control-button transaction-button"
