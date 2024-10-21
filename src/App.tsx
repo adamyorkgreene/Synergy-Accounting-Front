@@ -20,6 +20,7 @@ import {User} from "./Types";
 import AddAccount from "./components/AddAccount";
 import AddTransaction from "./components/AddTransaction";
 import UpdateTransaction from "./components/UpdateTransaction";
+import UpdateAccount from "./components/UpdateAccount";
 
 function App() {
 
@@ -49,6 +50,8 @@ function App() {
                     <Route path="/dashboard/chart-of-accounts/add" element={<AddAccount/>}/>
                     <Route path="/dashboard/chart-of-accounts/add-transaction" element={<AddTransaction/>}/>
                     <Route path="/dashboard/chart-of-accounts/update-transaction" element={<UpdateTransaction/>}/>
+                    <Route path="/dashboard/chart-of-accounts/update-account" element={<UpdateAccount/>}/>
+
                 </Routes>
             </Router>
         </div>

@@ -293,20 +293,23 @@ const ChartOfAccounts: React.FC = () => {
                         </table>
                     </> : <>
                         <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
-                            Account Ledger:<br/>
-                            {selectedAccount.accountName}</label>
+                            Account Ledger: {selectedAccount.accountName}<br/></label>
                         <button style={{right: "unset", left: "5vmin"}} onClick={() => handleGoBack()}
                                 className="control-button add-account-button">Go Back
                         </button>
                         {selectedAccount.isActive ? (
-                            <button style={{right: "unset", left: "22vmin"}} onClick={() => handleUpdateActivation()}
+                            <button style={{right: "unset", left: "calc(69%/2)"}} onClick={() => handleUpdateActivation()}
                                     className="control-button add-account-button">Deactivate Account
                             </button>
                         ) : (
-                            <button style={{right: "unset", left: "22vmin"}} onClick={() => handleUpdateActivation()}
+                            <button style={{right: "unset", left: "calc(69%/2)"}} onClick={() => handleUpdateActivation()}
                                     className="control-button add-account-button">Activate Account
                             </button>
                         )}
+                        <button style={{right: "unset", left: "calc(104%/2)"}} onClick={() =>
+                            navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
+                                className="control-button add-account-button">Update Account
+                        </button>
                         <div className="button-container">
                             <button onClick={handleDeleteTransactions}
                                     className="control-button transaction-button"
@@ -321,7 +324,7 @@ const ChartOfAccounts: React.FC = () => {
                                 +
                             </button>
                         </div>
-                        <table id="transactionTable">
+                        <table id="transactionTable" style={{marginTop: "8vmin"}}>
                             <thead>
                             <tr>
                                 <th style={{width: 'min-content'}}>Select</th>
