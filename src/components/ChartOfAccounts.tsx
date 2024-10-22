@@ -339,10 +339,18 @@ const ChartOfAccounts: React.FC = () => {
                             {(() => {
                                 let runningBalance = selectedAccount.initialBalance;
                                 return transactions.map((transaction) => {
-                                    if (transaction.transactionType === "DEBIT") {
-                                        runningBalance += transaction.transactionAmount;
+                                    if (selectedAccount.normalSide === "DEBIT") {
+                                        if (transaction.transactionType === "DEBIT") {
+                                            runningBalance += transaction.transactionAmount;
+                                        } else {
+                                            runningBalance -= transaction.transactionAmount;
+                                        }
                                     } else {
-                                        runningBalance -= transaction.transactionAmount;
+                                        if (transaction.transactionType === "DEBIT") {
+                                            runningBalance -= transaction.transactionAmount;
+                                        } else {
+                                            runningBalance += transaction.transactionAmount;
+                                        }
                                     }
                                     return (
                                         <tr key={transaction.transactionId} onClick={() =>

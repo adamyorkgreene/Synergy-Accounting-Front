@@ -214,6 +214,7 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
                                 name="role"
                             >
                                 <option value={UserType.USER}>User</option>
+                                <option value={UserType.ACCOUNTANT}>Accountant</option>
                                 <option value={UserType.MANAGER}>Manager</option>
                                 <option value={UserType.ADMINISTRATOR}>Administrator</option>
                             </select>

@@ -86,6 +86,7 @@ export enum AccountSubCategory {
 export enum UserType {
     DEFAULT = "DEFAULT",
     USER = "USER",
+    ACCOUNTANT = "ACCOUNTANT",
     MANAGER = "MANAGER",
     ADMINISTRATOR = "ADMINISTRATOR"
 }

@@ -46,7 +46,11 @@ const Dashboard: React.FC = () => {
                         Chart of Accounts
                     </button>
                 </div>
-                <div className="update-user-column"></div>
+                <div className="update-user-column">
+                    <button className="control-button" onClick={() => navigate("/dashboard/journal-entry-form")}>
+                        Journal Entry
+                    </button>
+                </div>
                 <div className="update-user-column"></div>
             </div>
         </div>

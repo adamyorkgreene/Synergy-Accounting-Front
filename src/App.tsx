@@ -21,6 +21,8 @@ import AddAccount from "./components/AddAccount";
 import AddTransaction from "./components/AddTransaction";
 import UpdateTransaction from "./components/UpdateTransaction";
 import UpdateAccount from "./components/UpdateAccount";
+import JournalEntryForm from "./components/JournalEntryForm";
+
 
 function App() {
 
@@ -51,7 +53,7 @@ function App() {
                     <Route path="/dashboard/chart-of-accounts/add-transaction" element={<AddTransaction/>}/>
                     <Route path="/dashboard/chart-of-accounts/update-transaction" element={<UpdateTransaction/>}/>
                     <Route path="/dashboard/chart-of-accounts/update-account" element={<UpdateAccount/>}/>
-
+                    <Route path="/dashboard/journal-entry-form" element={<JournalEntryForm/>}/>
                 </Routes>
             </Router>
         </div>
