@@ -166,12 +166,11 @@ const AdminInbox: React.FC = () => {
     }
 
     return (
-        <div className="dashboard" style={{height: "auto", minHeight: "100vh"}}>
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center" style={{top: "unset", justifyContent: "unset"}}>
+            <RightDashboard>
                 <div className="chart-container">
-                    <div className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin", display: "unset"}}>Inbox</div>
+                    <div className="center-text"
+                         style={{fontSize: "5vmin", marginBottom: "2vmin", display: "unset"}}>Inbox
+                    </div>
                     <button className="control-button add-account-button"
                             onClick={handleDelete}
                             disabled={selectedEmails?.length === 0}
@@ -207,11 +206,10 @@ const AdminInbox: React.FC = () => {
                         </tbody>
                     </table>
                     {isEmailOpen && clickedEmail && (
-                        <EmailPopup email={clickedEmail} onClose={closeEmail} />
+                        <EmailPopup email={clickedEmail} onClose={closeEmail}/>
                     )}
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 };
 

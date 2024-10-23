@@ -1,17 +1,20 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate, useLocation} from 'react-router-dom';
-import {useCsrf} from "../utilities/CsrfContext";
-import {useUser} from "../utilities/UserContext";
-import {User} from "../Types"; // Assuming you have a User type defined
+import React, { useEffect, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCsrf } from "../utilities/CsrfContext";
+import { useUser } from "../utilities/UserContext";
+import Logo from "../assets/synergylogo.png";
+import Calendar from "./Calandar";
 
-const RightDashboard: React.FC = () => {
+interface RightDashboardProps {
+    children?: ReactNode;
+}
 
+const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
     const navigate = useNavigate();
-
-    const {csrfToken} = useCsrf();
-    const {user: loggedInUser, fetchUser} = useUser();
-
+    const { csrfToken } = useCsrf();
+    const { user: loggedInUser, fetchUser } = useUser();
     const [isLoading, setIsLoading] = useState(true);
+    const [isSticky, setIsSticky] = useState(false);
 
     useEffect(() => {
         const init = async () => {
@@ -29,45 +32,77 @@ const RightDashboard: React.FC = () => {
         }
     }, [loggedInUser, isLoading, navigate]);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            const controlPanel = document.querySelector('.control-panel') as HTMLElement;
+            if (controlPanel) {
+                let offsetTop = controlPanel.getBoundingClientRect().top;
+                console.log("ScrollY: ", window.scrollY)
+                console.log("Offset Top: ", offsetTop);
+                if (window.scrollY > 169) {
+                    setIsSticky(true);
+                } else if (window.scrollY <= 169) {
+                    setIsSticky(false);
+                }
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     if (isLoading || !csrfToken) {
         return null;
     }
 
     return (
-        <div className="right-dashboard">
-            <div style={{marginRight: "unset", marginBottom: "1vh"}}
-                 className="label large-font">{loggedInUser?.username}</div>
-            <div className="profile-container"
-                 onClick={() => navigate('/upload-image')}>
-                <img
-                    className="profile-icon"
-                    src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser?.userid.toString()}.jpg`}
-                    alt="Profile Picture"
-                />
+        <div className="dashboard">
+            <Calendar/>
+            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
+            <div style={{flexDirection: "row", padding: "1.5625vmin"}} className={`control-panel ${isSticky ? 'sticky' : ''}`}>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button" onClick={() => navigate("/dashboard")}>Home</button>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button" onClick={() => navigate("/dashboard/chart-of-accounts")}>
+                    Chart of Accounts
+                </button>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button" onClick={() => navigate("/dashboard/journal-entry-form")}>
+                    Journal Entry
+                </button>
             </div>
-            <div style={{marginRight: "unset"}} className="label large-font">User Panel</div>
-            <button className="control-button"
-                    onClick={() => navigate("/dashboard")}>Home
-            </button>
-            <button className="control-button">Settings</button>
-            <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
-            {loggedInUser?.userType === "ADMINISTRATOR" && (
-                <>
-                    <div style={{marginRight: "unset"}} className="label large-font">Admin Panel</div>
-                    <button
-                        onClick={() => navigate('/dashboard/admin/add-user')}
-                        className="control-button">Add User
-                    </button>
-                    <button onClick={() => navigate('/dashboard/admin/update-user-search')}
-                            className="control-button">Update User
-                    </button>
-                    <button
-                        onClick={() => navigate('/dashboard/admin/inbox')}
-                        className="control-button">Mailbox
-                    </button>
-                    <div className="extra-margin"></div>
-                </>
-            )}
+            <div className={`dashboard-center ${isSticky ? 'margined' : ''}`}>
+                {children}
+            </div>
+            <div className="right-dashboard">
+            <div style={{marginRight: "unset", marginBottom: "1vh"}}
+                     className="label large-font">{loggedInUser?.username}
+                </div>
+                <div className="profile-container"
+                     onClick={() => navigate('/upload-image')}>
+                    <img
+                        className="profile-icon"
+                        src={`https://synergyaccounting.app/api/dashboard/uploads/${loggedInUser?.userid.toString()}.jpg`}
+                        alt="Profile Picture"
+                    />
+                </div>
+                <div style={{marginRight: "unset"}} className="label large-font">User Panel
+                </div>
+                   <button className="control-button">Settings</button>
+                <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
+                {loggedInUser?.userType === "ADMINISTRATOR" && (
+                    <>
+                        <div style={{marginRight: "unset"}} className="label large-font">Admin Panel</div>
+                        <button onClick={() => navigate('/dashboard/admin/add-user')} className="control-button">Add
+                            User
+                        </button>
+                        <button onClick={() => navigate('/dashboard/admin/update-user-search')}
+                                className="control-button">Update User
+                        </button>
+                        <button onClick={() => navigate('/dashboard/admin/inbox')}
+                                className="control-button">Mailbox
+                        </button>
+                        <div className="extra-margin"></div>
+                    </>
+                )}
+            </div>
         </div>
     );
 };

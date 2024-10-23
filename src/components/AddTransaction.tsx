@@ -104,17 +104,14 @@ const AddTransaction: React.FC = () => {
     }
 
     return (
-        <div className="dashboard">
-            <Calendar />
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center">
+            <RightDashboard>
                 <div className="dashboard-center-container">
                     <div className="center-text">Add a New Transaction</div>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">
-                            <label htmlFor="addtransactiondescription" className="label">Transaction Description</label>
+                            <label htmlFor="addtransactiondescription" className="label">Transaction
+                                Description</label>
                             <input type='text' className="custom-input" name="Transaction Description"
                                    value={transactionDescription}
                                    id="addtransactiondescription"
@@ -147,15 +144,16 @@ const AddTransaction: React.FC = () => {
                             <button type="submit" className="custom-button">Add Transaction</button>
                         </div>
                         <div className="input-group">
-                            <button onClick={() => navigate('/dashboard/chart-of-accounts', { state:
-                                    { account: selectedAccount } })}
+                            <button onClick={() => navigate('/dashboard/chart-of-accounts', {
+                                state:
+                                    {account: selectedAccount}
+                            })}
                                     className="custom-button">Go Back
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 
 };

@@ -48,13 +48,13 @@ const Calendar: React.FC = () => {
                 ref={buttonRef}
                 onClick={openCalendar}
                 style={{
-                    position: 'fixed',
+                    position: 'absolute',
                     top: '20px',
                     left: '20px',
                     border: 'none',
                     background: 'none',
                     cursor: 'pointer',
-                    zIndex: 1000,
+                    zIndex: 2000,
                 }}
                 aria-label="Open calendar"
             >

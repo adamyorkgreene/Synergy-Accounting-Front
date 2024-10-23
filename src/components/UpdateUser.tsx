@@ -163,110 +163,114 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
         }
     };
     return (
-        <div className="dashboard" style={{height: "auto", fontFamily: "Copperplate,serif"}}>
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="update-user-dash">
-                <div className="update-user-column">
-                    <div className="profile-container"
-                         onClick={() => navigate('/upload-image', {state: {userResponse}})}>
-                        <img
-                            className="profile-icon"
-                            src={`https://synergyaccounting.app/api/dashboard/uploads/${userResponse?.userid.toString()}.jpg`}
-                            alt="Profile Picture"
-                        />
-                    </div>
-                    {userType === UserType.DEFAULT ? (
-                        <button className="control-button" onClick={() => setUserType(UserType.USER)}>Approve
-                            User</button>
-                    ) : (
-                        <button className="empty-button" disabled>Approve User</button>
-                    )}
-                    {failedLoginAttempts && failedLoginAttempts >= 3 ? (
-                        <button className="control-button" onClick={() => setFailedLoginAttempts(0)}>Unlock
-                            Account</button>
-                    ) : (
-                        <button className="empty-button" disabled>Unlock Account</button>
-                    )}
-                    <button className="control-button" onClick={() => setIsActive(false)}>Deactivate Account</button>
-                    <button className="control-button">Delete User</button>
-                </div>
-                <div style={{width: "12.5vmin"}}></div>
-                <div className="update-user-column" style={{justifyContent: "flex-end"}}>
-                    <div className="label-large">{firstName} {lastName}</div>
-                    <div style={{marginBottom: "auto", fontSize: "2.5vmin"}}>
-                        <br/>
-                        Username: {username}<br/>
-                        User ID: {userid?.toString()}<br/>
-                        Verified: {isVerified ? "True" : "False"}<br/>
-                        Role: {userType.toString()}<br/>
-                        Member Since: {joinDate?.toDateString()}<br/>
-                    </div>
-                    <div>
-                        <div className="input-group">
-                            <label htmlFor="updaterole" className="label">Role </label>
-                            <select
-                                id="updaterole"
-                                value={userType}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange(e)}
-                                className="dropdown-custom"
-                                style={{height: "3.771vmin"}}
-                                name="role"
-                            >
-                                <option value={UserType.USER}>User</option>
-                                <option value={UserType.ACCOUNTANT}>Accountant</option>
-                                <option value={UserType.MANAGER}>Manager</option>
-                                <option value={UserType.ADMINISTRATOR}>Administrator</option>
-                            </select>
+            <RightDashboard>
+                <div className="update-user-dash">
+                    <div className="update-user-column">
+                        <div className="profile-container"
+                             onClick={() => navigate('/upload-image', {state: {userResponse}})}>
+                            <img
+                                className="profile-icon"
+                                src={`https://synergyaccounting.app/api/dashboard/uploads/${userResponse?.userid.toString()}.jpg`}
+                                alt="Profile Picture"
+                            />
                         </div>
-                        {[
-                            {label: 'Username', value: username, setValue: setUsername},
-                            {label: 'Email', value: email, setValue: setEmail},
-                            {label: 'First Name', value: firstName, setValue: setFirstName},
-                            {label: 'Last Name', value: lastName, setValue: setLastName},
-                            {
-                                label: 'Birthday',
-                                value: formattedBirthDate || '',
-                                setValue: (dateString: string) => setBirthday(dateString ? new Date(dateString) : undefined),
-                                type: 'date'
-                            },
-                            {label: 'Address', value: address, setValue: setAddress}
-                        ].map(({label, value, setValue, type = 'text'}, index) => (
-                            <div className="input-group" key={index}
-                                 style={{margin: "1.5625vmin 0", height: "3.771vmin"}}>
-                                <label htmlFor={"update" + label} className="label">{label} </label>
-                                <input
-                                    type={type}
-                                    name={label}
-                                    id={"update" + label}
-                                    className="custom-input"
-                                    value={value || ''}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                        setValue(e.target.value as any);
-                                    }}
-                                />
+                        {userType === UserType.DEFAULT ? (
+                            <button className="control-button" onClick={() => setUserType(UserType.USER)}>Approve
+                                User</button>
+                        ) : (
+                            <button className="empty-button" disabled>Approve User</button>
+                        )}
+                        {failedLoginAttempts && failedLoginAttempts >= 3 ? (
+                            <button className="control-button" onClick={() => setFailedLoginAttempts(0)}>Unlock
+                                Account</button>
+                        ) : (
+                            <button className="empty-button" disabled>Unlock Account</button>
+                        )}
+                        <button className="control-button" onClick={() => setIsActive(false)}>Deactivate Account
+                        </button>
+                        <button className="control-button">Delete User</button>
+                    </div>
+                    <div style={{width: "12.5vmin"}}></div>
+                    <div className="update-user-column" style={{justifyContent: "flex-end"}}>
+                        <div className="label-large">{firstName} {lastName}</div>
+                        <div style={{marginBottom: "auto", fontSize: "2.5vmin"}}>
+                            <br/>
+                            Username: {username}<br/>
+                            User ID: {userid?.toString()}<br/>
+                            Verified: {isVerified ? "True" : "False"}<br/>
+                            Role: {userType.toString()}<br/>
+                            Member Since: {joinDate?.toDateString()}<br/>
+                        </div>
+                        <div>
+                            <div className="input-group">
+                                <label htmlFor="updaterole" className="label">Role </label>
+                                <select
+                                    id="updaterole"
+                                    value={userType}
+                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange(e)}
+                                    className="dropdown-custom"
+                                    style={{height: "3.771vmin"}}
+                                    name="role"
+                                >
+                                    <option value={UserType.USER}>User</option>
+                                    <option value={UserType.ACCOUNTANT}>Accountant</option>
+                                    <option value={UserType.MANAGER}>Manager</option>
+                                    <option value={UserType.ADMINISTRATOR}>Administrator</option>
+                                </select>
                             </div>
-                        ))}
+                            {[
+                                {label: 'Username', value: username, setValue: setUsername},
+                                {label: 'Email', value: email, setValue: setEmail},
+                                {label: 'First Name', value: firstName, setValue: setFirstName},
+                                {label: 'Last Name', value: lastName, setValue: setLastName},
+                                {
+                                    label: 'Birthday',
+                                    value: formattedBirthDate || '',
+                                    setValue: (dateString: string) => setBirthday(dateString ? new Date(dateString) : undefined),
+                                    type: 'date'
+                                },
+                                {label: 'Address', value: address, setValue: setAddress}
+                            ].map(({label, value, setValue, type = 'text'}, index) => (
+                                <div className="input-group" key={index}
+                                     style={{margin: "1.5625vmin 0", height: "3.771vmin"}}>
+                                    <label htmlFor={"update" + label} className="label">{label} </label>
+                                    <input
+                                        type={type}
+                                        name={label}
+                                        id={"update" + label}
+                                        className="custom-input"
+                                        value={value || ''}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                            setValue(e.target.value as any);
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div style={{width: "12.5vmin"}}></div>
+                    <div className="update-user-column" style={{justifyContent: "space-around"}}>
+                        <label style={{marginRight: "unset"}} htmlFor="updatestarttempleave" className="label">
+                            Start Temporary Leave</label>
+                        <div className="input-group"
+                             style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
+                            <input type="date" className="custom-input" value={formattedLeaveStart} name="leavestart"
+                                   id="updatestarttempleave"
+                                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveStart(e.target.value ? new Date(e.target.value) : undefined)}/>
+                        </div>
+                        <label style={{marginRight: "unset"}} htmlFor="updateendtempleave" className="label">End Temporary Leave</label>
+                        <div className="input-group"
+                             style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
+                            <input type="date" className="custom-input" value={formattedLeaveEnd} name="leaveend"
+                                   id="updateendtempleave"
+                                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveEnd(e.target.value ? new Date(e.target.value) : undefined)}/>
+                        </div>
+                        <form style={{marginTop: "auto"}} onSubmit={handleSubmit}>
+                            <button type="submit" className="control-button">Save Changes</button>
+                        </form>
                     </div>
                 </div>
-                <div style={{width: "12.5vmin"}}></div>
-                <div className="update-user-column" style={{justifyContent: "space-around"}}>
-                    <label htmlFor="updatestarttempleave" className="label">Start Temporary Leave </label>
-                    <div className="input-group" style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
-                        <input type="date" className="custom-input" value={formattedLeaveStart} name="leavestart" id="updatestarttempleave"
-                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveStart(e.target.value ? new Date(e.target.value) : undefined)}/>
-                    </div>
-                    <label htmlFor="updateendtempleave" className="label">End Temporary Leave </label>
-                    <div className="input-group" style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
-                        <input type="date" className="custom-input" value={formattedLeaveEnd} name="leaveend" id="updateendtempleave"
-                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveEnd(e.target.value ? new Date(e.target.value) : undefined)}/>
-                    </div>
-                    <form style={{marginTop: "auto"}} onSubmit={handleSubmit}>
-                        <button type="submit" className="control-button">Save Changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 };
 

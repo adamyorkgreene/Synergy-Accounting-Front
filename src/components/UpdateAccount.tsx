@@ -104,10 +104,7 @@ const UpdateTransaction: React.FC = () => {
     }
 
     return (
-        <div className="dashboard">
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center">
+            <RightDashboard>
                 <div className="dashboard-center-container">
                     <div className="center-text">Update an Account</div>
                     <div className="extra-margin"></div>
@@ -134,14 +131,14 @@ const UpdateTransaction: React.FC = () => {
                         </div>
                         <div className="input-group">
                             <button onClick={() => navigate('/dashboard/chart-of-accounts', {
-                                state: {account: accountData}})}
+                                state: {account: accountData}
+                            })}
                                     className="custom-button">Go Back
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 };
 

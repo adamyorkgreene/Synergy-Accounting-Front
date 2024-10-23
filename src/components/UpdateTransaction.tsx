@@ -111,16 +111,14 @@ const UpdateTransaction: React.FC = () => {
     }
 
     return (
-        <div className="dashboard">
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center">
+            <RightDashboard>
                 <div className="dashboard-center-container">
                     <div className="center-text">Update a Transaction</div>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">
-                            <label htmlFor="updatetransactiondescription" className="label">Transaction Description</label>
+                            <label htmlFor="updatetransactiondescription" className="label">Transaction
+                                Description</label>
                             <input type='text' className="custom-input" name="Transaction Description"
                                    value={transactionDescription}
                                    id="updatetransactiondescription"
@@ -153,15 +151,16 @@ const UpdateTransaction: React.FC = () => {
                             <button type="submit" className="custom-button">Update Transaction</button>
                         </div>
                         <div className="input-group">
-                            <button onClick={() => navigate('/dashboard/chart-of-accounts', { state:
-                                    { account: transaction?.transactionAccount } })}
+                            <button onClick={() => navigate('/dashboard/chart-of-accounts', {
+                                state:
+                                    {account: transaction?.transactionAccount}
+                            })}
                                     className="custom-button">Go Back
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 };
 

@@ -121,18 +121,18 @@ const AddAccount: React.FC = () => {
     }
 
     return (
-        <div className="dashboard">
-            <Calendar />
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center">
+            <RightDashboard>
                 <div className="dashboard-center-container">
                     <div className="center-text">Add a New Account</div>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         {[
                             {label: 'Account Name', value: accountName, setValue: setAccountName},
-                            {label: 'Account Description', value: accountDescription, setValue: setAccountDescription},
+                            {
+                                label: 'Account Description',
+                                value: accountDescription,
+                                setValue: setAccountDescription
+                            },
                         ].map(({label, value, setValue}, index) => (
                             <div className="input-group" key={index}>
                                 <label htmlFor={"addaccount" + label} className="label">{label}</label>
@@ -143,7 +143,8 @@ const AddAccount: React.FC = () => {
                         ))}
                         <div className="input-group">
                             <label htmlFor="addaccountinitialbal" className="label">Initial Balance</label>
-                            <input type='number' className="custom-input" name="Initial Balance" value={initialBalance}
+                            <input type='number' className="custom-input" name="Initial Balance"
+                                   value={initialBalance}
                                    id="addaccountinitialbal"
                                    autoComplete="Initial Balance"
                                    onChange={(e) => setInitialBalance(e.target.valueAsNumber)}/>
@@ -215,8 +216,7 @@ const AddAccount: React.FC = () => {
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 
 };

@@ -18,7 +18,7 @@ const EmailPopup: React.FC<{ email: Email, onClose: () => void }> = ({ email, on
                 <p style={{margin: "0.5vh", fontSize: "medium"}}><strong>From:</strong> {email.from}</p>
                 <p><strong>Date:</strong> {new Date(email.date).toLocaleString()}</p>
                 {/*<p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(email.body)}}></p>*/}
-                <p>{email.body}</p>
+                <pre style={{whiteSpace: "pre-wrap", wordWrap: "break-word"}}>{email.body}</pre>
             </div>
         </div>
     );

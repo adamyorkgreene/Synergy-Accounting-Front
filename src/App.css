@@ -212,11 +212,11 @@
 
 /* Dashboard */
 .dashboard {
-  height: 100vh;
   width: 100%;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .right-dashboard {
@@ -233,6 +233,39 @@
   padding: 1.5625vmin 3.213vmin 3.213vmin;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
+  z-index: 1025;
+}
+
+.control-panel {
+  position: sticky; /* Default state */
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  background-color: #aabdb8;
+  width: 100%; /* Make sure it stays full width */
+  height: 10vmin;
+  padding: 1.5625vmin 3.213vmin 3.213vmin;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  z-index: 1000; /* Ensure it stays on top */
+}
+
+.sticky {
+  position: fixed; /* Makes it stick to the top */
+  top: 0; /* Aligns at the top */
+  right: 0;
+  width: 100%; /* Adjust width */
+  height: 10vmin;
+  z-index: 1000; /* Ensure it stays on top */
+  margin-bottom: 10vmin;
+}
+
+.margined {
+  margin-top: 10vmin;
 }
 
 .dashboard-center,
@@ -240,14 +273,17 @@
 .dashboard-columns,
 .coa-user-dash {
   display: flex;
-  width: calc(100% - 32.13vmin);
+  width: calc(100vw - 32.13vmin);
   height: 100%;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
+  left: 0;
 }
 
 .dashboard-center {
-  top: -25vmin;
+  top: 0;
+  min-height: 65vmin;
+  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -255,9 +291,9 @@
   justify-content: center;
   position: relative;
   font-size: calc(10px + 2vmin);
-  border-top: 1px solid black;
   color: white;
   font-family: 'Copperplate', serif;
+  background-color: rgba(170, 189, 184, 0.5);
 }
 
 .update-user-dash {
@@ -265,15 +301,13 @@
   align-items: flex-start;
   justify-content: space-evenly;
   padding: 5vmin;
-  height: 75vmin;
-  border-top: 1px solid black;
-  background-color: rgba(170, 189, 184, 0.5);
+  min-height: 65vmin;
+  height: 65vmin;
 }
 
 .update-user-column {
   display: flex;
   flex-direction: column;
-  width: calc(100% / 4);
   height: 100%;
   bottom: 0;
 }
@@ -328,7 +362,6 @@
 .chart-container {
   padding: 2vmin 5vmin 5vmin;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-  background-color: rgba(170, 189, 184, 0.5);
   min-height: 70vmin;
 }
 
@@ -425,7 +458,7 @@
 .modal {
   display: block;
   position: fixed;
-  z-index: 1;
+  z-index: 3000;
   left: 0;
   top: 0;
   width: 100%;

@@ -36,25 +36,9 @@ const Dashboard: React.FC = () => {
     }
 
     return (
-        <div className="dashboard">
-            <Calendar />
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="update-user-dash">
-                <div className="update-user-column">
-                    <button className="control-button" onClick={() => navigate("/dashboard/chart-of-accounts")}>
-                        Chart of Accounts
-                    </button>
-                </div>
-                <div className="update-user-column">
-                    <button className="control-button" onClick={() => navigate("/dashboard/journal-entry-form")}>
-                        Journal Entry
-                    </button>
-                </div>
-                <div className="update-user-column"></div>
-            </div>
-        </div>
+        <RightDashboard>
 
+        </RightDashboard>
     );
 };
 

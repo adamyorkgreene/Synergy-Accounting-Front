@@ -205,12 +205,11 @@ const JournalEntryForm: React.FC = () => {
     };
 
     return (
-        <div className="dashboard">
-            <Calendar/>
-            <RightDashboard/>
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center" style={{ top: "unset", justifyContent: "unset", height: "75%" }}>
-                <div className="update-user-dash" style={{ alignItems: "center", flexDirection: "column", width: "100%", justifyContent: "unset", padding: "unset"}}>
+        <RightDashboard>
+                <div className="update-user-dash" style={{
+                    alignItems: "center", flexDirection: "column", height: "inherit",
+                    padding: "unset", justifyContent: "unset"
+                }}>
                     <h3 style={{marginBottom: "2vmin"}}>Add Journal Entry</h3>
                     {transactions.map((tx, index) => (
                         <div key={index} className="transaction-row">
@@ -221,7 +220,8 @@ const JournalEntryForm: React.FC = () => {
                             >
                                 <option value="">Select Account</option>
                                 {accounts.map(account => (
-                                    <option key={account.accountNumber} value={account.accountNumber}>{account.accountName}</option>
+                                    <option key={account.accountNumber}
+                                            value={account.accountNumber}>{account.accountName}</option>
                                 ))}
                             </select>
                             <input
@@ -247,15 +247,19 @@ const JournalEntryForm: React.FC = () => {
                                 onChange={(e) => handleInputChange(index, 'transactionDescription', e.target.value)}
                                 placeholder="Description"
                             />
-                            <button style={{width: "22.274vmin", height: "calc(2.778vmin * 1.5)", transform: "translateY(0.15vmin)"}}
-                                className="control-button" onClick={() => handleRemoveTransaction(index)}>Remove</button>
+                            <button style={{
+                                width: "22.274vmin",
+                                height: "calc(2.778vmin * 1.5)",
+                                transform: "translateY(0.15vmin)"
+                            }}
+                                    className="control-button" onClick={() => handleRemoveTransaction(index)}>Remove
+                            </button>
                         </div>
                     ))}
                     <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
                     <button className="control-button" onClick={handleSubmit}>Submit Journal Entry</button>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 };
 

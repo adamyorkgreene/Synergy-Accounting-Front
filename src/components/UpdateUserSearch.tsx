@@ -74,10 +74,7 @@ const UpdateUserSearch: React.FC = () => {
     };
 
     return (
-        <div className="dashboard">
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center">
+            <RightDashboard>
                 <div className="dashboard-center-container">
                     <div className="center-text">Search for a User to Update</div>
                     <div className="extra-margin"></div>
@@ -89,12 +86,14 @@ const UpdateUserSearch: React.FC = () => {
                         </div>
                         <div className="input-group">
                             <label htmlFor="searchuserid" className="label">User ID </label>
-                            <input type="text" className="custom-input" name="userid" value={userid} id="searchuserid"
+                            <input type="text" className="custom-input" name="userid" value={userid}
+                                   id="searchuserid"
                                    autoComplete="userid" onChange={(e) => setUserid(e.target.value)}/>
                         </div>
                         <div className="input-group">
                             <label htmlFor="searchusername" className="label">Username </label>
-                            <input type="text" className="custom-input" name="username" value={username} id="searchusername"
+                            <input type="text" className="custom-input" name="username" value={username}
+                                   id="searchusername"
                                    autoComplete="username" onChange={(e) => setUsername(e.target.value)}/>
                         </div>
                         <div className="extra-margin"></div>
@@ -103,8 +102,7 @@ const UpdateUserSearch: React.FC = () => {
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 };
 

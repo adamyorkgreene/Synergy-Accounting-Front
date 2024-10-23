@@ -126,10 +126,7 @@ const AddUser: React.FC = () => {
     }
 
     return (
-        <div className="dashboard">
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center">
+            <RightDashboard>
                 <div className="dashboard-center-container">
                     <div className="center-text">Add a New User</div>
                     <div className="extra-margin"></div>
@@ -143,8 +140,9 @@ const AddUser: React.FC = () => {
                         ].map(({label, value, setValue}, index) => (
                             <div className="input-group" key={index}>
                                 <label htmlFor={"adduser" + label} className="label">{label}</label>
-                                <input type="text" className="custom-input" name={label} value={value} id={"adduser" + label}
-                                       autoComplete={label.toString()}    onChange={(e) => setValue(e.target.value)}/>
+                                <input type="text" className="custom-input" name={label} value={value}
+                                       id={"adduser" + label}
+                                       autoComplete={label.toString()} onChange={(e) => setValue(e.target.value)}/>
                             </div>
                         ))}
                         <div className="input-group">
@@ -179,8 +177,7 @@ const AddUser: React.FC = () => {
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 
 };

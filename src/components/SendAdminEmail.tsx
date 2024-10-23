@@ -16,6 +16,9 @@ const SendAdminEmail: React.FC = () => {
     const [subject, setSubject] = useState<string>('');
     const [body, setBody] = useState<string>('');
 
+    const [accountantEmails, setAccountantEmails] = useState<string[]>();
+    const [managerEmails, setManagerEmails] = useState<string[]>();
+
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -31,8 +34,46 @@ const SendAdminEmail: React.FC = () => {
     useEffect(() => {
         if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
             navigate('/login');
+        } else {
+            getEmails().then();
         }
     }, [loggedInUser, isLoading, navigate]);
+
+    const getEmails = async () => {
+        if (!csrfToken) {
+            console.error('CSRF token is not available.');
+            return;
+        }
+        try {
+            const response = await fetch('https://synergyaccounting.app/api/admin/get-all-emails/accountant', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'include',
+            });
+            if (response.ok) {
+                const emails: string[] = await response.json();
+                setAccountantEmails(emails);
+            }
+            const response1 = await fetch('https://synergyaccounting.app/api/admin/get-all-emails/manager', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'include',
+            });
+            if (response1.ok) {
+                const emails: string[] = await response1.json();
+                setManagerEmails(emails);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -72,17 +113,26 @@ const SendAdminEmail: React.FC = () => {
         }
     };
 
-    if (isLoading || !csrfToken) {
+    const handleEmailClick = (email: string) => {
+        setTo(email);
+    };
+
+    if (isLoading || !csrfToken || !accountantEmails || !managerEmails) {
         return <div>Loading...</div>;
     }
 
     return (
-        <div className="dashboard">
-            <RightDashboard />
-            <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div className="dashboard-center" style={{justifyContent: "center"}}>
-                <div className="email-dashboard">
-                    <form onSubmit={handleSubmit}>
+            <RightDashboard>
+                <div style={{display: "flex", justifyContent: "space-around"}}>
+                    <div style={{fontSize: "calc(8px + 1vmin)", width: "25%"}} className="update-user-column">
+                        <h4>Accountant Emails</h4>
+                        <ul>
+                            {accountantEmails.map((email, index) => (
+                                <li key={index} onClick={() => handleEmailClick(email)}>{email}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <form style={{width: "55vmin"}} className="email-dashboard" onSubmit={handleSubmit}>
                         <label htmlFor="emailbody" className="label default-font"
                                style={{marginBottom: "20px", textAlign: "center", display: "block"}}>Send an
                             Email</label>
@@ -124,9 +174,16 @@ const SendAdminEmail: React.FC = () => {
                             <button type="submit" className="custom-button">Send Email</button>
                         </div>
                     </form>
+                    <div style={{fontSize: "calc(8px + 1vmin)", width: "25%"}} className="update-user-column">
+                        <h4>Manager Emails</h4>
+                        <ul>
+                            {managerEmails.map((email, index) => (
+                                <li key={index} onClick={() => handleEmailClick(email)}>{email}</li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </RightDashboard>
     );
 };
 
