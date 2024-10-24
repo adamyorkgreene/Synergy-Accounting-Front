@@ -489,14 +489,16 @@
   text-decoration: none;
   cursor: pointer;
 }
-
-.journal-entry-requests {
+.journal-entry-requests,
+.send-admin-email {
   display: flex;
   justify-content: space-between;
   padding: 20px;
+  gap: 20px;
 }
 
-.journal-entries-column {
+.journal-entries-column,
+.email-column {
   flex: 1;
   margin: 0 10px;
   padding: 10px;
@@ -506,52 +508,54 @@
   color: black;
 }
 
-.journal-entries-column h2 {
+/* Headings for consistency */
+.journal-entries-column h2,
+.email-column h2 {
   text-align: center;
   font-size: 1.5em;
   margin-bottom: 10px;
 }
 
-.journal-entry {
+.journal-entry,
+.email-item {
   border-bottom: 2px solid #ddd;
-  padding-bottom: 15px;
-  margin-bottom: 15px;
+  padding: 10px;
+  margin: 10px 0;
+  cursor: pointer;
 }
 
-.journal-entry h3 {
+.journal-entry h3,
+.email-item h3 {
   font-size: 1.2em;
   margin-bottom: 5px;
   text-align: center;
 }
 
-.transactions-list {
+.transactions-list,
+.email-list {
   list-style-type: none;
   padding: 0;
 }
 
-.transaction {
+.transaction,
+.email-item {
   padding: 10px;
   background-color: #f0f0f0;
   margin-bottom: 10px;
   border-radius: 5px;
 }
 
-.transaction p {
+.transaction p,
+.email-item p {
   margin: 5px 0;
 }
 
-.transaction:last-child {
-  margin-bottom: 0;
-}
-
-.journal-entry {
-  padding: 10px;
-  margin: 10px 0;
-  cursor: pointer;
-}
-
-.journal-entry.selected {
+/* Active/selected states */
+.journal-entry.selected,
+.email-item.selected {
   background-color: #ddfaf3;
   border: 2px solid #104d42;
 }
+
+
 
