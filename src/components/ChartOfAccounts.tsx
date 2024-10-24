@@ -256,23 +256,32 @@ const ChartOfAccounts: React.FC = () => {
             <RightDashboard>
                     <div className="chart-container">
                         {selectedAccount === null ? <>
-                            <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>Chart of
-                                Accounts</label>
-                            <button
-                                onClick={() => navigate('/dashboard/chart-of-accounts/add',
-                                    {state: {selectedAccount}})}
-                                className="control-button add-account-button">
-                                +
-                            </button>
-                            <table id="chartOfAccountsTable">
-                                <thead>
-                                <tr>
-                                    <th onClick={() => handleSort('accountNumber')}>Account Number</th>
-                                    <th onClick={() => handleSort('accountName')}>Account Name</th>
-                                    <th onClick={() => handleSort('accountDescription')}>Account Description</th>
-                                    <th onClick={() => handleSort('normalSide')}>Normal Side</th>
-                                    <th onClick={() => handleSort('accountCategory')}>Category</th>
-                                    <th onClick={() => handleSort('accountSubCategory')}>Subcategory</th>
+                        <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin",
+                        position: 'absolute', left: '0', top: '4vmin'}}>Chart of
+                            Accounts</label>
+                                <div style={{width: '100%', display: 'flex', flexDirection: 'row-reverse',
+                                alignItems: 'flex-end'}} className="search-bar">
+                                    <button
+                                        onClick={() => navigate('/dashboard/chart-of-accounts/add',
+                                            {state: {selectedAccount}})}
+                                        title="Add Account"
+                                        style={{
+                                            width: '3%', height: 'auto', position: 'relative', marginTop: '1rem',
+                                            marginBottom: '1rem', marginLeft: '1rem', right: 'unset', padding: '8px'
+                                        }}
+                                        className="control-button add-account-button">
+                                        +
+                                    </button>
+                                </div>
+                                <table id="chartOfAccountsTable">
+                                    <thead>
+                                    <tr>
+                                        <th onClick={() => handleSort('accountNumber')}>Account Number</th>
+                                        <th onClick={() => handleSort('accountName')}>Account Name</th>
+                                        <th onClick={() => handleSort('accountDescription')}>Account Description</th>
+                                        <th onClick={() => handleSort('normalSide')}>Normal Side</th>
+                                        <th onClick={() => handleSort('accountCategory')}>Category</th>
+                                        <th onClick={() => handleSort('accountSubCategory')}>Subcategory</th>
                                     <th onClick={() => handleSort('currentBalance')}>Current Balance</th>
                                     <th onClick={() => handleSort('dateAdded')}>Date Added</th>
                                     <th onClick={() => handleSort('statementType')}>Statement Type</th>
@@ -290,7 +299,8 @@ const ChartOfAccounts: React.FC = () => {
                                             key={account.accountNumber}
                                             onClick={() => handleAccountClick(account)}
                                             style={{opacity: account.isActive ? 1 : 0.5}}
-                                        >                                        <td>{account.accountNumber}</td>
+                                        >
+                                            <td>{account.accountNumber}</td>
                                             <td>{account.accountName}</td>
                                             <td>{account.accountDescription}</td>
                                             <td>{account.normalSide}</td>
@@ -305,18 +315,21 @@ const ChartOfAccounts: React.FC = () => {
                                 })}
                                 </tbody>
                             </table>
-                        </> : <>
+                        </>
+                        : <>
                             <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
                                 Account Ledger: {selectedAccount.accountName}<br/></label>
                             <button style={{right: "unset", left: "5vmin"}} onClick={() => handleGoBack()}
                                     className="control-button add-account-button">Go Back
                             </button>
                             {selectedAccount.isActive ? (
-                                <button style={{right: "unset", left: "calc(69%/2)"}} onClick={() => handleUpdateActivation()}
+                                <button style={{right: "unset", left: "calc(69%/2)"}}
+                                        onClick={() => handleUpdateActivation()}
                                         className="control-button add-account-button">Deactivate Account
                                 </button>
                             ) : (
-                                <button style={{right: "unset", left: "calc(69%/2)"}} onClick={() => handleUpdateActivation()}
+                                <button style={{right: "unset", left: "calc(69%/2)"}}
+                                        onClick={() => handleUpdateActivation()}
                                         className="control-button add-account-button">Activate Account
                                 </button>
                             )}
@@ -369,7 +382,7 @@ const ChartOfAccounts: React.FC = () => {
                                         return (
                                             <tr key={transaction.transactionId} onClick={() =>
                                                 loggedInUser?.userType === "ADMINISTRATOR" && (
-                                                navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
+                                                    navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
                                                 <td>
                                                     <input
                                                         type="checkbox"
@@ -391,9 +404,9 @@ const ChartOfAccounts: React.FC = () => {
                                 </tbody>
                             </table>
                         </>}
-                    </div>
-            </RightDashboard>
-    );
-};
+                        </div>
+                            </RightDashboard>
+                            );
+                        };
 
-export default ChartOfAccounts;
+                        export default ChartOfAccounts;

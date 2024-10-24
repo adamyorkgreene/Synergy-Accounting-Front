@@ -15,10 +15,9 @@ const GeneralLedger: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [sortKey, setSortKey] = useState<keyof TransactionForm | 'account' | null>(null);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
     const [selectedTransactions, setSelectedTransactions] = useState<TransactionForm[]>([]);
-
+    const [searchQuery, setSearchQuery] = useState<string>(''); // Add search state
 
     useEffect(() => {
         const init = async () => {
@@ -76,7 +75,21 @@ const GeneralLedger: React.FC = () => {
     const getSortedTransactionsByAccount = () => {
         const accountMap: { [accountNumber: string]: TransactionForm[] } = {};
 
-        transactions.forEach((transaction) => {
+        // Filter transactions based on search query
+        const filteredTransactions = transactions.filter((transaction) => {
+            const accountName = transaction.account?.accountName?.toLowerCase() || '';
+            const amount = transaction.transactionAmount.toString();
+            const date = new Date(transaction.transactionDate).toLocaleDateString('en-US');
+
+            return (
+                accountName.includes(searchQuery.toLowerCase()) ||
+                amount.includes(searchQuery) ||
+                date.includes(searchQuery)
+            );
+        });
+
+        // Group transactions by account
+        filteredTransactions.forEach((transaction) => {
             const accountNumber = transaction.account?.accountNumber;
             if (accountNumber) {
                 if (!accountMap[accountNumber]) {
@@ -86,6 +99,7 @@ const GeneralLedger: React.FC = () => {
             }
         });
 
+        // Sort transactions within each account group
         Object.keys(accountMap).forEach(account => {
             accountMap[account].sort((a, b) => {
                 if (!sortKey) return 0;
@@ -109,13 +123,6 @@ const GeneralLedger: React.FC = () => {
 
         return accountMap;
     };
-
-    const handleSort = (key: keyof TransactionForm | 'account') => {
-        setSortKey(key);
-        setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    };
-
-    const sortedAccounts = getSortedTransactionsByAccount();
 
     const handleDeleteTransactions = async () => {
         if (!csrfToken) {
@@ -157,6 +164,31 @@ const GeneralLedger: React.FC = () => {
         }
     };
 
+    const handleSort = (key: keyof TransactionForm | 'account') => {
+        setSortKey(key);
+        setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    };
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const handleGoBack = () => {
+        setSelectedAccount(null);
+        setSelectedTransactions([]);
+        getJournalEntries(); // Refresh the general ledger when going back
+    };
+
+    const handleChange = async (transaction: TransactionForm, isChecked: boolean) => {
+        if (transactions) {
+            if (isChecked) {
+                setSelectedTransactions(prev => [...prev, transaction]);
+            } else {
+                setSelectedTransactions(prev => prev.filter(id => id !== transaction));
+            }
+        }
+    }
+
     const handleUpdateActivation = async () => {
         if (!csrfToken) {
             console.error('CSRF token is not available.');
@@ -180,36 +212,17 @@ const GeneralLedger: React.FC = () => {
                 alert('You do not have permission to change this account activation.');
                 return;
             }
-            if (!(response.status === 204) && transactions && selectedTransactions) {
-                if (response.ok) {
-                    const AccountResponse: Account = await response.json();
-                    alert(AccountResponse.accountName + " has been disabled.");
-                } else {
-                    const MsgResponse: MessageResponse = await response.json();
-                    alert(MsgResponse.message);
-                }
+            if (response.ok) {
+                const AccountResponse: Account = await response.json();
+                alert(AccountResponse.accountName + " has been updated.");
             }
-
         } catch (error) {
             alert('An error occurred while deactivating account.');
             console.log(error);
         }
     };
 
-    const handleChange = async (transaction: TransactionForm, isChecked: boolean) => {
-        if (transactions) {
-            if (isChecked) {
-                setSelectedTransactions(prev => [...prev, transaction]);
-            } else {
-                setSelectedTransactions(prev => prev.filter(id => id !== transaction));
-            }
-        }
-    }
-
-    const handleGoBack = () => {
-        setSelectedAccount(null);
-        setTransactions([]);
-    };
+    const sortedAccounts = getSortedTransactionsByAccount();
 
     if (isLoading || !csrfToken) {
         return <div>Loading...</div>;
@@ -218,149 +231,175 @@ const GeneralLedger: React.FC = () => {
     return (
         <RightDashboard>
             <div className="chart-container">
-                {selectedAccount === null ? <>
-                    <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
-                        General Ledger
-                    </label>
-                    <table id="chartOfAccountsTable">
-                        <thead>
-                        <tr>
-                            <th onClick={() => handleSort('account')}>Account</th>
-                            <th onClick={() => handleSort('transactionDate')}>Date</th>
-                            <th onClick={() => handleSort('transactionDescription')}>Description</th>
-                            <th onClick={() => handleSort('transactionType')}>Debit</th>
-                            <th onClick={() => handleSort('transactionType')}>Credit</th>
-                            <th onClick={() => handleSort('transactionAmount')}>Balance</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {Object.keys(sortedAccounts).map(accountNumber => {
-                            let runningBalance = 0;
-                            const accountTransactions = sortedAccounts[accountNumber];
-                            const accountName = accountTransactions[0]?.account?.accountName || 'Unknown Account';
-                            const normalSide = accountTransactions[0]?.account?.normalSide;
+                {selectedAccount === null ? (
+                    <>
+                        <label className="center-text" style={{ fontSize: "5vmin", marginBottom: "2vmin" }}>
+                            General Ledger
+                        </label>
+                        <div style={{width: '100%', display: 'flex', flexDirection: 'row'}} className="search-bar">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={handleSearch}
+                                placeholder="Search by Account, Amount, or Date"
+                                style={{marginBottom: "1rem", marginTop: "1rem", width: "100%", padding: "8px"}}
+                            />
+                            <button
+                                onClick={() => navigate('/dashboard/journal-entry-form',
+                                    {state: {selectedAccount}})}
+                                className="control-button add-account-button"
+                                title="Add Journal Entry"
+                                style={{width: '3%', height: 'auto', position: 'relative', marginTop: '1rem',
+                                marginBottom: '1rem', marginLeft: '1rem', right: 'unset'}}>
+                                +
+                            </button>
+                        </div>
+                        <table id="chartOfAccountsTable">
+                            <thead>
+                            <tr>
+                                <th onClick={() => handleSort('account')}>Account</th>
+                                <th onClick={() => handleSort('transactionDate')}>Date</th>
+                                <th onClick={() => handleSort('transactionDescription')}>Description</th>
+                                <th onClick={() => handleSort('transactionType')}>Debit</th>
+                                <th onClick={() => handleSort('transactionType')}>Credit</th>
+                                <th onClick={() => handleSort('transactionAmount')}>Balance</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {Object.keys(sortedAccounts).map(accountNumber => {
+                                const accountTransactions = sortedAccounts[accountNumber];
+                                let runningBalance = accountTransactions[0]?.account?.initialBalance || 0;
+                                const accountName = accountTransactions[0]?.account?.accountName || 'Unknown Account';
+                                const normalSide = accountTransactions[0]?.account?.normalSide;
 
-                            return (
-                                <React.Fragment key={accountNumber}>
-                                    <tr onClick={() => accountTransactions[0].account !== undefined && setSelectedAccount(accountTransactions[0].account)} className="chart-of-accounts-row">
-                                        <td colSpan={6} style={{fontWeight: "bold"}}>
-                                            {accountName} (#{accountNumber})
-                                        </td>
-                                    </tr>
-                                    {accountTransactions.map((transaction, index) => {
-                                        // Adjust running balance based on account's normal side
-                                        if (transaction.transactionType === "DEBIT") {
-                                            runningBalance += normalSide === "DEBIT" ? transaction.transactionAmount : -transaction.transactionAmount;
+                                return (
+                                    <React.Fragment key={accountNumber}>
+                                        <tr onClick={() => accountTransactions[0].account && setSelectedAccount(accountTransactions[0].account)}
+                                            className="chart-of-accounts-row">
+                                            <td colSpan={6} style={{ fontWeight: "bold" }}>
+                                                {accountName} (#{accountNumber})
+                                            </td>
+                                        </tr>
+                                        {accountTransactions.map((transaction, index) => {
+                                            if (transaction.transactionType === "DEBIT") {
+                                                runningBalance += normalSide === "DEBIT" ? transaction.transactionAmount : -transaction.transactionAmount;
+                                            } else {
+                                                runningBalance += normalSide === "CREDIT" ? transaction.transactionAmount : -transaction.transactionAmount;
+                                            }
+
+                                            return (
+                                                <tr key={index} className="chart-of-accounts-row">
+                                                    <td>{transaction.account?.accountName || 'Unknown Account'}</td>
+                                                    <td>{new Date(transaction.transactionDate).toLocaleDateString('en-US', {
+                                                        year: 'numeric',
+                                                        month: '2-digit',
+                                                        day: '2-digit'
+                                                    })}</td>
+                                                    <td>{transaction.transactionDescription}</td>
+                                                    <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
+                                                    <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
+                                                    <td>{runningBalance.toFixed(2)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </React.Fragment>
+                                );
+                            })}
+                            </tbody>
+                        </table>
+                    </>
+                ) : (
+                    <>
+                        <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
+                            Account Ledger: {selectedAccount.accountName}<br/></label>
+                        <button style={{right: "unset", left: "5vmin"}} onClick={() => handleGoBack()}
+                                className="control-button add-account-button">Go Back
+                        </button>
+                        {selectedAccount.isActive ? (
+                            <button style={{right: "unset", left: "calc(69%/2)"}}
+                                    onClick={() => handleUpdateActivation()}
+                                    className="control-button add-account-button">Deactivate Account
+                            </button>
+                        ) : (
+                            <button style={{right: "unset", left: "calc(69%/2)"}}
+                                    onClick={() => handleUpdateActivation()}
+                                    className="control-button add-account-button">Activate Account
+                            </button>
+                        )}
+                        <button style={{right: "unset", left: "calc(104%/2)"}} onClick={() =>
+                            navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
+                                className="control-button add-account-button">Update Account
+                        </button>
+                        <div className="button-container">
+                            <button onClick={handleDeleteTransactions}
+                                    className="control-button transaction-button"
+                                    disabled={selectedTransactions.length === 0}>
+                                <img src={trashCanIcon} alt="Delete" style={{width: '20px', height: '20px'}}/>
+                            </button>
+                            <button
+                                onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
+                                    {state: {selectedAccount}})}
+                                style={{aspectRatio: "1/1", width: "2rem"}}
+                                className="control-button transaction-button">
+                                +
+                            </button>
+                        </div>
+                        <table id="transactionTable" style={{marginTop: "8vmin"}}>
+                            <thead>
+                            <tr>
+                                <th style={{width: 'min-content'}}>Select</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>Balance</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {(() => {
+                                let runningBalance = selectedAccount.initialBalance;
+                                return transactions.map((transaction) => {
+                                    if (transaction.account === selectedAccount) {
+                                        if (selectedAccount.normalSide === "DEBIT") {
+                                            if (transaction.transactionType === "DEBIT") {
+                                                runningBalance += transaction.transactionAmount;
+                                            } else {
+                                                runningBalance -= transaction.transactionAmount;
+                                            }
                                         } else {
-                                            runningBalance += normalSide === "CREDIT" ? transaction.transactionAmount : -transaction.transactionAmount;
+                                            if (transaction.transactionType === "DEBIT") {
+                                                runningBalance -= transaction.transactionAmount;
+                                            } else {
+                                                runningBalance += transaction.transactionAmount;
+                                            }
                                         }
-
                                         return (
-                                            <tr key={index} className="chart-of-accounts-row">
-                                                <td>{transaction.account?.accountName || 'Unknown Account'}</td>
-                                                <td>{new Date(transaction.transactionDate).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: '2-digit',
-                                                    day: '2-digit'
-                                                })}</td>
+                                            <tr key={transaction.transactionId} onClick={() =>
+                                                loggedInUser?.userType === "ADMINISTRATOR" && (
+                                                    navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
+                                                <td>
+                                                    <input
+                                                        type="checkbox"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        onChange={(e) =>
+                                                            handleChange(transaction, e.target.checked)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>{new Date(transaction?.transactionDate).toLocaleDateString()}</td>
                                                 <td>{transaction.transactionDescription}</td>
                                                 <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
                                                 <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
                                                 <td>{runningBalance.toFixed(2)}</td>
                                             </tr>
                                         );
-                                    })}
-                                </React.Fragment>
-                            );
-                        })}
-                        </tbody>
-                    </table>
-                </> : <>
-                    <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
-                        Account Ledger: {selectedAccount.accountName}<br/></label>
-                    <button style={{right: "unset", left: "5vmin"}} onClick={() => handleGoBack()}
-                            className="control-button add-account-button">Go Back
-                    </button>
-                    {selectedAccount.isActive ? (
-                        <button style={{right: "unset", left: "calc(69%/2)"}} onClick={() => handleUpdateActivation()}
-                                className="control-button add-account-button">Deactivate Account
-                        </button>
-                    ) : (
-                        <button style={{right: "unset", left: "calc(69%/2)"}} onClick={() => handleUpdateActivation()}
-                                className="control-button add-account-button">Activate Account
-                        </button>
-                    )}
-                    <button style={{right: "unset", left: "calc(104%/2)"}} onClick={() =>
-                        navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
-                            className="control-button add-account-button">Update Account
-                    </button>
-                    <div className="button-container">
-                        <button onClick={handleDeleteTransactions}
-                                className="control-button transaction-button"
-                                disabled={selectedTransactions.length === 0}>
-                            <img src={trashCanIcon} alt="Delete" style={{width: '20px', height: '20px'}}/>
-                        </button>
-                        <button
-                            onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
-                                {state: {selectedAccount}})}
-                            style={{aspectRatio: "1/1", width: "2rem"}}
-                            className="control-button transaction-button">
-                            +
-                        </button>
-                    </div>
-                    <table id="transactionTable" style={{marginTop: "8vmin"}}>
-                        <thead>
-                        <tr>
-                            <th style={{width: 'min-content'}}>Select</th>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                            <th>Balance</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {(() => {
-                            let runningBalance = selectedAccount.initialBalance;
-                            return transactions.map((transaction) => {
-                                if (selectedAccount.normalSide === "DEBIT") {
-                                    if (transaction.transactionType === "DEBIT") {
-                                        runningBalance += transaction.transactionAmount;
-                                    } else {
-                                        runningBalance -= transaction.transactionAmount;
                                     }
-                                } else {
-                                    if (transaction.transactionType === "DEBIT") {
-                                        runningBalance -= transaction.transactionAmount;
-                                    } else {
-                                        runningBalance += transaction.transactionAmount;
-                                    }
-                                }
-                                return (
-                                    <tr key={transaction.transactionId} onClick={() =>
-                                        loggedInUser?.userType === "ADMINISTRATOR" && (
-                                            navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                onClick={(e) => e.stopPropagation()}
-                                                onChange={(e) =>
-                                                    handleChange(transaction, e.target.checked)
-                                                }
-                                            />
-                                        </td>
-                                        <td>{new Date(transaction?.transactionDate).toLocaleDateString()}</td>
-                                        <td>{transaction.transactionDescription}</td>
-                                        <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                        <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                        <td>{runningBalance.toFixed(2)}</td>
-                                    </tr>
-                                );
-                            });
-                        })()}
-                        </tbody>
-                    </table>
-                </>}
+                                });
+                            })()}
+                            </tbody>
+                        </table>
+                    </>
+                )}
             </div>
         </RightDashboard>
     );

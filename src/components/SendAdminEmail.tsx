@@ -1,24 +1,19 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
-import Logo from "../assets/synergylogo.png";
 import RightDashboard from "./RightDashboard";
 
 const SendAdminEmail: React.FC = () => {
-
     const navigate = useNavigate();
-
     const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
     const [to, setTo] = useState<string>('');
     const [subject, setSubject] = useState<string>('');
     const [body, setBody] = useState<string>('');
-
-    const [accountantEmails, setAccountantEmails] = useState<string[]>();
-    const [managerEmails, setManagerEmails] = useState<string[]>();
-
+    const [accountantEmails, setAccountantEmails] = useState<string[]>([]);
+    const [managerEmails, setManagerEmails] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -34,11 +29,10 @@ const SendAdminEmail: React.FC = () => {
     useEffect(() => {
         if (!isLoading) {
             if (!loggedInUser) {
-                navigate('/login')
-            }
-            else if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT"){
+                navigate('/login');
+            } else if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT") {
                 navigate('/dashboard');
-                alert('You do not have permission to send emails.')
+                alert('You do not have permission to send emails.');
             } else {
                 getEmails().then();
             }
@@ -79,7 +73,7 @@ const SendAdminEmail: React.FC = () => {
             console.error('Error:', error);
             alert('An error occurred. Please try again.');
         }
-    }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -107,8 +101,7 @@ const SendAdminEmail: React.FC = () => {
 
             if (response.ok) {
                 alert('Email has been sent successfully.');
-                navigate('/dashboard/admin/inbox')
-
+                navigate('/dashboard/admin/inbox');
             } else {
                 const errorResponse = await response.json();
                 alert(`Failed to send email: ${errorResponse.message}`);
@@ -128,68 +121,67 @@ const SendAdminEmail: React.FC = () => {
     }
 
     return (
-            <RightDashboard>
-                <div style={{display: "flex", justifyContent: "space-around"}}>
-                    <div style={{fontSize: "calc(8px + 1vmin)", width: "25%"}} className="update-user-column">
-                        <h4>Accountant Emails</h4>
-                        <ul>
-                            {accountantEmails.map((email, index) => (
-                                <li key={index} onClick={() => handleEmailClick(email)}>{email}</li>
-                            ))}
-                        </ul>
-                    </div>
-                    <form style={{width: "55vmin"}} className="email-dashboard" onSubmit={handleSubmit}>
-                        <label htmlFor="emailbody" className="label default-font"
-                               style={{marginBottom: "20px", textAlign: "center", display: "block"}}>Send an
-                            Email</label>
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                className="custom-input"
-                                value={to}
-                                name="recipient email"
-                                onChange={(e) => setTo(e.target.value)}
-                                placeholder="Recipient email address"
-                                style={{width: "100%"}}
-                            />
-                        </div>
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                className="custom-input"
-                                value={subject}
-                                name="email subject"
-                                onChange={(e) => setSubject(e.target.value)}
-                                placeholder="Email subject"
-                                style={{width: "100%"}}
-                            />
-                        </div>
-                        <div className="input-group">
-                    <textarea
-                        className="custom-textarea"
-                        value={body}
-                        name="emailbody"
-                        id="emailbody"
-                        style={{width: "75vmin"}}
-                        onChange={(e) => setBody(e.target.value)}
-                        placeholder="Email body"
-                        rows={10}
-                    />
-                        </div>
-                        <div className="input-group">
-                            <button type="submit" className="custom-button">Send Email</button>
-                        </div>
-                    </form>
-                    <div style={{fontSize: "calc(8px + 1vmin)", width: "25%"}} className="update-user-column">
-                        <h4>Manager Emails</h4>
-                        <ul>
-                            {managerEmails.map((email, index) => (
-                                <li key={index} onClick={() => handleEmailClick(email)}>{email}</li>
-                            ))}
-                        </ul>
-                    </div>
+        <RightDashboard>
+            <div className="send-admin-email">
+                <div style={{fontSize: '1.5vmin'}}
+                     className="email-column">
+                    <h2>Accountant Emails</h2>
+                    <ul className="email-list">
+                        {accountantEmails.map((email, index) => (
+                            <li key={index} className="email-item" onClick={() => handleEmailClick(email)}>
+                                {email}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
-            </RightDashboard>
+                <form style={{width: '75vmin'}} className="email-form" onSubmit={handleSubmit}>
+                    <h2>Send an Email</h2>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="custom-input"
+                            value={to}
+                            style={{width: '100%'}}
+                            onChange={(e) => setTo(e.target.value)}
+                            placeholder="Recipient email address"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="custom-input"
+                            value={subject}
+                            style={{width: '100%'}}
+                            onChange={(e) => setSubject(e.target.value)}
+                            placeholder="Email subject"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <textarea
+                            className="custom-textarea"
+                            value={body}
+                            onChange={(e) => setBody(e.target.value)}
+                            placeholder="Email body"
+                            rows={10}
+                        />
+                    </div>
+                    <div className="input-group">
+                        <button type="submit" className="control-button">Send Email</button>
+                    </div>
+                </form>
+                <div style={{fontSize: '1.5vmin'}}
+                     className="email-column">
+                    <h2>Manager Emails</h2>
+                    <ul className="email-list">
+                        {managerEmails.map((email, index) => (
+                            <li key={index} className="email-item" onClick={() => handleEmailClick(email)}>
+                                {email}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </RightDashboard>
     );
 };
 
