@@ -32,10 +32,16 @@ const SendAdminEmail: React.FC = () => {
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
-            navigate('/login');
-        } else {
-            getEmails().then();
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT"){
+                navigate('/dashboard');
+                alert('You do not have permission to send emails.')
+            } else {
+                getEmails().then();
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
 
@@ -45,7 +51,7 @@ const SendAdminEmail: React.FC = () => {
             return;
         }
         try {
-            const response = await fetch('https://synergyaccounting.app/api/admin/get-all-emails/accountant', {
+            const response = await fetch('https://synergyaccounting.app/api/email/get-all-emails/accountant', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -57,7 +63,7 @@ const SendAdminEmail: React.FC = () => {
                 const emails: string[] = await response.json();
                 setAccountantEmails(emails);
             }
-            const response1 = await fetch('https://synergyaccounting.app/api/admin/get-all-emails/manager', {
+            const response1 = await fetch('https://synergyaccounting.app/api/email/get-all-emails/manager', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,7 +95,7 @@ const SendAdminEmail: React.FC = () => {
         }
 
         try {
-            const response = await fetch('https://synergyaccounting.app/api/admin/send-email', {
+            const response = await fetch('https://synergyaccounting.app/api/email/send-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

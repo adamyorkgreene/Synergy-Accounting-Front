@@ -59,20 +59,28 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         <div className="dashboard">
             <Calendar/>
             <img src={Logo} alt="Synergy" className="dashboard-logo"/>
-            <div style={{flexDirection: "row", padding: "1.5625vmin"}} className={`control-panel ${isSticky ? 'sticky' : ''}`}>
-                <button style={{marginRight: "1.5625vmin"}} className="control-button" onClick={() => navigate("/dashboard")}>Home</button>
-                <button style={{marginRight: "1.5625vmin"}} className="control-button" onClick={() => navigate("/dashboard/chart-of-accounts")}>
+            <div style={{flexDirection: "row", padding: "1.5625vmin"}}
+                 className={`control-panel ${isSticky ? 'sticky' : ''}`}>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button"
+                        onClick={() => navigate("/dashboard")}>Home
+                </button>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button"
+                        onClick={() => navigate("/dashboard/chart-of-accounts")}>
                     Chart of Accounts
                 </button>
-                <button style={{marginRight: "1.5625vmin"}} className="control-button" onClick={() => navigate("/dashboard/journal-entry-form")}>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button"
+                        onClick={() => navigate("/dashboard/journal-entry-form")}>
                     Journal Entry
+                </button>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button"
+                        onClick={() => navigate("/dashboard/general-ledger")}>General Ledger
                 </button>
             </div>
             <div className={`dashboard-center ${isSticky ? 'margined' : ''}`}>
                 {children}
             </div>
             <div className="right-dashboard">
-            <div style={{marginRight: "unset", marginBottom: "1vh"}}
+                <div style={{marginRight: "unset", marginBottom: "1vh"}}
                      className="label large-font">{loggedInUser?.username}
                 </div>
                 <div className="profile-container"
@@ -87,6 +95,22 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
                 </div>
                    <button className="control-button">Settings</button>
                 <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
+                {loggedInUser?.userType !== "USER" && loggedInUser?.userType !== "DEFAULT" && (
+                    <>
+                        <div style={{marginRight: "unset"}} className="label large-font">Email Panel</div>
+                        <button onClick={() => navigate('/dashboard/admin/inbox')}
+                                className="control-button">Mailbox
+                        </button>
+                    </>
+                )}
+                {(loggedInUser?.userType === "MANAGER" || loggedInUser?.userType === "ADMINISTRATOR") && (
+                    <>
+                        <div style={{marginRight: "unset"}} className="label large-font">Manager Panel</div>
+                        <button onClick={() => navigate('/dashboard/manager/journal-entry-requests')} className="control-button">
+                            Pending Journal Entries
+                        </button>
+                    </>
+                )}
                 {loggedInUser?.userType === "ADMINISTRATOR" && (
                     <>
                         <div style={{marginRight: "unset"}} className="label large-font">Admin Panel</div>
@@ -95,9 +119,6 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
                         </button>
                         <button onClick={() => navigate('/dashboard/admin/update-user-search')}
                                 className="control-button">Update User
-                        </button>
-                        <button onClick={() => navigate('/dashboard/admin/inbox')}
-                                className="control-button">Mailbox
                         </button>
                         <div className="extra-margin"></div>
                     </>

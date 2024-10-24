@@ -44,8 +44,14 @@ const UpdateTransaction: React.FC = () => {
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
-            navigate('/login');
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType !== "ADMINISTRATOR"){
+                navigate('/dashboard/chart-of-accounts');
+                alert('You do not have permission to update accounts.')
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
 

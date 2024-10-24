@@ -52,6 +52,20 @@ export interface Transaction {
     transactionType: AccountType;
 }
 
+export interface TransactionForm {
+    account: Account | undefined;
+    transactionDate: Date;
+    transactionDescription: string;
+    transactionAmount: number;
+    transactionType: AccountType;
+    transactionId: number | undefined;
+}
+
+export interface JournalEntry {
+    transactions: TransactionForm[];
+    user: User;
+}
+
 export interface Email {
     to: string;
     from: string;

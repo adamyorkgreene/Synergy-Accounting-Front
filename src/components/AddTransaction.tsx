@@ -39,8 +39,19 @@ const AddTransaction: React.FC = () => {
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
-            navigate('/login');
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType !== "ADMINISTRATOR") {
+                if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT") {
+                    navigate('/dashboard');
+                    alert('You do not have permission to add transactions.')
+                } else {
+                    navigate('/dashboard/journal-entry-form');
+                    alert('You do not have permission to add standalone transactions. Please make a journal entry.')
+                }
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
 
@@ -86,12 +97,10 @@ const AddTransaction: React.FC = () => {
             if (response.ok) {
                 alert("Transaction has been added to: " + selectedAccount.accountName);
                 navigate('/dashboard/chart-of-accounts', { state: { account: selectedAccount } });
-            } else if (response.status === 401) {
-                alert("You don't have permission to perform this action.");
-                navigate('/dashboard');
             } else {
                 const msgResponse: MessageResponse = await response.json();
                 alert(msgResponse.message);
+                navigate('/dashboard/chart-of-accounts', { state: { account: selectedAccount } });
             }
         } catch (error) {
             console.error('Error:', error);

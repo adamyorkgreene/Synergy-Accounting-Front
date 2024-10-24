@@ -35,8 +35,14 @@ const AddUser: React.FC = () => {
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
-            navigate('/login');
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType !== "ADMINISTRATOR"){
+                navigate('/dashboard');
+                alert('You do not have permission to create users.')
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
 

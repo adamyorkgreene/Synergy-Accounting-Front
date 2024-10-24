@@ -62,10 +62,17 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR") {
-            navigate('/login');
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType !== "ADMINISTRATOR"){
+                navigate('/dashboard/chart-of-accounts');
+                alert('You do not have permission to update users.')
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
+
     useEffect(() => {
         if (!csrfToken) {
             navigate('/login');
@@ -93,7 +100,6 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
         setIsActive(userResponse.user_security.isActive ?? false);
         setIsVerified(userResponse.user_security.isVerified ?? false);
         setAddress(userResponse.address ?? "");
-        //setFailedLoginAttempts(userResponse.user_security ?? 0);
         setBirthday(userResponse.user_date?.birthday ? new Date(userResponse.user_date.birthday) : undefined);
         setJoinDate(userResponse.user_date?.joinDate ? new Date(userResponse.user_date.joinDate) : undefined);
         setTempLeaveStart(userResponse.user_date?.tempLeaveStart ? new Date(userResponse.user_date.tempLeaveStart) : undefined);

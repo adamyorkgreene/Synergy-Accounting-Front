@@ -489,3 +489,69 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+.journal-entry-requests {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.journal-entries-column {
+  flex: 1;
+  margin: 0 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  min-height: 50vmin;
+  color: black;
+}
+
+.journal-entries-column h2 {
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.journal-entry {
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.journal-entry h3 {
+  font-size: 1.2em;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.transactions-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.transaction {
+  padding: 10px;
+  background-color: #f0f0f0;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.transaction p {
+  margin: 5px 0;
+}
+
+.transaction:last-child {
+  margin-bottom: 0;
+}
+
+.journal-entry {
+  padding: 10px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.journal-entry.selected {
+  background-color: #ddfaf3;
+  border: 2px solid #104d42;
+}
+

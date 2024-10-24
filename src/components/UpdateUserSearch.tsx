@@ -15,15 +15,33 @@ const UpdateUserSearch: React.FC = () => {
     const navigate = useNavigate();
 
     const {csrfToken} = useCsrf();
-    const { user: loggedInUser } = useUser();
+    const { user: loggedInUser, setUser: setLoggedInUser, fetchUser } = useUser();
+
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR") {
-            navigate('/login');
-        }
-    }, [loggedInUser, navigate]);
+        const init = async () => {
+            if (!loggedInUser) {
+                await fetchUser();
+            }
+            setIsLoading(false);
+        };
+        init().then();
+    }, [loggedInUser, fetchUser]);
 
-    if (!loggedInUser || !csrfToken) {
+    useEffect(() => {
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType !== "ADMINISTRATOR"){
+                navigate('/dashboard/chart-of-accounts');
+                alert('You do not have permission to search for users.')
+            }
+        }
+    }, [loggedInUser, isLoading, navigate]);
+
+    if (isLoading || !csrfToken) {
         return <div>Loading...</div>;
     }
 

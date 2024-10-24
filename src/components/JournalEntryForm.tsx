@@ -1,35 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import Calendar from "./Calandar";
+import React, {useEffect, useState} from 'react';
 import RightDashboard from "./RightDashboard";
-import Logo from "../assets/synergylogo.png";
-import { Account, AccountType, MessageResponse } from "../Types";
-import { useCsrf } from "../utilities/CsrfContext";
-import { useUser } from "../utilities/UserContext";
-import { useNavigate } from "react-router-dom";
-
-interface TransactionForm {
-    accountNumber: number;
-    transactionDate: Date;
-    transactionDescription: string;
-    transactionAmount: number;
-    transactionType: AccountType;
-}
+import {Account, AccountType, MessageResponse, TransactionForm, UserType} from "../Types";
+import {useCsrf} from "../utilities/CsrfContext";
+import {useUser} from "../utilities/UserContext";
+import {useNavigate} from "react-router-dom";
 
 const JournalEntryForm: React.FC = () => {
     const [transactions, setTransactions] = useState<TransactionForm[]>([
         {
-            accountNumber: 0, // Placeholder for debit
+            account: undefined,
             transactionDate: new Date(),
             transactionDescription: '',
             transactionAmount: 0,
-            transactionType: AccountType.DEBIT
+            transactionType: AccountType.DEBIT,
+            transactionId: undefined
         },
         {
-            accountNumber: 0, // Placeholder for credit
+            account: undefined,
             transactionDate: new Date(),
             transactionDescription: '',
             transactionAmount: 0,
-            transactionType: AccountType.CREDIT
+            transactionType: AccountType.CREDIT,
+            transactionId: undefined
         }
     ]);
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -50,16 +42,26 @@ const JournalEntryForm: React.FC = () => {
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType === "DEFAULT")) {
-            navigate('/login');
-        } else {
-            getAccounts().then();
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT"){
+                navigate('/dashboard');
+                alert('You do not have permission to create journal entries.')
+            } else {
+                getAccounts().then();
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
 
     const getAccounts = async () => {
         if (!csrfToken) {
             console.error('CSRF token is not available.');
+            return;
+        }
+        if (!loggedInUser || loggedInUser.userType === UserType.USER) {
+            alert('You do not have permission to make a journal entry.');
             return;
         }
         try {
@@ -89,24 +91,35 @@ const JournalEntryForm: React.FC = () => {
     const handleAddTransaction = () => {
         setTransactions([...transactions,
             {
-                accountNumber: 0, // Placeholder for new debit
+                account: undefined,
                 transactionDate: new Date(),
                 transactionDescription: '',
                 transactionAmount: 0,
-                transactionType: AccountType.DEBIT
+                transactionType: AccountType.DEBIT,
+                transactionId: undefined
             },
             {
-                accountNumber: 0, // Placeholder for new credit
+                account: undefined,
                 transactionDate: new Date(),
                 transactionDescription: '',
                 transactionAmount: 0,
-                transactionType: AccountType.CREDIT
+                transactionType: AccountType.CREDIT,
+                transactionId: undefined
             }
         ]);
     };
 
     const handleRemoveTransaction = (index: number) => {
         setTransactions(transactions.filter((_, i) => i !== index));
+    };
+
+    const handleAccountChange = (index: number, accountNumber: string) => {
+        const selectedAccount = accounts.find(acc => acc.accountNumber.toString() === accountNumber);
+        setTransactions(
+            transactions.map((tx, i) =>
+                i === index ? { ...tx, account: selectedAccount } : tx
+            )
+        );
     };
 
     const handleInputChange = (index: number, field: string, value: any) => {
@@ -129,10 +142,6 @@ const JournalEntryForm: React.FC = () => {
         return totalDebit === totalCredit;
     };
 
-    if (isLoading || !csrfToken) {
-        return <div>Loading...</div>;
-    }
-
     const handleSubmit = async () => {
         if (!validateBalance()) {
             alert('Debits and credits must be equal.');
@@ -146,26 +155,31 @@ const JournalEntryForm: React.FC = () => {
             alert('You cannot submit an empty set of transactions.')
             return;
         }
+        if (!loggedInUser || loggedInUser.userType === UserType.USER) {
+            alert('You do not have permission to make a journal entry.');
+            return;
+        }
 
-        for (const transaction of transactions) {
+        if (loggedInUser.userType === UserType.ACCOUNTANT) {
+            for (const transaction of transactions) {
+                if (!transaction.account) {
+                    alert('All transactions must belong to a specified account.')
+                    return;
+                }
 
-            if (!transaction.accountNumber) {
-                alert('All transactions must belong to a specified account.')
-                return;
-            }
+                if (!transaction.transactionType) {
+                    alert("Transaction type (credit or debit) must be specified.")
+                    return;
+                }
 
-            if (!transaction.transactionType) {
-                alert("Transaction type (credit or debit) must be specified.")
-                return;
-            }
-
-            if (!transaction.transactionAmount) {
-                alert("Transaction amount must be specified.")
-                return;
+                if (!transaction.transactionAmount) {
+                    alert("Transaction amount must be specified.")
+                    return;
+                }
             }
 
             try {
-                const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/add-transaction', {
+                const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/request-journal-entry', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -173,25 +187,13 @@ const JournalEntryForm: React.FC = () => {
                     },
                     credentials: 'include',
                     body: JSON.stringify({
-                        accountNumber: transaction.accountNumber,
-                        transactionDescription: transaction.transactionDescription || "",
-                        transactionType: transaction.transactionType,
-                        transactionAmount: transaction.transactionAmount || null,
+                        transactions: transactions,
+                        user: loggedInUser,
                     }),
                 });
-
-                if (response.ok) {
-                    continue;
-                }
-
-                if (response.status === 401) {
-                    alert("You don't have permission to perform this action.");
-                    return;
-                } else {
-                    const msgResponse: MessageResponse = await response.json();
-                    alert(msgResponse.message);
-                    return;
-                }
+                const msgResponse: MessageResponse = await response.json();
+                alert(msgResponse.message);
+                return;
 
             } catch (error) {
                 console.error('Error:', error);
@@ -200,66 +202,77 @@ const JournalEntryForm: React.FC = () => {
             }
         }
 
-        alert("All transactions have been added successfully.");
+        try {
+            const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/add-journal-entry', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    transactions: transactions,
+                    user: loggedInUser,
+                }),
+            });
+            const msgResponse: MessageResponse = await response.json();
+            alert(msgResponse.message);
+            return;
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert("An error has occurred. Please try again later.");
+            return;
+        }
 
     };
 
     return (
         <RightDashboard>
-                <div className="update-user-dash" style={{
-                    alignItems: "center", flexDirection: "column", height: "inherit",
-                    padding: "unset", justifyContent: "unset"
-                }}>
-                    <h3 style={{marginBottom: "2vmin"}}>Add Journal Entry</h3>
-                    {transactions.map((tx, index) => (
-                        <div key={index} className="transaction-row">
-                            <select
-                                value={tx.accountNumber}
-                                onChange={(e) => handleInputChange(index, 'accountNumber', parseInt(e.target.value))}
-                                className="dropdown-custom"
-                            >
-                                <option value="">Select Account</option>
-                                {accounts.map(account => (
-                                    <option key={account.accountNumber}
-                                            value={account.accountNumber}>{account.accountName}</option>
-                                ))}
-                            </select>
-                            <input
-                                type="number"
-                                value={tx.transactionAmount}
-                                onChange={(e) => handleInputChange(index, 'transactionAmount', parseFloat(e.target.value))}
-                                placeholder="Amount"
-                                className="custom-input"
-                            />
-                            <select
-                                value={tx.transactionType}
-                                onChange={(e) => handleInputChange(index, 'transactionType', e.target.value as AccountType)}
-                                className="dropdown-custom"
-                            >
-                                <option value="">Select Type</option>
-                                <option value={AccountType.DEBIT}>Debit</option>
-                                <option value={AccountType.CREDIT}>Credit</option>
-                            </select>
-                            <input
-                                type="text"
-                                className="custom-input"
-                                value={tx.transactionDescription}
-                                onChange={(e) => handleInputChange(index, 'transactionDescription', e.target.value)}
-                                placeholder="Description"
-                            />
-                            <button style={{
-                                width: "22.274vmin",
-                                height: "calc(2.778vmin * 1.5)",
-                                transform: "translateY(0.15vmin)"
-                            }}
-                                    className="control-button" onClick={() => handleRemoveTransaction(index)}>Remove
-                            </button>
-                        </div>
-                    ))}
-                    <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
-                    <button className="control-button" onClick={handleSubmit}>Submit Journal Entry</button>
-                </div>
-            </RightDashboard>
+            <div className="update-user-dash" style={{ alignItems: "center", flexDirection: "column", height: "inherit", padding: "unset", justifyContent: "unset" }}>
+                <h3 style={{ marginBottom: "2vmin" }}>Add Journal Entry</h3>
+                {transactions.map((tx, index) => (
+                    <div key={index} className="transaction-row">
+                        <select
+                            value={tx.account?.accountNumber || ''}
+                            onChange={(e) => handleAccountChange(index, e.target.value)}
+                            className="dropdown-custom"
+                        >
+                            <option value="">Select Account</option>
+                            {accounts.map(account => (
+                                <option key={account.accountNumber} value={account.accountNumber}>{account.accountName}</option>
+                            ))}
+                        </select>
+                        <input
+                            type="number"
+                            value={tx.transactionAmount}
+                            onChange={(e) => handleInputChange(index, 'transactionAmount', parseFloat(e.target.value))}
+                            placeholder="Amount"
+                            className="custom-input"
+                        />
+                        <select
+                            value={tx.transactionType}
+                            onChange={(e) => handleInputChange(index, 'transactionType', e.target.value as AccountType)}
+                            className="dropdown-custom"
+                        >
+                            <option value="">Select Type</option>
+                            <option value={AccountType.DEBIT}>Debit</option>
+                            <option value={AccountType.CREDIT}>Credit</option>
+                        </select>
+                        <input
+                            type="text"
+                            className="custom-input"
+                            value={tx.transactionDescription}
+                            onChange={(e) => handleInputChange(index, 'transactionDescription', e.target.value)}
+                            placeholder="Description"
+                        />
+                        <button className="control-button" onClick={() => handleRemoveTransaction(index)}>Remove</button>
+                    </div>
+                ))}
+                <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
+                <button className="control-button" onClick={handleSubmit}>Submit Journal Entry</button>
+            </div>
+        </RightDashboard>
     );
 };
 

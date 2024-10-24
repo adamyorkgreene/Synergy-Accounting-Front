@@ -3,7 +3,7 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {useCsrf} from '../utilities/CsrfContext';
 import {useUser} from '../utilities/UserContext';
 import Logo from "../assets/synergylogo.png";
-import {Account, AccountCategory, AccountType, MessageResponse, Transaction} from "../Types";
+import {Account, AccountCategory, AccountType, MessageResponse, Transaction, UserType} from "../Types";
 import RightDashboard from "./RightDashboard";
 import trashCanIcon from "../assets/trashcan.png";
 import Calendar from "./Calandar";
@@ -35,16 +35,26 @@ const ChartOfAccounts: React.FC = () => {
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType === "DEFAULT")) {
-            navigate('/login');
-        } else {
-            getAccounts().then();
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType === "DEFAULT" || loggedInUser.userType === "USER"){
+                navigate('/dashboard');
+                alert('You do not have permission to view the chart of accounts.')
+            } else {
+                getAccounts().then()
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
 
     const getAccounts = async () => {
         if (!csrfToken) {
             console.error('CSRF token is not available.');
+            return;
+        }
+        if (!loggedInUser || loggedInUser.userType === UserType.USER) {
+            alert('You do not have permission to view the chart of accounts.');
             return;
         }
         try {
@@ -142,7 +152,10 @@ const ChartOfAccounts: React.FC = () => {
             console.error('CSRF token is not available.');
             return;
         }
-
+        if (!loggedInUser || loggedInUser.userType !== UserType.ADMINISTRATOR) {
+            alert('You do not have permission to delete these transactions.');
+            return;
+        }
         try {
             const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/delete-transactions', {
                 method: 'POST',
@@ -177,6 +190,10 @@ const ChartOfAccounts: React.FC = () => {
     const handleUpdateActivation = async () => {
         if (!csrfToken) {
             console.error('CSRF token is not available.');
+            return;
+        }
+        if (!loggedInUser || loggedInUser.userType !== UserType.ADMINISTRATOR) {
+            alert('You do not have permission to deactivate this account.');
             return;
         }
         try {
@@ -351,7 +368,8 @@ const ChartOfAccounts: React.FC = () => {
                                         }
                                         return (
                                             <tr key={transaction.transactionId} onClick={() =>
-                                                navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}})}>
+                                                loggedInUser?.userType === "ADMINISTRATOR" && (
+                                                navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
                                                 <td>
                                                     <input
                                                         type="checkbox"

@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
-import Logo from "../assets/synergylogo.png";
 import {Email, MessageResponse} from "../Types";
 import EmailPopup from "./EmailPopup";
 import RightDashboard from "./RightDashboard";
@@ -32,10 +31,15 @@ const AdminInbox: React.FC = () => {
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType !== "ADMINISTRATOR")) {
-            navigate('/login');
-        } else {
-            getEmails().then();
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            }
+            else if (loggedInUser.userType === "DEFAULT" || loggedInUser.userType === "USER"){
+                navigate('/dashboard');
+            } else {
+                getEmails().then();
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
 
@@ -45,7 +49,7 @@ const AdminInbox: React.FC = () => {
             return;
         }
         try {
-            const response = await fetch(`https://synergyaccounting.app/api/admin/emails/${loggedInUser?.username}`, {
+            const response = await fetch(`https://synergyaccounting.app/api/email/emails/${loggedInUser?.username}`, {
                 method: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
@@ -103,9 +107,8 @@ const AdminInbox: React.FC = () => {
             console.error('CSRF token is not available.');
             return;
         }
-
         try {
-            const response = await fetch('https://synergyaccounting.app/api/admin/emails/delete', {
+            const response = await fetch('https://synergyaccounting.app/api/email/emails/delete', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
