@@ -70,9 +70,6 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
                 <button style={{ marginRight: "1.5625vmin" }} className="control-button" onClick={() => navigate("/dashboard/chart-of-accounts")}>
                     Chart of Accounts
                 </button>
-                <button style={{ marginRight: "1.5625vmin" }} className="control-button" onClick={() => navigate("/dashboard/journal-entry-form")}>
-                    Journal Entry
-                </button>
                 <button style={{ marginRight: "1.5625vmin" }} className="control-button" onClick={() => navigate("/dashboard/general-ledger")}>
                     General Ledger
                 </button>
