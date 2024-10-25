@@ -6,8 +6,8 @@ interface HelpContent {
   content: string;
 }
 
-const helpContent: Record<string, HelpContent> = {
-  home: {
+export const helpContent: Record<string, HelpContent> = {
+  dashboard: {
     content: "This page allows you to see your dashboard and navigate the main features.",
   },
   settings: {
@@ -19,7 +19,7 @@ const helpContent: Record<string, HelpContent> = {
 };
 
 interface HelpButtonProps {
-  page: keyof typeof helpContent; // Define the props to accept the page key
+  page: keyof typeof helpContent;
 }
 
 const HelpButton: React.FC<HelpButtonProps> = ({ page }) => {
@@ -30,29 +30,27 @@ const HelpButton: React.FC<HelpButtonProps> = ({ page }) => {
       className="help-icon-container"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
-      style={{ position: 'relative', display: 'inline-block' }} // Ensure positioning is inline
+      style={{ position: 'fixed', display: 'inline-block', top: '24px', right: '250px', zIndex: 30000}}
     >
       <FontAwesomeIcon
         icon={faQuestionCircle}
         className="help-icon"
         style={{ cursor: 'pointer',
-        position: 'ansolute'
-        fontSize: '28px',
-        top: '20px',
-        left: '20px', }}
+        fontSize: '28px'}}
       />
       {isVisible && (
         <div
           className="tooltip"
           style={{
             position: 'absolute',
-            top: '100%', // Position below the icon
+            top: '100%',
+            right: '50%',
             backgroundColor: 'white',
             border: '1px solid #ccc',
             padding: '8px',
             zIndex: 10,
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)', // Add shadow for visibility
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
           }}
         >
           <p>{helpContent[page].content}</p>
