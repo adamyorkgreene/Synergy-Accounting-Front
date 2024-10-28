@@ -37,9 +37,7 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         const handleScroll = () => {
             const controlPanel = document.querySelector('.control-panel') as HTMLElement;
             if (controlPanel) {
-                let offsetTop = controlPanel.getBoundingClientRect().top;
-                console.log("ScrollY: ", window.scrollY);
-                console.log("Offset Top: ", offsetTop);
+                //let offsetTop = controlPanel.getBoundingClientRect().top;
                 if (window.scrollY > 169) {
                     setIsSticky(true);
                 } else if (window.scrollY <= 169) {
