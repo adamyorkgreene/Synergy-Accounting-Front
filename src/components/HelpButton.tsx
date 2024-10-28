@@ -13,11 +13,8 @@ export const helpContent: Record<string, HelpContent> = {
   "chart-of-accounts": {
     content: "This page displays a structured list of all accounts used for financial tracking, including account numbers, names, descriptions, balances, and creator details.",
   },
-  "journal-entry-form": {
-    content: "This page is where you record financial transactions by creating new journal entries.",
-  },
   "general-ledger": {
-    content: "This page is where you can access a comprehensive view of all financial transactions.",
+    content: "This page is where you can access a comprehensive view of all financial transactions and record financial transactions by creating new journal entries.",
   },
   inbox: {
     content: "This page is where you access and manage your emails and communications.",

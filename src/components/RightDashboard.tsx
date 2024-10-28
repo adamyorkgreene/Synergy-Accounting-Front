@@ -56,8 +56,6 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         const path = window.location.pathname;
         if (path.includes("chart-of-accounts")) {
           setCurrentPage("chart-of-accounts");
-        } else if (path.includes("journal-entry-form")) {
-          setCurrentPage("journal-entry-form");
         } else if (path.includes("general-ledger")) {
           setCurrentPage("general-ledger");
         } else if (path.includes("inbox")) {
