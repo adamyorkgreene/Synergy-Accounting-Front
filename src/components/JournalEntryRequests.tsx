@@ -15,8 +15,9 @@ const JournalEntryRequests: React.FC = () => {
     const [pendingJournalEntries, setPendingJournalEntries] = useState<JournalEntry[]>([]);
     const [rejectedJournalEntries, setRejectedJournalEntries] = useState<JournalEntry[]>([]);
     const [selectedJournalEntry, setSelectedJournalEntry] = useState<JournalEntry | null>(null);
+    const [attachments, setAttachments] = useState<string[]>([]);
     const [comments, setComments] = useState<string>("");
-    const [filterDate, setFilterDate] = useState<string>(""); // State for selected filter date
+    const [filterDate, setFilterDate] = useState<string>("");
 
     useEffect(() => {
         const init = async () => {
@@ -25,7 +26,7 @@ const JournalEntryRequests: React.FC = () => {
             }
             setIsLoading(false);
         };
-        init().then();
+        init();
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
@@ -36,7 +37,7 @@ const JournalEntryRequests: React.FC = () => {
                 navigate('/dashboard');
                 alert('You do not have permission to view journal entry requests.');
             } else {
-                getJournalEntries().then();
+                getJournalEntries();
             }
         }
     }, [loggedInUser, isLoading, navigate]);
@@ -94,7 +95,7 @@ const JournalEntryRequests: React.FC = () => {
             alert(message.message);
             setSelectedJournalEntry(null);
             setComments("");
-            getJournalEntries().then();
+            getJournalEntries();
         } catch (error) {
             alert('Failed to approve journal entry.');
         }
@@ -118,13 +119,41 @@ const JournalEntryRequests: React.FC = () => {
             alert(message.message);
             setSelectedJournalEntry(null);
             setComments("");
-            getJournalEntries().then();
+            getJournalEntries();
         } catch (error) {
             alert('Failed to reject journal entry.');
         }
     };
 
-    // Filter entries by selected date
+    const getAttachments = async (journalEntryId: number) => {
+        if (!csrfToken) {
+            alert('Failed to get CSRF token. Please try again.');
+            return;
+        }
+        try {
+            const response = await fetch(`https://synergyaccounting.app/api/accounts/upload-attachments/${journalEntryId}`, {
+                method: 'GET',
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+                credentials: 'include'
+            });
+            if (response.ok) {
+                setAttachments(await response.json());
+            } else {
+                setAttachments([]);
+            }
+        } catch (error) {
+            console.error("Failed to fetch attachments:", error);
+        }
+    };
+
+    const handleSelectEntry = (entry: JournalEntry) => {
+        setSelectedJournalEntry(entry);
+        setComments("");
+        if (entry.pr) {
+            getAttachments(entry.pr);
+        }
+    };
+
     const filterEntriesByDate = (entries: JournalEntry[]) => {
         if (!filterDate) return entries;
         return entries.filter(entry =>
@@ -135,19 +164,9 @@ const JournalEntryRequests: React.FC = () => {
         );
     };
 
-    useEffect(() => {
-        console.log("Updated Approved Entries:", approvedJournalEntries);
-        console.log("Updated Rejected Entries:", rejectedJournalEntries);
-        console.log("Updated Pending Entries:", pendingJournalEntries);
-    }, [approvedJournalEntries, rejectedJournalEntries, pendingJournalEntries]);
-
-    if (isLoading || !csrfToken || !approvedJournalEntries || !rejectedJournalEntries || !pendingJournalEntries) {
-        return <div>Loading...</div>;
-    }
-
     return (
         <RightDashboard>
-            <div style={{marginTop: '2vmin'}} className="filter-section">
+            <div style={{ marginTop: '2vmin' }} className="filter-section">
                 <label htmlFor="filterDate">Filter by Date: </label>
                 <input
                     type="date"
@@ -159,46 +178,19 @@ const JournalEntryRequests: React.FC = () => {
             </div>
             <div className="journal-entry-requests">
                 <div className="journal-entries-column">
-                    <h2>Approved Journal Entries</h2>
-                    {filterEntriesByDate(approvedJournalEntries).map((entry, index) => (
-                        <div key={index} className="journal-entry">
-                            <h3>User: {entry.user.username}</h3>
-                            <ul className="transactions-list">
-                                {entry.transactions.map((transaction, idx) => (
-                                    <li key={idx} className="transaction">
-                                        <p><strong>Account:</strong> {transaction.account?.accountName}</p>
-                                        <p><strong>Transaction
-                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
-                                        </p>
-                                        <p><strong>Description:</strong> {transaction.transactionDescription}</p>
-                                        <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
-                                        <p><strong>Type:</strong> {transaction.transactionType}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                            {entry.comments && entry.comments.trim() !== "" && (
-                                <p><strong>Comments:</strong> {entry.comments}</p>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="journal-entries-column">
                     <h2>Pending Journal Entries</h2>
                     {filterEntriesByDate(pendingJournalEntries).map((entry, index) => (
                         <div
                             key={index}
                             className={`journal-entry ${selectedJournalEntry === entry ? 'selected' : ''}`}
-                            onClick={() => setSelectedJournalEntry(entry)}
+                            onClick={() => handleSelectEntry(entry)}
                         >
                             <h3>User: {entry.user.username}</h3>
                             <ul className="transactions-list">
                                 {entry.transactions.map((transaction, idx) => (
                                     <li key={idx} className="transaction">
                                         <p><strong>Account:</strong> {transaction.account?.accountName}</p>
-                                        <p><strong>Transaction
-                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
-                                        </p>
+                                        <p><strong>Transaction Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}</p>
                                         <p><strong>Description:</strong> {transaction.transactionDescription}</p>
                                         <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
                                         <p><strong>Type:</strong> {transaction.transactionType}</p>
@@ -214,32 +206,26 @@ const JournalEntryRequests: React.FC = () => {
                                     />
                                     <button className="control-button" onClick={handleApprove}>Approve</button>
                                     <button className="control-button" onClick={handleReject}>Reject</button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
 
-                <div className="journal-entries-column">
-                    <h2>Rejected Journal Entries</h2>
-                    {filterEntriesByDate(rejectedJournalEntries).map((entry, index) => (
-                        <div key={index} className="journal-entry">
-                            <h3>User: {entry.user.username}</h3>
-                            <ul className="transactions-list">
-                                {entry.transactions.map((transaction, idx) => (
-                                    <li key={idx} className="transaction">
-                                        <p><strong>Account:</strong> {transaction.account?.accountName}</p>
-                                        <p><strong>Transaction
-                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
-                                        </p>
-                                        <p><strong>Description:</strong> {transaction.transactionDescription}</p>
-                                        <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
-                                        <p><strong>Type:</strong> {transaction.transactionType}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                            {entry.comments && entry.comments.trim() !== "" && (
-                                <p><strong>Comments:</strong> {entry.comments}</p>
+                                    {attachments.length > 0 && (
+                                        <div className="attachments-section">
+                                            <h4>Source Documents:</h4>
+                                            <ul>
+                                                {attachments.map((fileName, idx) => (
+                                                    <li key={idx}>
+                                                        <a
+                                                            href={`https://synergyaccounting.app/api/accounts/uploads/${selectedJournalEntry?.pr}/${fileName}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            {fileName}
+                                                        </a>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))}
