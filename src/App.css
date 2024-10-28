@@ -453,6 +453,11 @@
   cursor: pointer;
 }
 
+#transactionTable td.pr-column:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+
 /* Popup */
 
 .modal {

@@ -16,6 +16,7 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
     const { user: loggedInUser, fetchUser } = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [isSticky, setIsSticky] = useState(false);
+    const [currentPage, setCurrentPage] = useState<"dashboard" | "chart-of-accounts" | "journal-entry-form" | "general-ledger" | "inbox" | "send-email" | "journal-entry-requests" | "add-user" | "update-user-search">('dashboard'); // Default to 'dashboard'
 
     useEffect(() => {
         const init = async () => {
@@ -37,9 +38,7 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         const handleScroll = () => {
             const controlPanel = document.querySelector('.control-panel') as HTMLElement;
             if (controlPanel) {
-                let offsetTop = controlPanel.getBoundingClientRect().top;
-                console.log("ScrollY: ", window.scrollY);
-                console.log("Offset Top: ", offsetTop);
+                //let offsetTop = controlPanel.getBoundingClientRect().top;
                 if (window.scrollY > 169) {
                     setIsSticky(true);
                 } else if (window.scrollY <= 169) {
@@ -52,6 +51,28 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+      useEffect(() => {
+        // Update current page
+        const path = window.location.pathname;
+        if (path.includes("chart-of-accounts")) {
+          setCurrentPage("chart-of-accounts");
+        } else if (path.includes("general-ledger")) {
+          setCurrentPage("general-ledger");
+        } else if (path.includes("inbox")) {
+        setCurrentPage("inbox");
+        } else if (path.includes("send-email")) {
+        setCurrentPage("send-email");
+        } else if (path.includes("journal-entry-requests")) {
+        setCurrentPage("journal-entry-requests");
+        } else if (path.includes("add-user")) {
+        setCurrentPage("add-user");
+        } else if (path.includes("update-user-search")) {
+        setCurrentPage("update-user-search");
+        } else {
+          setCurrentPage("dashboard");
+        }
+      }, [window.location.pathname]);
+
     if (isLoading || !csrfToken) {
         return null;
     }
@@ -60,7 +81,7 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         <div className="dashboard">
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Calendar />
-                <HelpButton page="dashboard" /> {/* Added HelpButton here */}
+                <HelpButton /> {/* Added HelpButton here */}
                 <img src={Logo} alt="Synergy" className="dashboard-logo" />
             </div>
             <div style={{ flexDirection: "row", padding: "1.5625vmin" }} className={`control-panel ${isSticky ? 'sticky' : ''}`}>

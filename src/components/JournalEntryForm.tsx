@@ -13,7 +13,8 @@ const JournalEntryForm: React.FC = () => {
             transactionDescription: '',
             transactionAmount: 0,
             transactionType: AccountType.DEBIT,
-            transactionId: undefined
+            transactionId: undefined,
+            pr: undefined
         },
         {
             account: undefined,
@@ -21,7 +22,8 @@ const JournalEntryForm: React.FC = () => {
             transactionDescription: '',
             transactionAmount: 0,
             transactionType: AccountType.CREDIT,
-            transactionId: undefined
+            transactionId: undefined,
+            pr: undefined
         }
     ]);
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -96,7 +98,8 @@ const JournalEntryForm: React.FC = () => {
                 transactionDescription: '',
                 transactionAmount: 0,
                 transactionType: AccountType.DEBIT,
-                transactionId: undefined
+                transactionId: undefined,
+                pr: undefined
             },
             {
                 account: undefined,
@@ -104,7 +107,8 @@ const JournalEntryForm: React.FC = () => {
                 transactionDescription: '',
                 transactionAmount: 0,
                 transactionType: AccountType.CREDIT,
-                transactionId: undefined
+                transactionId: undefined,
+                pr: undefined
             }
         ]);
     };
@@ -266,7 +270,8 @@ const JournalEntryForm: React.FC = () => {
                             onChange={(e) => handleInputChange(index, 'transactionDescription', e.target.value)}
                             placeholder="Description"
                         />
-                        <button className="control-button" onClick={() => handleRemoveTransaction(index)}>Remove</button>
+                        <button style={{height: '4.167vmin', marginLeft: '2vmin'}}
+                            className="control-button" onClick={() => handleRemoveTransaction(index)}>Remove</button>
                     </div>
                 ))}
                 <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
