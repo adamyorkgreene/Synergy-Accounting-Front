@@ -111,8 +111,10 @@ const UpdateTransaction: React.FC = () => {
 
     return (
             <RightDashboard>
-                <div className="dashboard-center-container">
-                    <div className="center-text">Update an Account</div>
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'absolute',
+                top: '0'}}
+                     className="dashboard-center-container">
+                    <h2>Update an Account</h2>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">

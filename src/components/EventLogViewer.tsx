@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import RightDashboard from "./RightDashboard";
+import { useLocation } from "react-router-dom";
 
 interface EventLog {
     id: number;
@@ -16,15 +18,18 @@ const EventLogViewer: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchEventLogs();
-    }, []);
+    const location = useLocation();
+    const token = location.state?.token;
 
-    const fetchEventLogs = async () => {
+    useEffect(() => {
+        if (token) fetchEventLogs(token);
+    }, [token]);
+
+    const fetchEventLogs = async (accountId: string) => {
         try {
             setLoading(true);
-            setError(null); // Clear previous errors before making a request
-            const response = await axios.get('/api/accounts/logs');
+            setError(null);
+            const response = await axios.get(`/api/accounts/logs/${accountId}`);
             setLogs(response.data);
         } catch (err) {
             console.error('Error fetching event logs:', err);
@@ -34,42 +39,67 @@ const EventLogViewer: React.FC = () => {
         }
     };
 
-    return (
-        <div>
-            <h1>Event Logs</h1>
-            {loading ? (
-                <p>Loading event logs...</p>
-            ) : error ? (
-                <p style={{ color: 'red' }}>{error}</p>
-            ) : logs.length === 0 ? (
-                <p>No event logs available.</p>
-            ) : (
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Account ID</th>
-                        <th>Action</th>
-                        <th>Before</th>
-                        <th>After</th>
-                        <th>User ID</th>
-                        <th>Timestamp</th>
-                    </tr>
-                    </thead>
+    const renderState = (state: string | null) => {
+        if (!state) return 'N/A';
+
+        try {
+            const parsedState = JSON.parse(state);
+            return (
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
                     <tbody>
-                    {logs.map((log) => (
-                        <tr key={log.id}>
-                            <td>{log.accountId}</td>
-                            <td>{log.action}</td>
-                            <td>{log.beforeState || 'N/A'}</td>
-                            <td>{log.afterState}</td>
-                            <td>{log.userId}</td>
-                            <td>{new Date(log.timestamp).toLocaleString()}</td>
-                        </tr>
-                    ))}
+                    <tr><td><strong>Account Name:</strong></td><td>{parsedState.accountName}</td></tr>
+                    <tr><td><strong>Account Number:</strong></td><td>{parsedState.accountNumber}</td></tr>
+                    <tr><td><strong>Description:</strong></td><td>{parsedState.accountDescription}</td></tr>
+                    <tr><td><strong>Balance:</strong></td><td>{parsedState.initialBalance}</td></tr>
+                    <tr><td><strong>Category:</strong></td><td>{parsedState.accountCategory}</td></tr>
                     </tbody>
                 </table>
-            )}
-        </div>
+            );
+        } catch (e) {
+            console.error('Failed to parse JSON:', e);
+            return 'Invalid JSON Format';
+        }
+    };
+
+    return (
+        <RightDashboard>
+            <div>
+                <h1 style={{marginBottom: '0'}}>Event Logs</h1>
+                {loading ? (
+                    <p>Loading event logs...</p>
+                ) : error ? (
+                    <p style={{ color: 'red' }}>{error}</p>
+                ) : logs.length === 0 ? (
+                    <p>No event logs available.</p>
+                ) : (
+                    <table style={{scale: '90%', }}
+                           id="eventLogTable">
+                        <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Action</th>
+                            <th style={{width: '30vmin'}}>Before State</th>
+                            <th style={{width: '30vmin'}}>After State</th>
+                            <th>User ID</th>
+                            <th>Timestamp</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {logs.map((log) => (
+                            <tr key={log.id}>
+                                <td>{log.accountId}</td>
+                                <td>{log.action}</td>
+                                <td>{renderState(log.beforeState)}</td>
+                                <td>{renderState(log.afterState)}</td>
+                                <td>{log.userId}</td>
+                                <td>{new Date(log.timestamp).toLocaleString()}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+        </RightDashboard>
     );
 };
 

@@ -345,42 +345,56 @@ const GeneralLedger: React.FC = () => {
                     <>
                         <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
                             Account Ledger: {selectedAccount.accountName}<br/></label>
-                        <div style={{marginTop: '1vmin', right: '0', position: 'absolute'}}
-                             className="button-container">
-                            <div style={{position: 'relative'}}
+                        <div
+                            style={{marginTop: '0vmin', right: '0px', position: 'absolute', top: '1vmin', height: '10vmin'}}
+                            className="button-container">
+                            <div style={{position: 'relative', width: '100vmin', height: '2rem'}}
                                  className="button-container">
-                                <button style={{position: 'relative', right: '0'}} onClick={() => handleGoBack()}
+                                <button style={{position: 'relative', right: '0', height: '2rem', width: 'auto'}}
+                                        onClick={() => handleGoBack()}
                                         className="control-button add-account-button">Go Back
                                 </button>
                                 {selectedAccount.isActive ? (
-                                    <button style={{position: 'relative', right: '0'}}
+                                    <button style={{position: 'relative', right: '0', height: '2rem'}}
                                             onClick={() => handleUpdateActivation()}
                                             className="control-button add-account-button">Deactivate Account
                                     </button>
                                 ) : (
-                                    <button style={{position: 'relative', right: '0'}}
+                                    <button style={{position: 'relative', right: '0', height: '2rem'}}
                                             onClick={() => handleUpdateActivation()}
                                             className="control-button add-account-button">Activate Account
                                     </button>
                                 )}
-                                <button style={{position: 'relative', right: '0'}}
+                                <button style={{position: 'relative', right: '0', height: '2rem'}}
                                         onClick={() =>
                                             navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
                                         className="control-button add-account-button">Update Account
                                 </button>
+                                <button style={{position: 'relative', right: '0', height: '2rem'}}
+                                        onClick={() =>
+                                            navigate('/dashboard/chart-of-accounts/event-logs', {state: {token: selectedAccount.accountNumber}})}
+                                        className="control-button add-account-button">Account Logs
+                                </button>
                             </div>
-                            <div style={{position: 'relative', marginLeft: '34.3vw'}}
+                            <div style={{position: 'relative', marginLeft: '23vw'}}
                                  className="button-container">
                                 <button onClick={handleDeleteTransactions}
+                                        style={{width: "2rem", height: "2rem"}}
                                         className="control-button transaction-button"
                                         disabled={selectedTransactions.length === 0}>
                                     <img src={trashCanIcon} alt="Delete"
-                                         style={{width: '20px', height: '20px'}}/>
+                                         style={{
+                                             width: '20px',
+                                             height: '20px',
+                                             position: "absolute",
+                                             left: "7px",
+                                             top: "18px"
+                                         }}/>
                                 </button>
                                 <button
                                     onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
                                         {state: {selectedAccount}})}
-                                    style={{aspectRatio: "1/1", width: "2rem"}}
+                                    style={{aspectRatio: "1/1", width: "2rem", height: "2rem"}}
                                     className="control-button transaction-button">
                                     +
                                 </button>

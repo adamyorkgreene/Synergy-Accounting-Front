@@ -401,6 +401,7 @@
   cursor: pointer;
 }
 
+#eventLogTable,
 #chartOfAccountsTable,
 #transactionTable {
   width: 100%;
@@ -414,6 +415,8 @@
   background-color: #ffffff;
 }
 
+#eventLogTable th,
+#eventLogTable td,
 #chartOfAccountsTable th,
 #chartOfAccountsTable td,
 #transactionTable th,
@@ -423,6 +426,7 @@
   text-align: left;
 }
 
+#eventLogTable th,
 #chartOfAccountsTable th,
 #transactionTable th {
   background-color: #aabdb8;
@@ -430,16 +434,19 @@
   font-weight: bold;
 }
 
+#eventLogTable tr:nth-child(even),
 #chartOfAccountsTable tr:nth-child(even),
 #transactionTable tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
+#eventLogTable tr:nth-child(odd),
 #chartOfAccountsTable tr:nth-child(odd),
 #transactionTable tr:nth-child(odd) {
   background-color: #ffffff;
 }
 
+#eventLogTable tr:hover,
 #chartOfAccountsTable tr:hover,
 #transactionTable tr:hover {
   background-color: #104d42;
@@ -447,6 +454,7 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+#eventLogTable th:hover,
 #chartOfAccountsTable th:hover,
 #transactionTable th:hover {
   background-color: #136b57;
