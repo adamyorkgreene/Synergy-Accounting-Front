@@ -134,7 +134,7 @@ const SendAdminEmail: React.FC = () => {
                         ))}
                     </ul>
                 </div>
-                <form style={{width: '75vmin'}} className="email-form" onSubmit={handleSubmit}>
+                <form style={{width: '70vmin'}} className="email-form" onSubmit={handleSubmit}>
                     <h2>Send an Email</h2>
                     <div className="input-group">
                         <input

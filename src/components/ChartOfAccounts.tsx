@@ -319,42 +319,51 @@ const ChartOfAccounts: React.FC = () => {
                         : <>
                                 <label className="center-text" style={{ fontSize: "5vmin", marginBottom: "2vmin" }}>
                                     Account Ledger: {selectedAccount.accountName}<br /></label>
-                                <button style={{ right: "unset", left: "5vmin" }} onClick={() => handleGoBack()}
-                                        className="control-button add-account-button">Go Back
-                                </button>
-                                {selectedAccount.isActive ? (
-                                    <button style={{ right: "unset", left: "calc(69%/2)" }}
-                                            onClick={() => handleUpdateActivation()}
-                                            className="control-button add-account-button">Deactivate Account
-                                    </button>
-                                ) : (
-                                    <button style={{ right: "unset", left: "calc(69%/2)" }}
-                                            onClick={() => handleUpdateActivation()}
-                                            className="control-button add-account-button">Activate Account
-                                    </button>
-                                )}
-                                <button style={{ right: "unset", left: "calc(104%/2)" }} onClick={() =>
-                                    navigate('/dashboard/chart-of-accounts/update-account', { state: { selectedAccount } })}
-                                        className="control-button add-account-button">Update Account
-                                </button>
-                                <div className="button-container">
-                                    <button onClick={handleDeleteTransactions}
-                                            className="control-button transaction-button"
-                                            disabled={selectedTransactions.length === 0}>
-                                        <img src={trashCanIcon} alt="Delete" style={{ width: '20px', height: '20px' }} />
-                                    </button>
-                                    <button
-                                        onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
-                                            { state: { selectedAccount } })}
-                                        style={{ aspectRatio: "1/1", width: "2rem" }}
-                                        className="control-button transaction-button">
-                                        +
-                                    </button>
+                                <div style={{marginTop: '1vmin', right: '0', position: 'absolute'}}
+                                    className="button-container">
+                                    <div style={{position: 'relative'}}
+                                         className="button-container">
+                                        <button  style={{position: 'relative', right: '0'}} onClick={() => handleGoBack()}
+                                                className="control-button add-account-button">Go Back
+                                        </button>
+                                        {selectedAccount.isActive ? (
+                                            <button style={{position: 'relative', right: '0'}}
+                                                    onClick={() => handleUpdateActivation()}
+                                                    className="control-button add-account-button">Deactivate Account
+                                            </button>
+                                        ) : (
+                                            <button style={{position: 'relative', right: '0'}}
+                                                    onClick={() => handleUpdateActivation()}
+                                                    className="control-button add-account-button">Activate Account
+                                            </button>
+                                        )}
+                                        <button style={{position: 'relative', right: '0'}}
+                                                onClick={() =>
+                                                    navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
+                                                className="control-button add-account-button">Update Account
+                                        </button>
+                                    </div>
+                                    <div style={{position: 'relative', marginLeft: '34.3vw'}}
+                                         className="button-container">
+                                        <button onClick={handleDeleteTransactions}
+                                                className="control-button transaction-button"
+                                                disabled={selectedTransactions.length === 0}>
+                                            <img src={trashCanIcon} alt="Delete"
+                                                 style={{width: '20px', height: '20px'}}/>
+                                        </button>
+                                        <button
+                                            onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
+                                                {state: {selectedAccount}})}
+                                            style={{aspectRatio: "1/1", width: "2rem"}}
+                                            className="control-button transaction-button">
+                                            +
+                                        </button>
+                                    </div>
                                 </div>
-                                <table id="transactionTable" style={{ marginTop: "8vmin" }}>
+                                <table id="transactionTable" style={{marginTop: "8vmin"}}>
                                     <thead>
                                     <tr>
-                                        <th style={{ width: 'min-content' }}>Select</th>
+                                        <th style={{width: 'min-content'}}>Select</th>
                                         <th>Date</th>
                                         <th>Description</th>
                                         <th>Debit</th>

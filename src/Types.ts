@@ -80,6 +80,11 @@ export interface Email {
     id: string;
 }
 
+export interface JournalEntryResponseDTO {
+    messageResponse: MessageResponse;
+    id: number;
+}
+
 export enum AccountType {
     DEBIT = "DEBIT",
     CREDIT = "CREDIT"

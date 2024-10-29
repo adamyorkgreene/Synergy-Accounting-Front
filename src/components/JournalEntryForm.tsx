@@ -1,9 +1,20 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import RightDashboard from "./RightDashboard";
-import {Account, AccountType, MessageResponse, TransactionForm, UserType} from "../Types";
-import {useCsrf} from "../utilities/CsrfContext";
-import {useUser} from "../utilities/UserContext";
-import {useNavigate} from "react-router-dom";
+import {Account, AccountType, JournalEntryResponseDTO, MessageResponse, TransactionForm, UserType} from "../Types";
+import { useCsrf } from "../utilities/CsrfContext";
+import { useUser } from "../utilities/UserContext";
+import { useNavigate } from "react-router-dom";
+
+const allowedFileTypes = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/csv",
+    "image/jpeg",
+    "image/png"
+];
 
 const JournalEntryForm: React.FC = () => {
     const [transactions, setTransactions] = useState<TransactionForm[]>([
@@ -27,6 +38,7 @@ const JournalEntryForm: React.FC = () => {
         }
     ]);
     const [accounts, setAccounts] = useState<Account[]>([]);
+    const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
     const navigate = useNavigate();
     const { csrfToken } = useCsrf();
@@ -40,19 +52,18 @@ const JournalEntryForm: React.FC = () => {
             }
             setIsLoading(false);
         };
-        init().then();
+        init();
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
         if (!isLoading) {
             if (!loggedInUser) {
-                navigate('/login')
-            }
-            else if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT"){
+                navigate('/login');
+            } else if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT") {
                 navigate('/dashboard');
-                alert('You do not have permission to create journal entries.')
+                alert('You do not have permission to create journal entries.');
             } else {
-                getAccounts().then();
+                getAccounts();
             }
         }
     }, [loggedInUser, isLoading, navigate]);
@@ -80,7 +91,6 @@ const JournalEntryForm: React.FC = () => {
                 setAccounts(accounts);
             } else if (response.status === 403) {
                 alert('You do not have permission to access this resource.');
-                return;
             } else {
                 alert('An error has occurred. Please try again.');
             }
@@ -90,8 +100,20 @@ const JournalEntryForm: React.FC = () => {
         }
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        const validFiles = files.filter(file => allowedFileTypes.includes(file.type));
+
+        if (validFiles.length !== files.length) {
+            alert("Some files were not allowed and were not added.");
+        }
+
+        setAttachedFiles(validFiles);
+    };
+
     const handleAddTransaction = () => {
-        setTransactions([...transactions,
+        setTransactions([
+            ...transactions,
             {
                 account: undefined,
                 transactionDate: new Date(),
@@ -120,17 +142,13 @@ const JournalEntryForm: React.FC = () => {
     const handleAccountChange = (index: number, accountNumber: string) => {
         const selectedAccount = accounts.find(acc => acc.accountNumber.toString() === accountNumber);
         setTransactions(
-            transactions.map((tx, i) =>
-                i === index ? { ...tx, account: selectedAccount } : tx
-            )
+            transactions.map((tx, i) => (i === index ? { ...tx, account: selectedAccount } : tx))
         );
     };
 
     const handleInputChange = (index: number, field: string, value: any) => {
         setTransactions(
-            transactions.map((tx, i) =>
-                i === index ? { ...tx, [field]: value } : tx
-            )
+            transactions.map((tx, i) => (i === index ? { ...tx, [field]: value } : tx))
         );
     };
 
@@ -156,7 +174,7 @@ const JournalEntryForm: React.FC = () => {
             return;
         }
         if (transactions.length === 0) {
-            alert('You cannot submit an empty set of transactions.')
+            alert('You cannot submit an empty set of transactions.');
             return;
         }
         if (!loggedInUser || loggedInUser.userType === UserType.USER) {
@@ -164,50 +182,16 @@ const JournalEntryForm: React.FC = () => {
             return;
         }
 
-        if (loggedInUser.userType === UserType.ACCOUNTANT) {
-            for (const transaction of transactions) {
-                if (!transaction.account) {
-                    alert('All transactions must belong to a specified account.')
-                    return;
-                }
+        const formData = new FormData();
+        transactions.forEach((tx, index) => formData.append(`transactions[${index}]`, JSON.stringify(tx)));
+        formData.append("user", JSON.stringify(loggedInUser));
 
-                if (!transaction.transactionType) {
-                    alert("Transaction type (credit or debit) must be specified.")
-                    return;
-                }
-
-                if (!transaction.transactionAmount) {
-                    alert("Transaction amount must be specified.")
-                    return;
-                }
-            }
-
-            try {
-                const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/request-journal-entry', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        transactions: transactions,
-                        user: loggedInUser,
-                    }),
-                });
-                const msgResponse: MessageResponse = await response.json();
-                alert(msgResponse.message);
-                return;
-
-            } catch (error) {
-                console.error('Error:', error);
-                alert("An error has occurred. Please try again later.");
-                return;
-            }
-        }
+        const endpoint = loggedInUser.userType === UserType.ACCOUNTANT
+            ? 'https://synergyaccounting.app/api/accounts/chart-of-accounts/request-journal-entry'
+            : 'https://synergyaccounting.app/api/accounts/chart-of-accounts/add-journal-entry';
 
         try {
-            const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/add-journal-entry', {
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -219,22 +203,52 @@ const JournalEntryForm: React.FC = () => {
                     user: loggedInUser,
                 }),
             });
-            const msgResponse: MessageResponse = await response.json();
-            alert(msgResponse.message);
-            return;
 
+            if (!response.ok) throw new Error("Failed to submit journal entry.");
+
+            const jeResponse: JournalEntryResponseDTO = await response.json();
+            alert(jeResponse.messageResponse.message);
+
+            if (attachedFiles.length > 0) {
+                const uploadFormData = new FormData();
+                attachedFiles.forEach(file => uploadFormData.append("files", file));
+                uploadFormData.append("journalEntryId", jeResponse.id.toString());
+
+                const uploadResponse = await fetch('https://synergyaccounting.app/api/accounts/upload-attachments', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include',
+                    body: uploadFormData
+                });
+
+                if (!uploadResponse.ok) {
+                    alert("Journal entry created, but failed to upload attachments.");
+                } else {
+                    alert("Attachments uploaded successfully.");
+                }
+            }
         } catch (error) {
             console.error('Error:', error);
             alert("An error has occurred. Please try again later.");
-            return;
         }
-
     };
-
     return (
         <RightDashboard>
             <div className="update-user-dash" style={{ alignItems: "center", flexDirection: "column", height: "inherit", padding: "unset", justifyContent: "unset" }}>
                 <h3 style={{ marginBottom: "2vmin" }}>Add Journal Entry</h3>
+
+                <div className="file-upload-section">
+                    <label>Attach Source Documents:</label>
+                    <input
+                        type="file"
+                        multiple
+                        onChange={handleFileChange}
+                        accept={allowedFileTypes.join(",")}
+                    />
+                </div>
+
                 {transactions.map((tx, index) => (
                     <div key={index} className="transaction-row">
                         <select
@@ -244,7 +258,9 @@ const JournalEntryForm: React.FC = () => {
                         >
                             <option value="">Select Account</option>
                             {accounts.map(account => (
-                                <option key={account.accountNumber} value={account.accountNumber}>{account.accountName}</option>
+                                <option key={account.accountNumber} value={account.accountNumber}>
+                                    {account.accountName}
+                                </option>
                             ))}
                         </select>
                         <input
@@ -270,8 +286,13 @@ const JournalEntryForm: React.FC = () => {
                             onChange={(e) => handleInputChange(index, 'transactionDescription', e.target.value)}
                             placeholder="Description"
                         />
-                        <button style={{height: '4.167vmin', marginLeft: '2vmin'}}
-                            className="control-button" onClick={() => handleRemoveTransaction(index)}>Remove</button>
+                        <button
+                            style={{ height: '4.167vmin', marginLeft: '2vmin' }}
+                            className="control-button"
+                            onClick={() => handleRemoveTransaction(index)}
+                        >
+                            Remove
+                        </button>
                     </div>
                 ))}
                 <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
