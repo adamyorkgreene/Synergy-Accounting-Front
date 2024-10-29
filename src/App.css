@@ -471,7 +471,7 @@
 .modal {
   display: block;
   position: fixed;
-  z-index: 3000;
+  z-index: 500000;
   left: 0;
   top: 0;
   width: 100%;

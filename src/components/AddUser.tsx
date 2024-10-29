@@ -133,10 +133,13 @@ const AddUser: React.FC = () => {
 
     return (
             <RightDashboard>
-                <div style={{position: 'absolute', top: '0'}} className="dashboard-center-container">
-                    <h1 style={{margin: 'unset', marginTop: '2vmin'}}>Add a New User</h1>
-                    <div className="extra-margin"></div>
-                    <form onSubmit={handleSubmit}>
+                <div style={{position: 'relative', height: '65vmin', display: 'flex', flexDirection: 'column',
+                paddingTop: '2vmin', alignContent: 'center', flexWrap: 'wrap',
+                justifyContent: 'flex-start', alignItems: 'center'}} className="dashboard-center-container">
+                    <h1 style={{margin: 'unset'}}>Add a New User</h1>
+                    <form style={{width: '70vmin', display: 'flex', flexDirection: 'column', alignItems: 'stretch',
+                    flexWrap: 'wrap', alignContent: 'center'}}
+                        onSubmit={handleSubmit}>
                         {[
                             {label: 'User Email', value: email, setValue: setEmail},
                             {label: 'Confirm Email', value: confEmail, setValue: setConfEmail},
@@ -144,14 +147,14 @@ const AddUser: React.FC = () => {
                             {label: 'Last Name', value: lastName, setValue: setLastName},
                             {label: 'Address', value: address, setValue: setAddress}
                         ].map(({label, value, setValue}, index) => (
-                            <div className="input-group" key={index}>
+                            <div style={{margin: '1vmin o'}} className="input-group" key={index}>
                                 <label htmlFor={"adduser" + label} className="label">{label}</label>
                                 <input type="text" className="custom-input" name={label} value={value}
                                        id={"adduser" + label}
                                        autoComplete={label.toString()} onChange={(e) => setValue(e.target.value)}/>
                             </div>
                         ))}
-                        <div className="input-group">
+                        <div style={{margin: '1vmin o'}} className="input-group">
                             <label htmlFor="adduserdropdown" className="label">Role </label>
                             <select
                                 id="adduserdropdown"
@@ -166,7 +169,7 @@ const AddUser: React.FC = () => {
                                 <option value={UserType.ADMINISTRATOR}>Administrator</option>
                             </select>
                         </div>
-                        <div className="input-group">
+                        <div style={{margin: '1vmin o'}} className="input-group">
                             <label htmlFor="adduserbirthday" className="label">Birthday </label>
                             <input
                                 id="adduserbirthday"
@@ -177,7 +180,6 @@ const AddUser: React.FC = () => {
                                 onChange={(e) => setBirthDate(e.target.value ? new Date(e.target.value) : undefined)}
                             />
                         </div>
-                        <div className="extra-margin"></div>
                         <div className="input-group">
                             <button type="submit" className="custom-button">Add User</button>
                         </div>
