@@ -61,7 +61,7 @@ const HelpButton: React.FC = () => {
       className="help-icon-container"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
-      style={{ position: 'absolute', display: 'inline-block', top: '20px', right: '270px', zIndex: 30000}}
+      style={{ position: 'absolute', display: 'inline-block', top: '2.57vmin', right: '35vmin', zIndex: 30000}}
     >
       <FontAwesomeIcon
         icon={faQuestionCircle}

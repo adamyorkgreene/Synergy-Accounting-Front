@@ -256,9 +256,7 @@ const GeneralLedger: React.FC = () => {
             <div className="chart-container">
                 {selectedAccount === null ? (
                     <>
-                        <label className="center-text" style={{ fontSize: "5vmin", marginBottom: "2vmin" }}>
-                            General Ledger
-                        </label>
+                        <h1 style={{margin: 'unset'}}>General Ledger</h1>
                         <div style={{width: '100%', display: 'flex', flexDirection: 'row'}} className="search-bar">
                             <input
                                 type="text"
@@ -293,10 +291,7 @@ const GeneralLedger: React.FC = () => {
                                 const accountTransactions = sortedAccounts[accountNumber];
                                 const account = accountTransactions[0]?.account;
                                 if (!account) return null;
-
-                                // Initialize running balance with the account's initial balance
                                 let runningBalance = account.initialBalance;
-
                                 return (
                                     <React.Fragment key={accountNumber}>
                                         <tr onClick={() => handleAccountClick(account)} className="chart-of-accounts-row">
@@ -343,13 +338,15 @@ const GeneralLedger: React.FC = () => {
                     </>
                 ) : (
                     <>
-                        <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
-                            Account Ledger: {selectedAccount.accountName}<br/></label>
-                        <div
-                            style={{marginTop: '0vmin', right: '0px', position: 'absolute', top: '1vmin', height: '10vmin'}}
-                            className="button-container">
-                            <div style={{position: 'relative', width: '100vmin', height: '2rem'}}
-                                 className="button-container">
+                        <h1 style={{margin: 'unset'}}>
+                            Account Ledger: {selectedAccount.accountName}<br /></h1>
+                        <div style={{marginTop: 'unset', right: 'unset', position: 'relative', top: 'unset',
+                            height: 'unset', width: '100%', maxWidth: '100%', display: 'flex', justifyContent:
+                                'space-between'}}
+                             className="button-container">
+                            <div className="button-container"
+                                 style={{position: 'relative', width: 'unset', height: 'unset', display: 'flex',
+                                     justifyContent: 'flex-end', right: 'unset', marginTop: 'unset'}}>
                                 <button style={{position: 'relative', right: '0', height: '2rem', width: 'auto'}}
                                         onClick={() => handleGoBack()}
                                         className="control-button add-account-button">Go Back
@@ -376,20 +373,15 @@ const GeneralLedger: React.FC = () => {
                                         className="control-button add-account-button">Account Logs
                                 </button>
                             </div>
-                            <div style={{position: 'relative', marginLeft: '23vw'}}
-                                 className="button-container">
+                            <div className="button-container"
+                                 style={{position: 'relative', width: 'unset', height: 'unset', display: 'flex',
+                                     justifyContent: 'flex-end', right: 'unset', marginTop: 'unset'}}>
                                 <button onClick={handleDeleteTransactions}
                                         style={{width: "2rem", height: "2rem"}}
                                         className="control-button transaction-button"
                                         disabled={selectedTransactions.length === 0}>
                                     <img src={trashCanIcon} alt="Delete"
-                                         style={{
-                                             width: '20px',
-                                             height: '20px',
-                                             position: "absolute",
-                                             left: "7px",
-                                             top: "18px"
-                                         }}/>
+                                         style={{width: '20px', height: '20px', position: "absolute", left: "7px", top: "18px"}}/>
                                 </button>
                                 <button
                                     onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
@@ -400,7 +392,7 @@ const GeneralLedger: React.FC = () => {
                                 </button>
                             </div>
                         </div>
-                        <table id="transactionTable" style={{marginTop: "8vmin"}}>
+                        <table id="transactionTable">
                             <thead>
                             <tr>
                                 <th style={{width: 'min-content'}}>Select</th>

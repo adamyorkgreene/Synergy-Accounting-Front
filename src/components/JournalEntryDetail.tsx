@@ -100,7 +100,7 @@ const JournalEntryDetail: React.FC = () => {
         <RightDashboard>
             <div style={{ padding: '2vmin 5vmin 5vmin', position: 'absolute', top: '0' }}
                  className="journal-entry-container">
-                <h2>Journal Entry Details - PR #{token}</h2>
+                <h2 style={{marginTop: '0'}}>Journal Entry Details - PR #{token}</h2>
                 <table id="chartOfAccountsTable">
                     <thead>
                     <tr>

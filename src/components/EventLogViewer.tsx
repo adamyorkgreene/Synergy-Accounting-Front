@@ -76,8 +76,8 @@ const EventLogViewer: React.FC = () => {
 
     return (
         <RightDashboard>
-            <div>
-                <h1 style={{marginBottom: '0'}}>Event Logs</h1>
+            <div style={{position: 'absolute', top: '0'}}>
+                <h2 style={{marginBottom: '0', marginTop: '2.3vmin'}}>Event Logs</h2>
                 {loading ? (
                     <p>Loading event logs...</p>
                 ) : error ? (
@@ -112,7 +112,8 @@ const EventLogViewer: React.FC = () => {
                     </table>
                 )}
             </div>
-            <button onClick={exportLogsToTxt}>Export Logs to .txt</button>
+            <button className="control-button"
+                onClick={exportLogsToTxt}>Export Logs to Text File</button>
         </RightDashboard>
     );
 };
