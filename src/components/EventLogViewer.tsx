@@ -34,9 +34,23 @@ const EventLogViewer: React.FC = () => {
         }
     };
 
+    const exportLogsToTxt = () => {
+        const logText = logs.map(log =>
+            `ID: ${log.id}, AccountID: ${log.accountId}, Action: ${log.action}, Before: ${log.beforeState || 'N/A'}, After: ${log.afterState}, UserID: ${log.userId}, Timestamp: ${log.timestamp}`
+        ).join('\n');
+
+        const blob = new Blob([logText], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'event_logs.txt';
+        link.click();
+        URL.revokeObjectURL(link.href); // Clean up the URL object
+    };
+
     return (
         <div>
             <h1>Event Logs</h1>
+            <button onClick={exportLogsToTxt}>Export Logs to .txt</button>
             {loading ? (
                 <p>Loading event logs...</p>
             ) : error ? (
