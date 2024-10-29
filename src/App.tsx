@@ -25,6 +25,7 @@ import JournalEntryForm from "./components/JournalEntryForm";
 import GeneralLedger from "./components/GeneralLedger";
 import ApproveJournalEntry from "./components/ApproveJournalEntry";
 import JournalEntryRequests from "./components/JournalEntryRequests";
+import JournalEntryDetail from './components/JournalEntryDetail';
 
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
                     <Route path="/dashboard/chart-of-accounts/update-transaction" element={<UpdateTransaction/>}/>
                     <Route path="/dashboard/chart-of-accounts/update-account" element={<UpdateAccount/>}/>
                     <Route path="/dashboard/journal-entry-form" element={<JournalEntryForm/>}/>
+                    <Route path="/dashboard/journal-entry-detail" element={<JournalEntryDetail/>}/>
                     <Route path="/dashboard/general-ledger" element={<GeneralLedger/>}/>
                     <Route path="/approve-journal-entry" element={<ApproveJournalEntry/>}/>
                     <Route path="/dashboard/manager/journal-entry-requests" element={<JournalEntryRequests/>}/>

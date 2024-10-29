@@ -50,6 +50,7 @@ export interface Transaction {
     transactionDescription: string;
     transactionAmount: number;
     transactionType: AccountType;
+    pr: number;
 }
 
 export interface TransactionForm {
@@ -59,11 +60,15 @@ export interface TransactionForm {
     transactionAmount: number;
     transactionType: AccountType;
     transactionId: number | undefined;
+    pr: number | undefined;
 }
 
 export interface JournalEntry {
     transactions: TransactionForm[];
     user: User;
+    comments: string;
+    pr: number;
+    isApproved: boolean | null;
 }
 
 export interface Email {
@@ -73,6 +78,11 @@ export interface Email {
     subject: string;
     body: string;
     id: string;
+}
+
+export interface JournalEntryResponseDTO {
+    messageResponse: MessageResponse;
+    id: number;
 }
 
 export enum AccountType {

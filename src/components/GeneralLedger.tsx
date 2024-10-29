@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import RightDashboard from "./RightDashboard";
-import {Account, JournalEntry, MessageResponse, Transaction, TransactionForm, UserType} from "../Types";
+import {Account, AccountType, JournalEntry, MessageResponse, Transaction, TransactionForm, UserType} from "../Types";
 import trashCanIcon from "../assets/trashcan.png";
 
 const GeneralLedger: React.FC = () => {
@@ -48,7 +48,7 @@ const GeneralLedger: React.FC = () => {
             return;
         }
         try {
-            const response = await fetch(`https://synergyaccounting.app/api/manager/journal-entry-requests/approved`, {
+            const response = await fetch(`https://synergyaccounting.app/api/accounts/general-ledger`, {
                 method: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
@@ -69,6 +69,29 @@ const GeneralLedger: React.FC = () => {
         } catch (error) {
             alert('An error has occurred. Please try again!');
             navigate('/dashboard');
+        }
+    };
+
+    const handleAccountClick = async (account: Account) => {
+        if (!csrfToken) {
+            console.error('CSRF token is not available.');
+            return;
+        }
+        setSelectedAccount(account);
+        const response = await fetch(`/api/accounts/chart-of-accounts/${account.accountNumber}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const transactions: TransactionForm[] = await response.json();
+            console.log(transactions);
+            setTransactions(transactions);
+        } else {
+            alert('Failed to fetch transactions.');
         }
     };
 
@@ -268,23 +291,33 @@ const GeneralLedger: React.FC = () => {
                             <tbody>
                             {Object.keys(sortedAccounts).map(accountNumber => {
                                 const accountTransactions = sortedAccounts[accountNumber];
-                                let runningBalance = accountTransactions[0]?.account?.initialBalance || 0;
-                                const accountName = accountTransactions[0]?.account?.accountName || 'Unknown Account';
-                                const normalSide = accountTransactions[0]?.account?.normalSide;
+                                const account = accountTransactions[0]?.account;
+                                if (!account) return null;
+
+                                // Initialize running balance with the account's initial balance
+                                let runningBalance = account.initialBalance;
 
                                 return (
                                     <React.Fragment key={accountNumber}>
-                                        <tr onClick={() => accountTransactions[0].account && setSelectedAccount(accountTransactions[0].account)}
-                                            className="chart-of-accounts-row">
+                                        <tr onClick={() => handleAccountClick(account)} className="chart-of-accounts-row">
                                             <td colSpan={6} style={{ fontWeight: "bold" }}>
-                                                {accountName} (#{accountNumber})
+                                                {account.accountName} (#{accountNumber})
                                             </td>
                                         </tr>
                                         {accountTransactions.map((transaction, index) => {
-                                            if (transaction.transactionType === "DEBIT") {
-                                                runningBalance += normalSide === "DEBIT" ? transaction.transactionAmount : -transaction.transactionAmount;
-                                            } else {
-                                                runningBalance += normalSide === "CREDIT" ? transaction.transactionAmount : -transaction.transactionAmount;
+                                            // Update running balance based on account's normal balance type
+                                            if (account.normalSide === "DEBIT") {
+                                                if (transaction.transactionType === "DEBIT") {
+                                                    runningBalance += transaction.transactionAmount;
+                                                } else {
+                                                    runningBalance -= transaction.transactionAmount;
+                                                }
+                                            } else if (account.normalSide === "CREDIT") {
+                                                if (transaction.transactionType === "CREDIT") {
+                                                    runningBalance += transaction.transactionAmount;
+                                                } else {
+                                                    runningBalance -= transaction.transactionAmount;
+                                                }
                                             }
 
                                             return (
@@ -312,37 +345,46 @@ const GeneralLedger: React.FC = () => {
                     <>
                         <label className="center-text" style={{fontSize: "5vmin", marginBottom: "2vmin"}}>
                             Account Ledger: {selectedAccount.accountName}<br/></label>
-                        <button style={{right: "unset", left: "5vmin"}} onClick={() => handleGoBack()}
-                                className="control-button add-account-button">Go Back
-                        </button>
-                        {selectedAccount.isActive ? (
-                            <button style={{right: "unset", left: "calc(69%/2)"}}
-                                    onClick={() => handleUpdateActivation()}
-                                    className="control-button add-account-button">Deactivate Account
-                            </button>
-                        ) : (
-                            <button style={{right: "unset", left: "calc(69%/2)"}}
-                                    onClick={() => handleUpdateActivation()}
-                                    className="control-button add-account-button">Activate Account
-                            </button>
-                        )}
-                        <button style={{right: "unset", left: "calc(104%/2)"}} onClick={() =>
-                            navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
-                                className="control-button add-account-button">Update Account
-                        </button>
-                        <div className="button-container">
-                            <button onClick={handleDeleteTransactions}
-                                    className="control-button transaction-button"
-                                    disabled={selectedTransactions.length === 0}>
-                                <img src={trashCanIcon} alt="Delete" style={{width: '20px', height: '20px'}}/>
-                            </button>
-                            <button
-                                onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
-                                    {state: {selectedAccount}})}
-                                style={{aspectRatio: "1/1", width: "2rem"}}
-                                className="control-button transaction-button">
-                                +
-                            </button>
+                        <div style={{marginTop: '1vmin', right: '0', position: 'absolute'}}
+                             className="button-container">
+                            <div style={{position: 'relative'}}
+                                 className="button-container">
+                                <button style={{position: 'relative', right: '0'}} onClick={() => handleGoBack()}
+                                        className="control-button add-account-button">Go Back
+                                </button>
+                                {selectedAccount.isActive ? (
+                                    <button style={{position: 'relative', right: '0'}}
+                                            onClick={() => handleUpdateActivation()}
+                                            className="control-button add-account-button">Deactivate Account
+                                    </button>
+                                ) : (
+                                    <button style={{position: 'relative', right: '0'}}
+                                            onClick={() => handleUpdateActivation()}
+                                            className="control-button add-account-button">Activate Account
+                                    </button>
+                                )}
+                                <button style={{position: 'relative', right: '0'}}
+                                        onClick={() =>
+                                            navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
+                                        className="control-button add-account-button">Update Account
+                                </button>
+                            </div>
+                            <div style={{position: 'relative', marginLeft: '34.3vw'}}
+                                 className="button-container">
+                                <button onClick={handleDeleteTransactions}
+                                        className="control-button transaction-button"
+                                        disabled={selectedTransactions.length === 0}>
+                                    <img src={trashCanIcon} alt="Delete"
+                                         style={{width: '20px', height: '20px'}}/>
+                                </button>
+                                <button
+                                    onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
+                                        {state: {selectedAccount}})}
+                                    style={{aspectRatio: "1/1", width: "2rem"}}
+                                    className="control-button transaction-button">
+                                    +
+                                </button>
+                            </div>
                         </div>
                         <table id="transactionTable" style={{marginTop: "8vmin"}}>
                             <thead>
@@ -353,47 +395,55 @@ const GeneralLedger: React.FC = () => {
                                 <th>Debit</th>
                                 <th>Credit</th>
                                 <th>Balance</th>
+                                <th>PR</th>
                             </tr>
                             </thead>
                             <tbody>
                             {(() => {
                                 let runningBalance = selectedAccount.initialBalance;
                                 return transactions.map((transaction) => {
-                                    if (transaction.account === selectedAccount) {
-                                        if (selectedAccount.normalSide === "DEBIT") {
-                                            if (transaction.transactionType === "DEBIT") {
-                                                runningBalance += transaction.transactionAmount;
-                                            } else {
-                                                runningBalance -= transaction.transactionAmount;
-                                            }
+                                    if (selectedAccount.normalSide === "DEBIT") {
+                                        if (transaction.transactionType === "DEBIT") {
+                                            runningBalance += transaction.transactionAmount;
                                         } else {
-                                            if (transaction.transactionType === "DEBIT") {
-                                                runningBalance -= transaction.transactionAmount;
-                                            } else {
-                                                runningBalance += transaction.transactionAmount;
-                                            }
+                                            runningBalance -= transaction.transactionAmount;
                                         }
-                                        return (
-                                            <tr key={transaction.transactionId} onClick={() =>
-                                                loggedInUser?.userType === "ADMINISTRATOR" && (
-                                                    navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
-                                                <td>
-                                                    <input
-                                                        type="checkbox"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        onChange={(e) =>
-                                                            handleChange(transaction, e.target.checked)
-                                                        }
-                                                    />
-                                                </td>
-                                                <td>{new Date(transaction?.transactionDate).toLocaleDateString()}</td>
-                                                <td>{transaction.transactionDescription}</td>
-                                                <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                                <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                                <td>{runningBalance.toFixed(2)}</td>
-                                            </tr>
-                                        );
+                                    } else {
+                                        if (transaction.transactionType === "DEBIT") {
+                                            runningBalance -= transaction.transactionAmount;
+                                        } else {
+                                            runningBalance += transaction.transactionAmount;
+                                        }
                                     }
+                                    return (
+                                        <tr key={transaction.transactionId} onClick={() =>
+                                            loggedInUser?.userType === "ADMINISTRATOR" && (
+                                                navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    onChange={(e) =>
+                                                        handleChange(transaction, e.target.checked)
+                                                    }
+                                                />
+                                            </td>
+                                            <td>{new Date(transaction?.transactionDate).toLocaleDateString()}</td>
+                                            <td>{transaction.transactionDescription}</td>
+                                            <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
+                                            <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
+                                            <td>{runningBalance.toFixed(2)}</td>
+                                            <td
+                                                className="pr-column"
+                                                style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate('/dashboard/journal-entry-detail', {state: {token: transaction.pr}});
+                                                }}>
+                                                {transaction.pr ? transaction.pr : 'N/A'}
+                                            </td>
+                                        </tr>
+                                    );
                                 });
                             })()}
                             </tbody>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -8,29 +8,60 @@ interface HelpContent {
 
 export const helpContent: Record<string, HelpContent> = {
   dashboard: {
-    content: "This page allows you to see your dashboard and navigate the main features.",
+    content: "This page allows you to navigate the main features.",
   },
-  settings: {
-    content: "Here you can adjust your application settings, including language and notifications.",
+  "chart-of-accounts": {
+    content: "This page displays a structured list of all accounts used for financial tracking, including account numbers, names, descriptions, and balances.",
   },
-  profile: {
-    content: "This is where you update your profile details like name, avatar, and contact information.",
+  "general-ledger": {
+    content: "This page is where you can access a comprehensive view of all financial transactions and record financial transactions by creating new journal entries.",
   },
+  inbox: {
+    content: "This page is where you access and manage your emails and communications.",
+  },
+  "send-email": {
+    content: "This page is where you compose and send emails directly from within the app.",
+  },
+  "journal-entry-requests": {
+    content: "This page is where you review and approve pending journal entries submitted by users.",
+  },
+  "add-user": {
+    content: "This page is where you add a new user with specific roles and permissions to the platform.",
+  },
+  "update-user-search": {
+    content: "This page is where you update details of existing users in the system.",
+  },
+  "add": {
+    content: "This page allows you to add new accounts into the database."
+  },
+  "journal-entry-detail": {
+    content: "This page shows all transaction details of a specific journal entry."
+  }
 };
 
-interface HelpButtonProps {
-  page: keyof typeof helpContent;
-}
+type PageType = keyof typeof helpContent;
 
-const HelpButton: React.FC<HelpButtonProps> = ({ page }) => {
+const HelpButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    const matchedPage = path.split("/").pop() as PageType;
+
+    if (matchedPage && matchedPage in helpContent) {
+      setCurrentPage(matchedPage);
+    } else {
+      setCurrentPage("dashboard");
+    }
+  }, []);
 
   return (
     <div
       className="help-icon-container"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
-      style={{ position: 'fixed', display: 'inline-block', top: '24px', right: '250px', zIndex: 30000}}
+      style={{ position: 'absolute', display: 'inline-block', top: '20px', right: '270px', zIndex: 30000}}
     >
       <FontAwesomeIcon
         icon={faQuestionCircle}
@@ -53,7 +84,7 @@ const HelpButton: React.FC<HelpButtonProps> = ({ page }) => {
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
           }}
         >
-          <p>{helpContent[page].content}</p>
+          <p>{helpContent[currentPage].content}</p>
         </div>
       )}
     </div>
