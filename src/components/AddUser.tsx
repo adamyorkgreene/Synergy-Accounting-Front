@@ -134,7 +134,7 @@ const AddUser: React.FC = () => {
     return (
             <RightDashboard>
                 <div style={{position: 'absolute', top: '0'}} className="dashboard-center-container">
-                    <h2>Add a New User</h2>
+                    <h1 style={{margin: 'unset', marginTop: '2vmin'}}>Add a New User</h1>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         {[

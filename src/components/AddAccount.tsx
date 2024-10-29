@@ -129,7 +129,7 @@ const AddAccount: React.FC = () => {
     return (
             <RightDashboard>
                 <div className="dashboard-center-container">
-                    <h2>Add a New Account</h2>
+                    <h1 style={{margin: 'unset'}}>Add a New Account</h1>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         {[

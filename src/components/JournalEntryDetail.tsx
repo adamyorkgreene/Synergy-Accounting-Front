@@ -100,7 +100,7 @@ const JournalEntryDetail: React.FC = () => {
         <RightDashboard>
             <div style={{ padding: '2vmin 5vmin 5vmin', position: 'absolute', top: '0' }}
                  className="journal-entry-container">
-                <h2 style={{marginTop: '0'}}>Journal Entry Details - PR #{token}</h2>
+                <h1 style={{margin: 'unset'}}>Journal Entry Details - PR #{token}</h1>
                 <table id="chartOfAccountsTable">
                     <thead>
                     <tr>
@@ -128,8 +128,9 @@ const JournalEntryDetail: React.FC = () => {
                     </tbody>
                 </table>
                 {attachments.length > 0 && (
-                    <div style={{ marginTop: '2vmin' }}>
-                        <h5>Source Documents:</h5>
+                    <div style={{ marginTop: '3vmin', padding: '2vmin', color: 'black', background: '#f9f9f9',
+                    border: '10px solid #aabdb8'}}>
+                        <h5 style={{margin: 'unset'}}>Source Documents:</h5>
                         <ol style={{ listStyleType: 'decimal', paddingLeft: '1.5em', fontSize: '2vmin' }}>
                             {attachments.map((fileName, index) => (
                                 <li style={{textAlign: 'left'}} key={index}>
@@ -137,7 +138,7 @@ const JournalEntryDetail: React.FC = () => {
                                         href={`/api/accounts/uploads/${token}/${encodeURIComponent(fileName)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{ textDecoration: 'underline', color: 'blue'}}
+                                        style={{ textDecoration: 'underline', color: '#317a6b'}}
                                     >
                                         {fileName}
                                     </a>

@@ -170,20 +170,26 @@ const AdminInbox: React.FC = () => {
 
     return (
             <RightDashboard>
-                <div className="chart-container">
-                    <div className="center-text"
-                         style={{fontSize: "5vmin", marginBottom: "2vmin", display: "unset"}}>Inbox
+                <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column'}}
+                    className="chart-container">
+                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center',
+                        justifyContent: 'space-between'}}>
+                        <button className="control-button add-account-button"
+                                onClick={handleDelete}
+                                disabled={selectedEmails?.length === 0}
+                                style={{right: "unset", left: "unset", position: 'relative', margin: 'unset',
+                                    height: '5vmin'
+                                }}>Delete Selected Emails
+                        </button>
+                        <h1 style={{margin: 'unset'}}>Inbox</h1>
+                        <button className="control-button add-account-button"
+                                style={{right: "unset", left: "unset", position: 'relative', margin: 'unset',
+                                    height: '5vmin'}}
+                                onClick={() => navigate("/dashboard/admin/send-email")}>Compose New Email
+                        </button>
                     </div>
-                    <button className="control-button add-account-button"
-                            onClick={handleDelete}
-                            disabled={selectedEmails?.length === 0}
-                            style={{right: "unset", left: "5vmin"}}>Delete Selected Emails
-                    </button>
-                    <button className="control-button add-account-button"
-                            onClick={() => navigate("/dashboard/admin/send-email")}>Compose New Email
-                    </button>
                     <table id="chartOfAccountsTable">
-                        <thead>
+                    <thead>
                         <tr>
                             <th>Select</th>
                             <th onClick={() => handleSort('date')}>Date</th>
@@ -194,7 +200,7 @@ const AdminInbox: React.FC = () => {
                         <tbody>
                         {emails?.map((email) => (
                             <tr key={email.date} onClick={() => openEmail(email)}>
-                                <td>
+                            <td>
                                     <input type="checkbox"
                                            id={email.id}
                                            onClick={(e) => e.stopPropagation()}

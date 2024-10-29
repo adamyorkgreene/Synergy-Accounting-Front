@@ -264,27 +264,37 @@ const JournalEntryForm: React.FC = () => {
         <RightDashboard>
             <div className="update-user-dash" style={{
                 alignItems: "center",
-                flexDirection: "column",
+                display: 'flex', width: '100%',
+                flexFlow: 'column wrap',
                 height: "inherit",
                 padding: "unset",
-                justifyContent: "unset"
+                justifyContent: "space-evenly"
             }}>
-                <h2 style={{marginBottom: "2vmin"}}>Add Journal Entry</h2>
+                <h1 style={{margin: 'unset', marginTop: '2vmin', marginBottom: '2vmin'}}>Add Journal Entry</h1>
 
-                <div style={{marginBottom: '3vmin'}}
-                     className="file-upload-section">
-                    <label>Attach Source Documents: </label>
+                <div style={{
+                    marginBottom: '2vmin', display: 'flex', flexDirection: 'row', alignItems: 'center',
+                    position: 'relative'
+                }}>
+                    <label>Attach Source Documents:</label>
+                    <label style={{
+                        position: 'relative', width: '20vmin', textAlign: 'center', fontSize: '2.5vmin',
+                        marginLeft: '2vmin'
+                    }} htmlFor="file-upload" className="custom-button custom-file-upload">
+                        Select Files
+                    </label>
                     <input
+                        id="file-upload"
                         type="file"
                         multiple
                         onChange={handleFileChange}
                         accept={allowedFileTypes.join(",")}
-                        className="custom-input"
+                        style={{display: 'none'}}
                     />
                 </div>
 
                 {transactions.map((tx, index) => (
-                    <div key={index} className="transaction-row">
+                    <div style={{display: 'flex', alignItems: 'center', width: '90vmin'}} key={index} className="transaction-row">
                         <select
                             value={tx.account?.accountNumber || ''}
                             onChange={(e) => handleAccountChange(index, e.target.value)}
@@ -321,7 +331,7 @@ const JournalEntryForm: React.FC = () => {
                             placeholder="Description"
                         />
                         <button
-                            style={{height: '4.167vmin', marginLeft: '2vmin'}}
+                            style={{height: '4.167vmin'}}
                             className="control-button"
                             onClick={() => handleRemoveTransaction(index)}
                         >
@@ -329,9 +339,13 @@ const JournalEntryForm: React.FC = () => {
                         </button>
                     </div>
                 ))}
-                <button className="control-button" onClick={clearTransactions}>Clear Transactions</button>
-                <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
-                <button className="control-button" onClick={handleSubmit}>Submit Journal Entry</button>
+                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <button style={{marginRight: '2vmin'}} className="control-button" onClick={clearTransactions}>Clear Transactions</button>
+                        <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
+                    </div>
+                    <button style={{width: '100%'}} className="control-button" onClick={handleSubmit}>Submit Journal Entry</button>
+                </div>
             </div>
         </RightDashboard>
     );

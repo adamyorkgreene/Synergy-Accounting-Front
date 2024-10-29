@@ -170,8 +170,11 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
     };
     return (
             <RightDashboard>
-                <div className="update-user-dash">
-                    <div className="update-user-column">
+                <div style={{padding: '3vmin', display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
+                flexWrap: 'nowrap', alignItems: 'flex-start', height: '65vmin'}}
+                    className="update-user-dash">
+                    <div style={{width: '25.71vmin', display: 'flex', flexDirection: 'column', height: '100%',
+                    justifyContent: 'space-between'}} className="update-user-column">
                         <div className="profile-container"
                              onClick={() => navigate('/upload-image', {state: {userResponse}})}>
                             <img
@@ -181,34 +184,33 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
                             />
                         </div>
                         {userType === UserType.DEFAULT ? (
-                            <button className="control-button" onClick={() => setUserType(UserType.USER)}>Approve
+                            <button style={{margin: 'unset'}} className="control-button" onClick={() => setUserType(UserType.USER)}>Approve
                                 User</button>
                         ) : (
-                            <button className="empty-button" disabled>Approve User</button>
+                            <button style={{margin: 'unset'}} className="empty-button" disabled>Approve User</button>
                         )}
                         {failedLoginAttempts && failedLoginAttempts >= 3 ? (
-                            <button className="control-button" onClick={() => setFailedLoginAttempts(0)}>Unlock
+                            <button style={{margin: 'unset'}} className="control-button" onClick={() => setFailedLoginAttempts(0)}>Unlock
                                 Account</button>
                         ) : (
-                            <button className="empty-button" disabled>Unlock Account</button>
+                            <button style={{margin: 'unset'}} className="empty-button" disabled>Unlock Account</button>
                         )}
-                        <button className="control-button" onClick={() => setIsActive(false)}>Deactivate Account
+                        <button style={{margin: 'unset'}} className="control-button" onClick={() => setIsActive(false)}>Deactivate Account
                         </button>
-                        <button className="control-button">Delete User</button>
+                        <button style={{margin: 'unset'}} className="control-button">Delete User</button>
                     </div>
-                    <div style={{width: "12.5vmin"}}></div>
-                    <div className="update-user-column" style={{justifyContent: "flex-end"}}>
-                        <div className="label-large">{firstName} {lastName}</div>
-                        <div style={{marginBottom: "auto", fontSize: "2.5vmin"}}>
+                    <div className="update-user-column" style={{justifyContent: 'space-around', height: '100%'}}>
+                        <h1 style={{margin: 'unset'}}>{firstName} {lastName}</h1>
+                        <div style={{fontSize: "2.5vmin"}}>
                             <br/>
-                            Username: {username}<br/>
                             User ID: {userid?.toString()}<br/>
                             Verified: {isVerified ? "True" : "False"}<br/>
-                            Role: {userType.toString()}<br/>
                             Member Since: {joinDate?.toDateString()}<br/>
                         </div>
-                        <div>
-                            <div className="input-group">
+                        <div style={{display: 'flex', alignContent: 'center', flexDirection: 'column', flexWrap: 'wrap',
+                        justifyContent: 'space-between', height: '35vmin', marginTop: '1vmin'}}>
+                            <div style={{margin: 'unset', display: 'flex', alignItems: 'center',
+                                justifyContent: 'flex-end', height: '3.771vmin'}} className="input-group">
                                 <label htmlFor="updaterole" className="label">Role </label>
                                 <select
                                     id="updaterole"
@@ -237,8 +239,8 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
                                 },
                                 {label: 'Address', value: address, setValue: setAddress}
                             ].map(({label, value, setValue, type = 'text'}, index) => (
-                                <div className="input-group" key={index}
-                                     style={{margin: "1.5625vmin 0", height: "3.771vmin"}}>
+                                <div style={{margin: 'unset', display: 'flex', alignItems: 'center',
+                                    justifyContent: 'flex-end', height: '3.771vmin'}} className="input-group" key={index}>
                                     <label htmlFor={"update" + label} className="label">{label} </label>
                                     <input
                                         type={type}
@@ -254,25 +256,24 @@ const UpdateUser: React.FC<UpdateUserProps> = ({userResponse, setUserResponse}) 
                             ))}
                         </div>
                     </div>
-                    <div style={{width: "12.5vmin"}}></div>
-                    <div className="update-user-column" style={{justifyContent: "space-around"}}>
+                    <div className="update-user-column" style={{justifyContent: "space-around", width: '25.71vmin'}}>
                         <label style={{marginRight: "unset"}} htmlFor="updatestarttempleave" className="label">
                             Start Temporary Leave</label>
                         <div className="input-group"
                              style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
-                            <input type="date" className="custom-input" value={formattedLeaveStart} name="leavestart"
+                            <input style={{width: '100%'}} type="date" className="custom-input" value={formattedLeaveStart} name="leavestart"
                                    id="updatestarttempleave"
                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveStart(e.target.value ? new Date(e.target.value) : undefined)}/>
                         </div>
                         <label style={{marginRight: "unset"}} htmlFor="updateendtempleave" className="label">End Temporary Leave</label>
                         <div className="input-group"
                              style={{margin: "1.5625vmin 0", height: "3.771vmin", justifyContent: "center"}}>
-                            <input type="date" className="custom-input" value={formattedLeaveEnd} name="leaveend"
+                            <input style={{width: '100%'}} type="date" className="custom-input" value={formattedLeaveEnd} name="leaveend"
                                    id="updateendtempleave"
                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempLeaveEnd(e.target.value ? new Date(e.target.value) : undefined)}/>
                         </div>
                         <form style={{marginTop: "auto"}} onSubmit={handleSubmit}>
-                            <button type="submit" className="control-button">Save Changes</button>
+                            <button style={{margin: 'unset'}} type="submit" className="control-button">Save Changes</button>
                         </form>
                     </div>
                 </div>
