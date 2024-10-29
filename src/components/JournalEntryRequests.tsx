@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import RightDashboard from "./RightDashboard";
-import { JournalEntry, MessageResponse, UserType } from "../Types";
+import { JournalEntry, MessageResponse } from "../Types";
 
 const JournalEntryRequests: React.FC = () => {
     const navigate = useNavigate();
@@ -14,8 +14,8 @@ const JournalEntryRequests: React.FC = () => {
     const [approvedJournalEntries, setApprovedJournalEntries] = useState<JournalEntry[]>([]);
     const [pendingJournalEntries, setPendingJournalEntries] = useState<JournalEntry[]>([]);
     const [rejectedJournalEntries, setRejectedJournalEntries] = useState<JournalEntry[]>([]);
+    const [attachmentLinks, setAttachmentLinks] = useState<{ [key: number]: string[] }>({});
     const [selectedJournalEntry, setSelectedJournalEntry] = useState<JournalEntry | null>(null);
-    const [attachments, setAttachments] = useState<string[]>([]);
     const [comments, setComments] = useState<string>("");
     const [filterDate, setFilterDate] = useState<string>("");
 
@@ -66,19 +66,64 @@ const JournalEntryRequests: React.FC = () => {
                 })
             ]);
 
-            if (approvedRes.ok) {
-                setApprovedJournalEntries(await approvedRes.json());
-            }
-            if (rejectedRes.ok) {
-                setRejectedJournalEntries(await rejectedRes.json());
-            }
-            if (pendingRes.ok) {
-                setPendingJournalEntries(await pendingRes.json());
-            }
+            const approvedEntries = approvedRes.ok ? await approvedRes.json() : [];
+            const rejectedEntries = rejectedRes.ok ? await rejectedRes.json() : [];
+            const pendingEntries = pendingRes.ok ? await pendingRes.json() : [];
+
+            setApprovedJournalEntries(approvedEntries);
+            setRejectedJournalEntries(rejectedEntries);
+            setPendingJournalEntries(pendingEntries);
+
+            // Fetch attachments for all entries
+            await fetchAllAttachments([...approvedEntries, ...rejectedEntries, ...pendingEntries]);
         } catch (error) {
             alert('An error has occurred. Please try again!');
             navigate('/dashboard');
         }
+    };
+
+    const fetchAllAttachments = async (entries: JournalEntry[]) => {
+        for (const entry of entries) {
+            await fetchAttachments(entry.pr);
+        }
+    };
+
+    const fetchAttachments = async (journalEntryId: number) => {
+        if (!csrfToken) {
+            console.error('CSRF token is not available.');
+            return;
+        }
+        try {
+            const response = await fetch(`https://synergyaccounting.app/api/accounts/uploads/${journalEntryId}`, {
+                method: 'GET',
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const attachmentNames = await response.json();
+                setAttachmentLinks(prev => ({ ...prev, [journalEntryId]: attachmentNames }));
+            } else {
+                setAttachmentLinks(prev => ({ ...prev, [journalEntryId]: [] }));
+            }
+        } catch (error) {
+            console.error("Error fetching attachments:", error);
+            setAttachmentLinks(prev => ({ ...prev, [journalEntryId]: [] }));
+        }
+    };
+
+    const renderAttachmentLinks = (entryId: number) => {
+        const attachments = attachmentLinks[entryId] || [];
+        return attachments.map((fileName, index) => (
+            <li key={index}>
+                <a
+                    href={`https://synergyaccounting.app/api/accounts/uploads/${entryId}/${encodeURIComponent(fileName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {fileName}
+                </a>
+            </li>
+        ));
     };
 
     const handleApprove = async () => {
@@ -125,35 +170,6 @@ const JournalEntryRequests: React.FC = () => {
         }
     };
 
-    const getAttachments = async (journalEntryId: number) => {
-        if (!csrfToken) {
-            alert('Failed to get CSRF token. Please try again.');
-            return;
-        }
-        try {
-            const response = await fetch(`https://synergyaccounting.app/api/accounts/upload-attachments/${journalEntryId}`, {
-                method: 'GET',
-                headers: { 'X-CSRF-TOKEN': csrfToken },
-                credentials: 'include'
-            });
-            if (response.ok) {
-                setAttachments(await response.json());
-            } else {
-                setAttachments([]);
-            }
-        } catch (error) {
-            console.error("Failed to fetch attachments:", error);
-        }
-    };
-
-    const handleSelectEntry = (entry: JournalEntry) => {
-        setSelectedJournalEntry(entry);
-        setComments("");
-        if (entry.pr) {
-            getAttachments(entry.pr);
-        }
-    };
-
     const filterEntriesByDate = (entries: JournalEntry[]) => {
         if (!filterDate) return entries;
         return entries.filter(entry =>
@@ -163,6 +179,10 @@ const JournalEntryRequests: React.FC = () => {
             })
         );
     };
+
+    if (isLoading || !csrfToken || !approvedJournalEntries || !rejectedJournalEntries || !pendingJournalEntries) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <RightDashboard>
@@ -178,61 +198,138 @@ const JournalEntryRequests: React.FC = () => {
             </div>
             <div className="journal-entry-requests">
                 <div className="journal-entries-column">
-                    <h2>Pending Journal Entries</h2>
-                    {filterEntriesByDate(pendingJournalEntries).map((entry, index) => (
-                        <div
-                            key={index}
-                            className={`journal-entry ${selectedJournalEntry === entry ? 'selected' : ''}`}
-                            onClick={() => handleSelectEntry(entry)}
-                        >
+                    <h2>Approved Journal Entries</h2>
+                    {filterEntriesByDate(approvedJournalEntries).map((entry, index) => (
+                        <div onClick={() => {
+                            navigate('/dashboard/journal-entry-detail', {state: {token: entry.pr}})
+                        }}
+                             key={index} className="journal-entry">
                             <h3>User: {entry.user.username}</h3>
                             <ul className="transactions-list">
                                 {entry.transactions.map((transaction, idx) => (
                                     <li key={idx} className="transaction">
                                         <p><strong>Account:</strong> {transaction.account?.accountName}</p>
-                                        <p><strong>Transaction Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}</p>
+                                        <p><strong>Transaction
+                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
+                                        </p>
                                         <p><strong>Description:</strong> {transaction.transactionDescription}</p>
                                         <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
                                         <p><strong>Type:</strong> {transaction.transactionType}</p>
                                     </li>
                                 ))}
                             </ul>
+                            {entry.comments && entry.comments.trim() !== "" && (
+                                <p><strong>Comments:</strong> {entry.comments}</p>
+                            )}
+                            <div className="attachments-section">
+                                <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
+                                <ul style={{
+                                    fontSize: '1.5vmin',
+                                    listStyleType: 'decimal',
+                                    paddingLeft: '1.5em',
+                                    textAlign: 'left',
+                                    margin: '2.5vmin'
+                                }}>
+                                    {renderAttachmentLinks(entry.pr)}
+                                </ul>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="journal-entries-column">
+                    <h2>Pending Journal Entries</h2>
+                    {filterEntriesByDate(pendingJournalEntries).map((entry, index) => (
+                        <div
+                            key={index}
+                            className={`journal-entry ${selectedJournalEntry === entry ? 'selected' : ''}`}
+                            onClick={() => setSelectedJournalEntry(entry)}
+                        >
+                            <h3>User: {entry.user.username}</h3>
+                            <ul className="transactions-list">
+                                {entry.transactions.map((transaction, idx) => (
+                                    <li key={idx} className="transaction">
+                                        <p><strong>Account:</strong> {transaction.account?.accountName}</p>
+                                        <p><strong>Transaction
+                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
+                                        </p>
+                                        <p><strong>Description:</strong> {transaction.transactionDescription}</p>
+                                        <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
+                                        <p><strong>Type:</strong> {transaction.transactionType}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="attachments-section">
+                                <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
+                                <ul style={{
+                                    fontSize: '1.5vmin',
+                                    listStyleType: 'decimal',
+                                    paddingLeft: '1.5em',
+                                    textAlign: 'left',
+                                    margin: '2.5vmin'
+                                }}>
+                                    {renderAttachmentLinks(entry.pr)}
+                                </ul>
+                            </div>
                             {selectedJournalEntry === entry && (
-                                <div className="action-buttons">
+                                <div style={{display: 'flex', flexDirection: 'column'}}
+                                     className="action-buttons">
                                     <textarea
                                         placeholder="Leave comments here..."
                                         value={comments}
                                         onChange={(e) => setComments(e.target.value)}
                                     />
-                                    <button className="control-button" onClick={handleApprove}>Approve</button>
-                                    <button className="control-button" onClick={handleReject}>Reject</button>
-
-                                    {attachments.length > 0 && (
-                                        <div className="attachments-section">
-                                            <h4>Source Documents:</h4>
-                                            <ul>
-                                                {attachments.map((fileName, idx) => (
-                                                    <li key={idx}>
-                                                        <a
-                                                            href={`https://synergyaccounting.app/api/accounts/uploads/${selectedJournalEntry?.pr}/${fileName}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                        >
-                                                            {fileName}
-                                                        </a>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
+                                    <button style={{width: '100%'}}
+                                            className="control-button" onClick={handleApprove}>Approve
+                                    </button>
+                                    <button style={{width: '100%'}}
+                                            className="control-button" onClick={handleReject}>Reject
+                                    </button>
                                 </div>
                             )}
                         </div>
                     ))}
                 </div>
+
+                <div className="journal-entries-column">
+                    <h2>Rejected Journal Entries</h2>
+                    {filterEntriesByDate(rejectedJournalEntries).map((entry, index) => (
+                        <div key={index} className="journal-entry">
+                            <h3>User: {entry.user.username}</h3>
+                            <ul className="transactions-list">
+                                {entry.transactions.map((transaction, idx) => (
+                                    <li key={idx} className="transaction">
+                                        <p><strong>Account:</strong> {transaction.account?.accountName}</p>
+                                        <p><strong>Transaction
+                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
+                                        </p>
+                                        <p><strong>Description:</strong> {transaction.transactionDescription}</p>
+                                        <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
+                                        <p><strong>Type:</strong> {transaction.transactionType}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                            {entry.comments && entry.comments.trim() !== "" && (
+                                <p><strong>Comments:</strong> {entry.comments}</p>
+                            )}
+                            <div className="attachments-section">
+                                <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
+                                <ul style={{
+                                    fontSize: '1.5vmin',
+                                    listStyleType: 'decimal',
+                                    paddingLeft: '1.5em',
+                                    textAlign: 'left',
+                                    margin: '2.5vmin'
+                                }}>
+                                    {renderAttachmentLinks(entry.pr)}
+                                </ul>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </RightDashboard>
-    );
+    )
+        ;
 };
 
 export default JournalEntryRequests;

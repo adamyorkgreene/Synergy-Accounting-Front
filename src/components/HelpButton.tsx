@@ -11,7 +11,7 @@ export const helpContent: Record<string, HelpContent> = {
     content: "This page allows you to navigate the main features.",
   },
   "chart-of-accounts": {
-    content: "This page displays a structured list of all accounts used for financial tracking, including account numbers, names, descriptions, balances, and creator details.",
+    content: "This page displays a structured list of all accounts used for financial tracking, including account numbers, names, descriptions, and balances.",
   },
   "general-ledger": {
     content: "This page is where you can access a comprehensive view of all financial transactions and record financial transactions by creating new journal entries.",
@@ -31,6 +31,12 @@ export const helpContent: Record<string, HelpContent> = {
   "update-user-search": {
     content: "This page is where you update details of existing users in the system.",
   },
+  "add": {
+    content: "This page allows you to add new accounts into the database."
+  },
+  "journal-entry-detail": {
+    content: "This page shows all transaction details of a specific journal entry."
+  }
 };
 
 type PageType = keyof typeof helpContent;
@@ -55,7 +61,7 @@ const HelpButton: React.FC = () => {
       className="help-icon-container"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
-      style={{ position: 'fixed', display: 'inline-block', top: '24px', right: '250px', zIndex: 30000}}
+      style={{ position: 'absolute', display: 'inline-block', top: '20px', right: '270px', zIndex: 30000}}
     >
       <FontAwesomeIcon
         icon={faQuestionCircle}
