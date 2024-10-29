@@ -26,6 +26,7 @@ import GeneralLedger from "./components/GeneralLedger";
 import ApproveJournalEntry from "./components/ApproveJournalEntry";
 import JournalEntryRequests from "./components/JournalEntryRequests";
 import JournalEntryDetail from './components/JournalEntryDetail';
+import EventLogViewer from "./components/EventLogViewer";
 
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
                     <Route path="/dashboard/general-ledger" element={<GeneralLedger/>}/>
                     <Route path="/approve-journal-entry" element={<ApproveJournalEntry/>}/>
                     <Route path="/dashboard/manager/journal-entry-requests" element={<JournalEntryRequests/>}/>
+                    <Route path="/dashboard/chart-of-accounts/event-logs" element={<EventLogViewer />} />
                 </Routes>
             </Router>
         </div>

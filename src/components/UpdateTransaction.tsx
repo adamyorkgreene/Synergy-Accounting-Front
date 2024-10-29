@@ -118,8 +118,8 @@ const UpdateTransaction: React.FC = () => {
 
     return (
             <RightDashboard>
-                <div className="dashboard-center-container">
-                    <div className="center-text">Update a Transaction</div>
+                <div style={{position: 'absolute', top: '0'}} className="dashboard-center-container">
+                    <h2>Update a Transaction</h2>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">

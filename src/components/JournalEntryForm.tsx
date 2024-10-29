@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import RightDashboard from "./RightDashboard";
-import {Account, AccountType, JournalEntryResponseDTO, MessageResponse, TransactionForm, UserType} from "../Types";
+import { Account, AccountType, JournalEntryResponseDTO, MessageResponse, TransactionForm, UserType } from "../Types";
 import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -164,6 +164,29 @@ const JournalEntryForm: React.FC = () => {
         return totalDebit === totalCredit;
     };
 
+    const clearTransactions = () => {
+        setTransactions([
+            {
+                account: undefined,
+                transactionDate: new Date(),
+                transactionDescription: '',
+                transactionAmount: 0,
+                transactionType: AccountType.DEBIT,
+                transactionId: undefined,
+                pr: undefined
+            },
+            {
+                account: undefined,
+                transactionDate: new Date(),
+                transactionDescription: '',
+                transactionAmount: 0,
+                transactionType: AccountType.CREDIT,
+                transactionId: undefined,
+                pr: undefined
+            }
+        ]);
+    };
+
     const handleSubmit = async () => {
         if (!validateBalance()) {
             alert('Debits and credits must be equal.');
@@ -229,23 +252,34 @@ const JournalEntryForm: React.FC = () => {
                     alert("Attachments uploaded successfully.");
                 }
             }
+            // Clear transactions after submission
+            clearTransactions();
         } catch (error) {
             console.error('Error:', error);
             alert("An error has occurred. Please try again later.");
         }
     };
+
     return (
         <RightDashboard>
-            <div className="update-user-dash" style={{ alignItems: "center", flexDirection: "column", height: "inherit", padding: "unset", justifyContent: "unset" }}>
-                <h3 style={{ marginBottom: "2vmin" }}>Add Journal Entry</h3>
+            <div className="update-user-dash" style={{
+                alignItems: "center",
+                flexDirection: "column",
+                height: "inherit",
+                padding: "unset",
+                justifyContent: "unset"
+            }}>
+                <h2 style={{marginBottom: "2vmin"}}>Add Journal Entry</h2>
 
-                <div className="file-upload-section">
-                    <label>Attach Source Documents:</label>
+                <div style={{marginBottom: '3vmin'}}
+                     className="file-upload-section">
+                    <label>Attach Source Documents: </label>
                     <input
                         type="file"
                         multiple
                         onChange={handleFileChange}
                         accept={allowedFileTypes.join(",")}
+                        className="custom-input"
                     />
                 </div>
 
@@ -287,7 +321,7 @@ const JournalEntryForm: React.FC = () => {
                             placeholder="Description"
                         />
                         <button
-                            style={{ height: '4.167vmin', marginLeft: '2vmin' }}
+                            style={{height: '4.167vmin', marginLeft: '2vmin'}}
                             className="control-button"
                             onClick={() => handleRemoveTransaction(index)}
                         >
@@ -295,6 +329,7 @@ const JournalEntryForm: React.FC = () => {
                         </button>
                     </div>
                 ))}
+                <button className="control-button" onClick={clearTransactions}>Clear Transactions</button>
                 <button className="control-button" onClick={handleAddTransaction}>Add Transactions</button>
                 <button className="control-button" onClick={handleSubmit}>Submit Journal Entry</button>
             </div>
