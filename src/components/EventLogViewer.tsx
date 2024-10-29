@@ -81,11 +81,11 @@ const EventLogViewer: React.FC = () => {
                 {loading ? (
                     <p>Loading event logs...</p>
                 ) : error ? (
-                    <p style={{ color: 'red' }}>{error}</p>
+                    <p style={{color: 'red'}}>{error}</p>
                 ) : logs.length === 0 ? (
                     <p>No event logs available.</p>
                 ) : (
-                    <table style={{scale: '90%', }}
+                    <table style={{scale: '90%',}}
                            id="eventLogTable">
                         <thead>
                         <tr>
