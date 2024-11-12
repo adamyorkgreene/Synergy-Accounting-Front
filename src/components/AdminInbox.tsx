@@ -170,7 +170,7 @@ const AdminInbox: React.FC = () => {
 
     return (
             <RightDashboard>
-                <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column'}}
+                <div style={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}
                     className="chart-container">
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center',
                         justifyContent: 'space-between'}}>

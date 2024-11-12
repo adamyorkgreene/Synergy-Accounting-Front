@@ -1,5 +1,5 @@
 export interface User {
-    userid: bigint;
+    userid: number;
     address: string;
     email: string;
     firstName: string;
@@ -11,9 +11,9 @@ export interface User {
 }
 
 export interface UserSecurity {
-    emailPassword: string;
     isVerified: boolean;
     isActive: boolean;
+    failedLoginAttempts: number;
 }
 
 export interface UserDate {
@@ -41,16 +41,6 @@ export interface Account {
     dateAdded: Date;
     username: string;
     isActive: boolean;
-}
-
-export interface Transaction {
-    transactionId: number;
-    transactionAccount: Account;
-    transactionDate: Date;
-    transactionDescription: string;
-    transactionAmount: number;
-    transactionType: AccountType;
-    pr: number;
 }
 
 export interface TransactionForm {
@@ -83,6 +73,12 @@ export interface Email {
 export interface JournalEntryResponseDTO {
     messageResponse: MessageResponse;
     id: number;
+}
+
+export interface TrialBalanceDTO {
+    accountName: string;
+    debit: number;
+    credit: number;
 }
 
 export enum AccountType {

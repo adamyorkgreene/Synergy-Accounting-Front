@@ -39,6 +39,12 @@ export const helpContent: Record<string, HelpContent> = {
   },
   "journal-entry-form": {
     content: "This page shows allows you to add new journal entries with multiple transactions."
+  },
+  "update-transaction": {
+    content: "This page allows you to update the details of a transaction."
+  },
+  "event-logs": {
+    content: "This page allows you to view all the change history for a specific account."
   }
 };
 

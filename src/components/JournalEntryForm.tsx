@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import RightDashboard from "./RightDashboard";
-import { Account, AccountType, JournalEntryResponseDTO, MessageResponse, TransactionForm, UserType } from "../Types";
+import { Account, AccountType, JournalEntryResponseDTO, TransactionForm, UserType } from "../Types";
 import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import { useNavigate } from "react-router-dom";

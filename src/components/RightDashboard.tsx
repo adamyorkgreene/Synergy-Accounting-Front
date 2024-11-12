@@ -4,7 +4,7 @@ import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import Logo from "../assets/synergylogo.png";
 import Calendar from "./Calandar";
-import HelpButton, { helpContent } from "./HelpButton";
+import HelpButton from "./HelpButton";
 
 interface RightDashboardProps {
     children?: ReactNode;
@@ -16,7 +16,7 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
     const { user: loggedInUser, fetchUser } = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [isSticky, setIsSticky] = useState(false);
-    const [currentPage, setCurrentPage] = useState<"dashboard" | "chart-of-accounts" | "journal-entry-form" | "general-ledger" | "inbox" | "send-email" | "journal-entry-requests" | "add-user" | "update-user-search">('dashboard'); // Default to 'dashboard'
+    const [, setCurrentPage] = useState<"update-transaction" | "event-logs" | "dashboard" | "chart-of-accounts" | "journal-entry-form" | "general-ledger" | "inbox" | "send-email" | "journal-entry-requests" | "add-user" | "update-user-search">('dashboard'); // Default to 'dashboard'
 
     useEffect(() => {
         const init = async () => {
@@ -55,7 +55,13 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         // Update current page
         const path = window.location.pathname;
         if (path.includes("chart-of-accounts")) {
-          setCurrentPage("chart-of-accounts");
+            if (path.includes("update-transaction")) {
+                setCurrentPage("update-transaction");
+            } else if (path.includes("event-logs")) {
+                setCurrentPage("event-logs")
+            } else {
+                setCurrentPage("chart-of-accounts");
+            }
         } else if (path.includes("general-ledger")) {
           setCurrentPage("general-ledger");
         } else if (path.includes("inbox")) {

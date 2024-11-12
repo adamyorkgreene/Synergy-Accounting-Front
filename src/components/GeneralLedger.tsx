@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import RightDashboard from "./RightDashboard";
-import {Account, AccountType, JournalEntry, MessageResponse, Transaction, TransactionForm, UserType} from "../Types";
-import trashCanIcon from "../assets/trashcan.png";
+import {Account, JournalEntry, MessageResponse, TransactionForm, UserType} from "../Types";
+import AccountLedger from "./AccountLedger";
 
 const GeneralLedger: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
@@ -17,7 +18,7 @@ const GeneralLedger: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
     const [selectedTransactions, setSelectedTransactions] = useState<TransactionForm[]>([]);
-    const [searchQuery, setSearchQuery] = useState<string>(''); // Add search state
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     useEffect(() => {
         const init = async () => {
@@ -36,11 +37,12 @@ const GeneralLedger: React.FC = () => {
             } else if (loggedInUser.userType === "DEFAULT" || loggedInUser.userType === "USER") {
                 navigate('/dashboard');
                 alert('You do not have permission to view the general ledger.');
-            } else {
-                getJournalEntries().then();
+            } else if (!selectedAccount) {
+                getJournalEntries();
             }
         }
-    }, [loggedInUser, isLoading, navigate]);
+    }, [loggedInUser, isLoading, location.key, navigate, selectedAccount]);
+
 
     const getJournalEntries = async () => {
         if (!csrfToken) {
@@ -58,8 +60,10 @@ const GeneralLedger: React.FC = () => {
 
             if (response.ok) {
                 const journalEntries: JournalEntry[] = await response.json();
-                const allTransactions = journalEntries.flatMap(entry => entry.transactions);
-                setTransactions(allTransactions);
+                setTransactions(journalEntries.flatMap(entry => entry.transactions));
+                if (location.state?.selectedAccount) {
+                    handleAccountClick(location.state.selectedAccount);
+                }
             } else if (response.status === 403) {
                 alert('You do not have permission to access this resource.');
                 navigate('/dashboard');
@@ -98,7 +102,6 @@ const GeneralLedger: React.FC = () => {
     const getSortedTransactionsByAccount = () => {
         const accountMap: { [accountNumber: string]: TransactionForm[] } = {};
 
-        // Filter transactions based on search query
         const filteredTransactions = transactions.filter((transaction) => {
             const accountName = transaction.account?.accountName?.toLowerCase() || '';
             const amount = transaction.transactionAmount.toString();
@@ -111,7 +114,6 @@ const GeneralLedger: React.FC = () => {
             );
         });
 
-        // Group transactions by account
         filteredTransactions.forEach((transaction) => {
             const accountNumber = transaction.account?.accountNumber;
             if (accountNumber) {
@@ -122,7 +124,6 @@ const GeneralLedger: React.FC = () => {
             }
         });
 
-        // Sort transactions within each account group
         Object.keys(accountMap).forEach(account => {
             accountMap[account].sort((a, b) => {
                 if (!sortKey) return 0;
@@ -198,8 +199,7 @@ const GeneralLedger: React.FC = () => {
 
     const handleGoBack = () => {
         setSelectedAccount(null);
-        setSelectedTransactions([]);
-        getJournalEntries(); // Refresh the general ledger when going back
+        navigate('/dashboard/general-ledger');
     };
 
     const handleChange = async (transaction: TransactionForm, isChecked: boolean) => {
@@ -247,14 +247,26 @@ const GeneralLedger: React.FC = () => {
 
     const sortedAccounts = getSortedTransactionsByAccount();
 
-    if (isLoading || !csrfToken) {
+    if (isLoading || !csrfToken || !loggedInUser) {
         return <div>Loading...</div>;
     }
 
     return (
         <RightDashboard>
             <div className="chart-container">
-                {selectedAccount === null ? (
+                {selectedAccount ? (
+                        <AccountLedger
+                            account={selectedAccount}
+                            transactions={transactions}
+                            selectedTransactions={selectedTransactions}
+                            onTransactionSelect={handleChange}
+                            onDeleteTransactions={handleDeleteTransactions}
+                            onBack={handleGoBack}
+                            loggedInUser={loggedInUser}
+                            onUpdateActivation={handleUpdateActivation}
+                        />
+
+                ) : (
                     <>
                         <h1 style={{margin: 'unset'}}>General Ledger</h1>
                         <div style={{width: '100%', display: 'flex', flexDirection: 'row'}} className="search-bar">
@@ -271,7 +283,7 @@ const GeneralLedger: React.FC = () => {
                                 className="control-button add-account-button"
                                 title="Add Journal Entry"
                                 style={{width: '3%', height: 'auto', position: 'relative', marginTop: '1rem',
-                                marginBottom: '1rem', marginLeft: '1rem', right: 'unset'}}>
+                                    marginBottom: '1rem', marginLeft: '1rem', right: 'unset'}}>
                                 +
                             </button>
                         </div>
@@ -300,7 +312,6 @@ const GeneralLedger: React.FC = () => {
                                             </td>
                                         </tr>
                                         {accountTransactions.map((transaction, index) => {
-                                            // Update running balance based on account's normal balance type
                                             if (account.normalSide === "DEBIT") {
                                                 if (transaction.transactionType === "DEBIT") {
                                                     runningBalance += transaction.transactionAmount;
@@ -333,125 +344,6 @@ const GeneralLedger: React.FC = () => {
                                     </React.Fragment>
                                 );
                             })}
-                            </tbody>
-                        </table>
-                    </>
-                ) : (
-                    <>
-                        <h1 style={{margin: 'unset'}}>
-                            Account Ledger: {selectedAccount.accountName}<br /></h1>
-                        <div style={{marginTop: 'unset', right: 'unset', position: 'relative', top: 'unset',
-                            height: 'unset', width: '100%', maxWidth: '100%', display: 'flex', justifyContent:
-                                'space-between'}}
-                             className="button-container">
-                            <div className="button-container"
-                                 style={{position: 'relative', width: 'unset', height: 'unset', display: 'flex',
-                                     justifyContent: 'flex-end', right: 'unset', marginTop: 'unset'}}>
-                                <button style={{position: 'relative', right: '0', height: '2rem', width: 'auto'}}
-                                        onClick={() => handleGoBack()}
-                                        className="control-button add-account-button">Go Back
-                                </button>
-                                {selectedAccount.isActive ? (
-                                    <button style={{position: 'relative', right: '0', height: '2rem'}}
-                                            onClick={() => handleUpdateActivation()}
-                                            className="control-button add-account-button">Deactivate Account
-                                    </button>
-                                ) : (
-                                    <button style={{position: 'relative', right: '0', height: '2rem'}}
-                                            onClick={() => handleUpdateActivation()}
-                                            className="control-button add-account-button">Activate Account
-                                    </button>
-                                )}
-                                <button style={{position: 'relative', right: '0', height: '2rem'}}
-                                        onClick={() =>
-                                            navigate('/dashboard/chart-of-accounts/update-account', {state: {selectedAccount}})}
-                                        className="control-button add-account-button">Update Account
-                                </button>
-                                <button style={{position: 'relative', right: '0', height: '2rem'}}
-                                        onClick={() =>
-                                            navigate('/dashboard/chart-of-accounts/event-logs', {state: {token: selectedAccount.accountNumber}})}
-                                        className="control-button add-account-button">Account Logs
-                                </button>
-                            </div>
-                            <div className="button-container"
-                                 style={{position: 'relative', width: 'unset', height: 'unset', display: 'flex',
-                                     justifyContent: 'flex-end', right: 'unset', marginTop: 'unset'}}>
-                                <button onClick={handleDeleteTransactions}
-                                        style={{width: "2rem", height: "2rem"}}
-                                        className="control-button transaction-button"
-                                        disabled={selectedTransactions.length === 0}>
-                                    <img src={trashCanIcon} alt="Delete"
-                                         style={{width: '20px', height: '20px', position: "absolute", left: "7px", top: "18px"}}/>
-                                </button>
-                                <button
-                                    onClick={() => navigate('/dashboard/chart-of-accounts/add-transaction',
-                                        {state: {selectedAccount}})}
-                                    style={{aspectRatio: "1/1", width: "2rem", height: "2rem"}}
-                                    className="control-button transaction-button">
-                                    +
-                                </button>
-                            </div>
-                        </div>
-                        <table id="transactionTable">
-                            <thead>
-                            <tr>
-                                <th style={{width: 'min-content'}}>Select</th>
-                                <th>Date</th>
-                                <th>Description</th>
-                                <th>Debit</th>
-                                <th>Credit</th>
-                                <th>Balance</th>
-                                <th>PR</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {(() => {
-                                let runningBalance = selectedAccount.initialBalance;
-                                return transactions.map((transaction) => {
-                                    if (selectedAccount.normalSide === "DEBIT") {
-                                        if (transaction.transactionType === "DEBIT") {
-                                            runningBalance += transaction.transactionAmount;
-                                        } else {
-                                            runningBalance -= transaction.transactionAmount;
-                                        }
-                                    } else {
-                                        if (transaction.transactionType === "DEBIT") {
-                                            runningBalance -= transaction.transactionAmount;
-                                        } else {
-                                            runningBalance += transaction.transactionAmount;
-                                        }
-                                    }
-                                    return (
-                                        <tr key={transaction.transactionId} onClick={() =>
-                                            loggedInUser?.userType === "ADMINISTRATOR" && (
-                                                navigate('/dashboard/chart-of-accounts/update-transaction', {state: {transaction}}))}>
-                                            <td>
-                                                <input
-                                                    type="checkbox"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    onChange={(e) =>
-                                                        handleChange(transaction, e.target.checked)
-                                                    }
-                                                />
-                                            </td>
-                                            <td>{new Date(transaction?.transactionDate).toLocaleDateString()}</td>
-                                            <td>{transaction.transactionDescription}</td>
-                                            <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                            <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                            <td>{runningBalance.toFixed(2)}</td>
-                                            <td
-                                                className="pr-column"
-                                                style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate('/dashboard/journal-entry-detail', {state: {token: transaction.pr}});
-                                                }}>
-                                                {transaction.pr ? transaction.pr : 'N/A'}
-                                            </td>
-                                        </tr>
-                                    );
-                                });
-                            })()}
                             </tbody>
                         </table>
                     </>

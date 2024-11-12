@@ -27,11 +27,12 @@ import ApproveJournalEntry from "./components/ApproveJournalEntry";
 import JournalEntryRequests from "./components/JournalEntryRequests";
 import JournalEntryDetail from './components/JournalEntryDetail';
 import EventLogViewer from "./components/EventLogViewer";
+import TrialBalance from "./components/TrialBalance";
 
 
 function App() {
 
-    const [userResponse, setUserResponse] = useState<User | null>(null);
+    const [userResponse, setUserResponse] = useState<User>();
 
     return (
         <div className="app">
@@ -49,8 +50,7 @@ function App() {
                     <Route path="/upload-image" element={<ImageUpload/>}/>
                     <Route path="/dashboard/admin/add-user" element={<AddUser/>}/>
                     <Route path="/dashboard/admin/update-user-search" element={<UpdateUserSearch/>}/>
-                    <Route path="/dashboard/admin/update-user"
-                           element={<UpdateUser userResponse={userResponse} setUserResponse={setUserResponse}/>}/>
+                    <Route path="/dashboard/admin/update-user" element={<UpdateUser/>}/>
                     <Route path="/dashboard/admin/send-email" element={<SendAdminEmail/>}/>
                     <Route path="/dashboard/admin/inbox" element={<AdminInbox/>}/>
                     <Route path="/dashboard/chart-of-accounts" element={<ChartOfAccounts/>}/>
@@ -64,6 +64,7 @@ function App() {
                     <Route path="/approve-journal-entry" element={<ApproveJournalEntry/>}/>
                     <Route path="/dashboard/manager/journal-entry-requests" element={<JournalEntryRequests/>}/>
                     <Route path="/dashboard/chart-of-accounts/event-logs" element={<EventLogViewer />} />
+                    <Route path="/dashboard/general-ledger/trial-balance" element={<TrialBalance/>} />
                 </Routes>
             </Router>
         </div>
