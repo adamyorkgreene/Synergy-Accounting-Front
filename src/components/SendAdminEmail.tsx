@@ -122,21 +122,23 @@ const SendAdminEmail: React.FC = () => {
 
     return (
         <RightDashboard>
-            <div className="send-admin-email">
-                <div style={{fontSize: '1.5vmin'}}
+            <div style={{position: 'relative', width: '90%', marginRight: '2vmin'}} className="send-admin-email">
+                <div style={{fontSize: '1.5vmin', width: '25%'}}
                      className="email-column">
                     <h2>Accountant Emails</h2>
                     <ul className="email-list">
                         {accountantEmails.map((email, index) => (
-                            <li key={index} className="email-item" onClick={() => handleEmailClick(email)}>
+                            <li key={index} className="email-item" style={{fontSize: 'calc(5px + 0.4vmin)'}}
+                                onClick={() => handleEmailClick(email)}>
                                 {email}
                             </li>
                         ))}
                     </ul>
                 </div>
-                <form style={{width: '70vmin'}} className="email-form" onSubmit={handleSubmit}>
-                    <h2>Send an Email</h2>
-                    <div className="input-group">
+                <form style={{width: '50%', display: 'flex', flexDirection: 'column'}}
+                      className="email-form" onSubmit={handleSubmit}>
+                    <h1 style={{margin: 'unset'}}>Send an Email</h1>
+                    <div style={{width: '100%'}} className="input-group">
                         <input
                             type="text"
                             className="custom-input"
@@ -146,7 +148,7 @@ const SendAdminEmail: React.FC = () => {
                             placeholder="Recipient email address"
                         />
                     </div>
-                    <div className="input-group">
+                    <div style={{width: '100%'}} className="input-group">
                         <input
                             type="text"
                             className="custom-input"
@@ -156,25 +158,28 @@ const SendAdminEmail: React.FC = () => {
                             placeholder="Email subject"
                         />
                     </div>
-                    <div className="input-group">
+                    <div style={{width: '100%'}} className="input-group">
                         <textarea
                             className="custom-textarea"
                             value={body}
+                            style={{width: '100%'}}
                             onChange={(e) => setBody(e.target.value)}
                             placeholder="Email body"
                             rows={10}
                         />
                     </div>
-                    <div className="input-group">
-                        <button type="submit" className="control-button">Send Email</button>
+                    <div style={{width: '100%', marginBottom: '0'}} className="input-group">
+                        <button style={{width: '100%', padding: 'unset', marginBottom: '0'}}
+                                type="submit" className="control-button">Send Email</button>
                     </div>
                 </form>
-                <div style={{fontSize: '1.5vmin'}}
+                <div style={{fontSize: '1.5vmin', width: '25%'}}
                      className="email-column">
                     <h2>Manager Emails</h2>
                     <ul className="email-list">
                         {managerEmails.map((email, index) => (
-                            <li key={index} className="email-item" onClick={() => handleEmailClick(email)}>
+                            <li key={index} style={{fontSize: 'calc(5px + 0.4vmin)'}}
+                                className="email-item" onClick={() => handleEmailClick(email)}>
                                 {email}
                             </li>
                         ))}

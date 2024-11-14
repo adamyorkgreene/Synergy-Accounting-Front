@@ -114,7 +114,7 @@ const UpdateTransaction: React.FC = () => {
                 <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'absolute',
                 top: '0'}}
                      className="dashboard-center-container">
-                    <h2>Update an Account</h2>
+                    <h1 style={{margin: 'unset', marginTop: '2vmin'}}>Update an Account</h1>
                     <div className="extra-margin"></div>
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">

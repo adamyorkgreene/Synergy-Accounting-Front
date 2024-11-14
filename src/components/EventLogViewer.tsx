@@ -22,7 +22,7 @@ const EventLogViewer: React.FC = () => {
     const token = location.state?.token;
 
     useEffect(() => {
-        if (token) fetchEventLogs(token);
+        if (token) fetchEventLogs(token).then();
     }, [token]);
 
     const fetchEventLogs = async (accountId: string) => {
@@ -76,8 +76,8 @@ const EventLogViewer: React.FC = () => {
 
     return (
         <RightDashboard>
-            <div>
-                <h1 style={{marginBottom: '0'}}>Event Logs</h1>
+            <div style={{position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+                <h1 style={{margin: 'unset', marginTop: '2vmin'}}>Account Log</h1>
                 {loading ? (
                     <p>Loading event logs...</p>
                 ) : error ? (
@@ -85,7 +85,7 @@ const EventLogViewer: React.FC = () => {
                 ) : logs.length === 0 ? (
                     <p>No event logs available.</p>
                 ) : (
-                    <table style={{scale: '90%',}}
+                    <table style={{width: 'unset', tableLayout: 'unset', margin: '5vmin', marginTop: '2vmin'}}
                            id="eventLogTable">
                         <thead>
                         <tr>
@@ -112,7 +112,8 @@ const EventLogViewer: React.FC = () => {
                     </table>
                 )}
             </div>
-            <button onClick={exportLogsToTxt}>Export Logs to .txt</button>
+            <button className="control-button"
+                onClick={exportLogsToTxt}>Export Logs to Text File</button>
         </RightDashboard>
     );
 };

@@ -93,30 +93,37 @@ const UpdateUserSearch: React.FC = () => {
 
     return (
             <RightDashboard>
-                <div style={{position: 'absolute', top: '0'}} className="dashboard-center-container">
-                    <h2>Search for a User to Update</h2>
+                <div style={{position: 'relative', minHeight: '65vh'}} className="dashboard-center-container">
+                    <h1 style={{margin: 'unset', marginTop: '2vmin'}}>Search for a User to Update</h1>
                     <div className="extra-margin"></div>
-                    <form onSubmit={handleSubmit}>
-                        <div className="input-group">
+                    <form style={{position: 'relative', display: 'flex', flexDirection: 'column'}}
+                        onSubmit={handleSubmit}>
+                        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end'}}
+                            className="input-group">
                             <label htmlFor="searchemail" className="label">Email </label>
-                            <input type="text" className="custom-input" name="email" value={email} id="searchemail"
+                            <input style={{marginRight: 'calc(50% - 22.274vmin)'}}
+                                   type="text" className="custom-input" name="email" value={email} id="searchemail"
                                    autoComplete="email" onChange={(e) => setEmail(e.target.value)}/>
                         </div>
-                        <div className="input-group">
+                        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end'}}
+                             className="input-group">
                             <label htmlFor="searchuserid" className="label">User ID </label>
-                            <input type="text" className="custom-input" name="userid" value={userid}
+                            <input style={{marginRight: 'calc(50% - 22.274vmin)'}}
+                                   type="text" className="custom-input" name="userid" value={userid}
                                    id="searchuserid"
                                    autoComplete="userid" onChange={(e) => setUserid(e.target.value)}/>
                         </div>
-                        <div className="input-group">
+                        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end'}}
+                             className="input-group">
                             <label htmlFor="searchusername" className="label">Username </label>
-                            <input type="text" className="custom-input" name="username" value={username}
+                            <input style={{marginRight: 'calc(50% - 22.274vmin)'}}
+                                   type="text" className="custom-input" name="username" value={username}
                                    id="searchusername"
                                    autoComplete="username" onChange={(e) => setUsername(e.target.value)}/>
                         </div>
-                        <div className="extra-margin"></div>
-                        <div className="input-group">
-                            <button type="submit" className="custom-button">Search</button>
+                        <div style={{display: 'flex', width: '100%', flexDirection: 'row', justifyContent: 'center'}}
+                            className="input-group">
+                            <button style={{width: '44.548vmin'}} type="submit" className="custom-button">Search</button>
                         </div>
                     </form>
                 </div>

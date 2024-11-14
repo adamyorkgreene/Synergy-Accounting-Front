@@ -186,145 +186,149 @@ const JournalEntryRequests: React.FC = () => {
 
     return (
         <RightDashboard>
-            <div style={{ marginTop: '2vmin' }} className="filter-section">
-                <label htmlFor="filterDate">Filter by Date: </label>
-                <input
-                    type="date"
-                    id="filterDate"
-                    className="custom-input"
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                />
-            </div>
-            <div className="journal-entry-requests">
-                <div className="journal-entries-column">
-                    <h2>Approved Journal Entries</h2>
-                    {filterEntriesByDate(approvedJournalEntries).map((entry, index) => (
-                        <div onClick={() => {
-                            navigate('/dashboard/journal-entry-detail', {state: {token: entry.pr}})
-                        }}
-                             key={index} className="journal-entry">
-                            <h3>User: {entry.user.username}</h3>
-                            <ul className="transactions-list">
-                                {entry.transactions.map((transaction, idx) => (
-                                    <li key={idx} className="transaction">
-                                        <p><strong>Account:</strong> {transaction.account?.accountName}</p>
-                                        <p><strong>Transaction
-                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
-                                        </p>
-                                        <p><strong>Description:</strong> {transaction.transactionDescription}</p>
-                                        <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
-                                        <p><strong>Type:</strong> {transaction.transactionType}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                            {entry.comments && entry.comments.trim() !== "" && (
-                                <p><strong>Comments:</strong> {entry.comments}</p>
-                            )}
-                            <div className="attachments-section">
-                                <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
-                                <ul style={{
-                                    fontSize: '1.5vmin',
-                                    listStyleType: 'decimal',
-                                    paddingLeft: '1.5em',
-                                    textAlign: 'left',
-                                    margin: '2.5vmin'
-                                }}>
-                                    {renderAttachmentLinks(entry.pr)}
-                                </ul>
-                            </div>
-                        </div>
-                    ))}
+            <div style={{display: 'flex', flexDirection: 'column', alignItems:'center', justifyContent: 'center',
+            padding: '20px', position: 'relative', marginRight: '2vmin'}}>
+                <div style={{position: 'relative', width: '95%', display: 'flex', alignItems: 'center',
+                justifyContent: 'flex-end'}} className="filter-section">
+                    <label style={{marginRight: '2vmin'}} htmlFor="filterDate">Filter by Date:</label>
+                    <input
+                        type="date"
+                        id="filterDate"
+                        className="custom-input"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                    />
                 </div>
-                <div className="journal-entries-column">
-                    <h2>Pending Journal Entries</h2>
-                    {filterEntriesByDate(pendingJournalEntries).map((entry, index) => (
-                        <div
-                            key={index}
-                            className={`journal-entry ${selectedJournalEntry === entry ? 'selected' : ''}`}
-                            onClick={() => setSelectedJournalEntry(entry)}
-                        >
-                            <h3>User: {entry.user.username}</h3>
-                            <ul className="transactions-list">
-                                {entry.transactions.map((transaction, idx) => (
-                                    <li key={idx} className="transaction">
-                                        <p><strong>Account:</strong> {transaction.account?.accountName}</p>
-                                        <p><strong>Transaction
-                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
-                                        </p>
-                                        <p><strong>Description:</strong> {transaction.transactionDescription}</p>
-                                        <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
-                                        <p><strong>Type:</strong> {transaction.transactionType}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="attachments-section">
-                                <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
-                                <ul style={{
-                                    fontSize: '1.5vmin',
-                                    listStyleType: 'decimal',
-                                    paddingLeft: '1.5em',
-                                    textAlign: 'left',
-                                    margin: '2.5vmin'
-                                }}>
-                                    {renderAttachmentLinks(entry.pr)}
+                <div style={{gridGap: 'unset', gap: 'unset', padding: 'unset', width: '95%', paddingTop: '20px',
+                justifyContent: 'flex-end'}} className="journal-entry-requests">
+                    <div style={{margin: 'unset'}} className="journal-entries-column">
+                        <h2>Approved Journal Entries</h2>
+                        {filterEntriesByDate(approvedJournalEntries).map((entry, index) => (
+                            <div onClick={() => {
+                                navigate('/dashboard/journal-entry-detail', {state: {token: entry.pr}})
+                            }}
+                                 key={index} className="journal-entry">
+                                <h3>User: {entry.user.username}</h3>
+                                <ul className="transactions-list">
+                                    {entry.transactions.map((transaction, idx) => (
+                                        <li key={idx} className="transaction">
+                                            <p><strong>Account:</strong> {transaction.account?.accountName}</p>
+                                            <p><strong>Transaction
+                                                Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
+                                            </p>
+                                            <p><strong>Description:</strong> {transaction.transactionDescription}</p>
+                                            <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
+                                            <p><strong>Type:</strong> {transaction.transactionType}</p>
+                                        </li>
+                                    ))}
                                 </ul>
+                                {entry.comments && entry.comments.trim() !== "" && (
+                                    <p><strong>Comments:</strong> {entry.comments}</p>
+                                )}
+                                <div className="attachments-section">
+                                    <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
+                                    <ul style={{
+                                        fontSize: '1.5vmin',
+                                        listStyleType: 'decimal',
+                                        paddingLeft: '1.5em',
+                                        textAlign: 'left',
+                                        margin: '2.5vmin'
+                                    }}>
+                                        {renderAttachmentLinks(entry.pr)}
+                                    </ul>
+                                </div>
                             </div>
-                            {selectedJournalEntry === entry && (
-                                <div style={{display: 'flex', flexDirection: 'column'}}
-                                     className="action-buttons">
+                        ))}
+                    </div>
+                    <div style={{margin: 'unset', marginRight: '20px', marginLeft: '20px'}}  className="journal-entries-column">
+                        <h2>Pending Journal Entries</h2>
+                        {filterEntriesByDate(pendingJournalEntries).map((entry, index) => (
+                            <div
+                                key={index}
+                                className={`journal-entry ${selectedJournalEntry === entry ? 'selected' : ''}`}
+                                onClick={() => setSelectedJournalEntry(entry)}
+                            >
+                                <h3>User: {entry.user.username}</h3>
+                                <ul className="transactions-list">
+                                    {entry.transactions.map((transaction, idx) => (
+                                        <li key={idx} className="transaction">
+                                            <p><strong>Account:</strong> {transaction.account?.accountName}</p>
+                                            <p><strong>Transaction
+                                                Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
+                                            </p>
+                                            <p><strong>Description:</strong> {transaction.transactionDescription}</p>
+                                            <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
+                                            <p><strong>Type:</strong> {transaction.transactionType}</p>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="attachments-section">
+                                    <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
+                                    <ul style={{
+                                        fontSize: '1.5vmin',
+                                        listStyleType: 'decimal',
+                                        paddingLeft: '1.5em',
+                                        textAlign: 'left',
+                                        margin: '2.5vmin'
+                                    }}>
+                                        {renderAttachmentLinks(entry.pr)}
+                                    </ul>
+                                </div>
+                                {selectedJournalEntry === entry && (
+                                    <div style={{display: 'flex', flexDirection: 'column'}}
+                                         className="action-buttons">
                                     <textarea
                                         placeholder="Leave comments here..."
                                         value={comments}
                                         onChange={(e) => setComments(e.target.value)}
                                     />
-                                    <button style={{width: '100%'}}
-                                            className="control-button" onClick={handleApprove}>Approve
-                                    </button>
-                                    <button style={{width: '100%'}}
-                                            className="control-button" onClick={handleReject}>Reject
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="journal-entries-column">
-                    <h2>Rejected Journal Entries</h2>
-                    {filterEntriesByDate(rejectedJournalEntries).map((entry, index) => (
-                        <div key={index} className="journal-entry">
-                            <h3>User: {entry.user.username}</h3>
-                            <ul className="transactions-list">
-                                {entry.transactions.map((transaction, idx) => (
-                                    <li key={idx} className="transaction">
-                                        <p><strong>Account:</strong> {transaction.account?.accountName}</p>
-                                        <p><strong>Transaction
-                                            Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
-                                        </p>
-                                        <p><strong>Description:</strong> {transaction.transactionDescription}</p>
-                                        <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
-                                        <p><strong>Type:</strong> {transaction.transactionType}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                            {entry.comments && entry.comments.trim() !== "" && (
-                                <p><strong>Comments:</strong> {entry.comments}</p>
-                            )}
-                            <div className="attachments-section">
-                                <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
-                                <ul style={{
-                                    fontSize: '1.5vmin',
-                                    listStyleType: 'decimal',
-                                    paddingLeft: '1.5em',
-                                    textAlign: 'left',
-                                    margin: '2.5vmin'
-                                }}>
-                                    {renderAttachmentLinks(entry.pr)}
-                                </ul>
+                                        <button style={{width: '100%'}}
+                                                className="control-button" onClick={handleApprove}>Approve
+                                        </button>
+                                        <button style={{width: '100%'}}
+                                                className="control-button" onClick={handleReject}>Reject
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                    <div style={{margin: 'unset'}} className="journal-entries-column">
+                        <h2>Rejected Journal Entries</h2>
+                        {filterEntriesByDate(rejectedJournalEntries).map((entry, index) => (
+                            <div key={index} className="journal-entry">
+                                <h3>User: {entry.user.username}</h3>
+                                <ul className="transactions-list">
+                                    {entry.transactions.map((transaction, idx) => (
+                                        <li key={idx} className="transaction">
+                                            <p><strong>Account:</strong> {transaction.account?.accountName}</p>
+                                            <p><strong>Transaction
+                                                Date:</strong> {new Date(transaction.transactionDate).toLocaleDateString()}
+                                            </p>
+                                            <p><strong>Description:</strong> {transaction.transactionDescription}</p>
+                                            <p><strong>Amount:</strong> ${transaction.transactionAmount.toFixed(2)}</p>
+                                            <p><strong>Type:</strong> {transaction.transactionType}</p>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {entry.comments && entry.comments.trim() !== "" && (
+                                    <p><strong>Comments:</strong> {entry.comments}</p>
+                                )}
+                                <div className="attachments-section">
+                                    <h5 style={{marginBottom: '0', marginTop: '0'}}>Source Documents:</h5>
+                                    <ul style={{
+                                        fontSize: '1.5vmin',
+                                        listStyleType: 'decimal',
+                                        paddingLeft: '1.5em',
+                                        textAlign: 'left',
+                                        margin: '2.5vmin'
+                                    }}>
+                                        {renderAttachmentLinks(entry.pr)}
+                                    </ul>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </RightDashboard>

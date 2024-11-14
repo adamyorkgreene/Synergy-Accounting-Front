@@ -117,12 +117,13 @@ const Register: React.FC = () => {
     }
 
     return (
-        <header className="app-header">
-            <img src={Logo} alt="Synergy" className="logo"/>
-            <div className="container">
+        <header style={{display: 'flex', position: 'relative'}}
+            className="app-header">
+            <img style={{position: 'relative'}} src={Logo} alt="Synergy" className="logo"/>
+            <div style={{position: 'relative', height: '100%', maxHeight: 'unset'}} className="container">
                 <div className="content">
-                    <div className="center-text">Create an Account</div>
-                    <div className="extra-margin"></div>
+                    <h1 style={{fontFamily: '"Copperplate",serif', fontWeight: '700',
+                    margin: '2.5vmin'}}>Create an Account</h1>
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">
                             <label htmlFor="registeremail" className="label">Enter your Email </label>
