@@ -81,6 +81,32 @@ export interface TrialBalanceDTO {
     credit: number;
 }
 
+export interface BalanceSheetDTO {
+    assets: Account[];
+    liabilities: Account[];
+    equity: Account[];
+    totalAssets: number;
+    totalLiabilities: number;
+    totalEquity: number;
+}
+
+export interface RetainedEarningsRow {
+    description: string;
+    amount: number;
+}
+
+export interface RetainedEarningsDTO {
+    rows: RetainedEarningsRow[];
+}
+
+export interface IncomeStatementDTO {
+    revenue: Account[];
+    expenses: Account[];
+    totalRevenue: number;
+    totalExpenses: number;
+    netIncome: number;
+}
+
 export enum AccountType {
     DEBIT = "DEBIT",
     CREDIT = "CREDIT"

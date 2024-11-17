@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -16,7 +16,6 @@ import SendAdminEmail from "./components/SendAdminEmail";
 import ChartOfAccounts from "./components/ChartOfAccounts";
 import AdminInbox from "./components/AdminInbox";
 import Logout from "./components/Logout";
-import {User} from "./Types";
 import AddAccount from "./components/AddAccount";
 import AddTransaction from "./components/AddTransaction";
 import UpdateTransaction from "./components/UpdateTransaction";
@@ -28,11 +27,12 @@ import JournalEntryRequests from "./components/JournalEntryRequests";
 import JournalEntryDetail from './components/JournalEntryDetail';
 import EventLogViewer from "./components/EventLogViewer";
 import TrialBalance from "./components/TrialBalance";
+import IncomeStatement from "./components/IncomeStatement";
+import BalanceSheet from "./components/BalanceSheet";
+import RetainedEarningsStatement from './components/RetainedEarningsStatement';
 
 
 function App() {
-
-    const [userResponse, setUserResponse] = useState<User>();
 
     return (
         <div className="app">
@@ -65,6 +65,9 @@ function App() {
                     <Route path="/dashboard/manager/journal-entry-requests" element={<JournalEntryRequests/>}/>
                     <Route path="/dashboard/chart-of-accounts/event-logs" element={<EventLogViewer />} />
                     <Route path="/dashboard/general-ledger/trial-balance" element={<TrialBalance/>} />
+                    <Route path="/dashboard/income-statement" element={<IncomeStatement/>} />
+                    <Route path="/dashboard/balance-sheet" element={<BalanceSheet/>} />
+                    <Route path="/dashboard/retained-earnings" element={<RetainedEarningsStatement/>} />
                 </Routes>
             </Router>
         </div>

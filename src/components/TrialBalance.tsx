@@ -1,22 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TrialBalanceDTO } from '../Types';
 import RightDashboard from './RightDashboard';
+import { useLocation, useNavigate } from "react-router-dom";
+import { useCsrf } from "../utilities/CsrfContext";
+import { useUser } from "../utilities/UserContext";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 const TrialBalance: React.FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { csrfToken } = useCsrf();
+    const { user: loggedInUser, fetchUser } = useUser();
+
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
     const [trialBalance, setTrialBalance] = useState<TrialBalanceDTO[]>([]);
+
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const init = async () => {
+            if (!loggedInUser) {
+                await fetchUser();
+            }
+            setIsLoading(false);
+        };
+        init().then();
+    }, [loggedInUser, fetchUser]);
+
+    useEffect(() => {
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login');
+            } else if (loggedInUser.userType !== "ADMINISTRATOR" && loggedInUser.userType !== "MANAGER") {
+                navigate('/dashboard');
+                alert('You do not have permission to view or generate a trial balance.');
+            }
+        }
+    }, [loggedInUser, isLoading, location.key, navigate]);
 
     const fetchTrialBalance = async () => {
         if (!startDate || !endDate) {
             alert("Please select both start and end dates.");
             return;
         }
-
+        if (!csrfToken) {
+            console.error('CSRF token is not available.');
+            return;
+        }
         try {
             const formattedStartDate = new Date(startDate).toISOString().split('T')[0];
             const formattedEndDate = new Date(endDate).toISOString().split('T')[0];
-            const response = await fetch(`/api/accounts/trial-balance?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+            const response = await fetch(`/api/accounts/trial-balance?startDate=${formattedStartDate}&endDate=${formattedEndDate}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'include'
+            });
             const data: TrialBalanceDTO[] = await response.json();
             setTrialBalance(data);
         } catch (error) {
@@ -28,6 +70,42 @@ const TrialBalance: React.FC = () => {
     // Calculate the totals for debit and credit columns
     const debitTotal = trialBalance.reduce((total, entry) => total + entry.debit, 0);
     const creditTotal = trialBalance.reduce((total, entry) => total + entry.credit, 0);
+
+    // Save as PDF
+    const saveAsPDF = () => {
+        if (trialBalance.length === 0) {
+            alert("No trial balance data to save as PDF.");
+            return;
+        }
+
+        const doc = new jsPDF();
+
+        // Add header text
+        doc.setFontSize(18);
+        doc.text("Trial Balance", 10, 10);
+        doc.setFontSize(12);
+        doc.text(`From: ${startDate} To: ${endDate}`, 10, 20);
+
+        // Prepare table data
+        const headers = [["Account", "Debit", "Credit"]];
+        const rows = trialBalance.map(entry => [
+            entry.accountName,
+            entry.debit.toFixed(2),
+            entry.credit.toFixed(2),
+        ]);
+
+        rows.push(["Totals", debitTotal.toFixed(2), creditTotal.toFixed(2)]);
+
+        // Generate table
+        doc.autoTable({
+            head: headers,
+            body: rows,
+            startY: 30,
+        });
+
+        // Save the PDF
+        doc.save(`Trial_Balance_${startDate}_to_${endDate}.pdf`);
+    };
 
     // Download CSV
     const downloadCSV = () => {
@@ -83,6 +161,10 @@ const TrialBalance: React.FC = () => {
         newWindow?.document.close();
         newWindow?.print();
     };
+
+    if (isLoading || !csrfToken || !loggedInUser) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <RightDashboard>
@@ -165,6 +247,13 @@ const TrialBalance: React.FC = () => {
                         className="control-button"
                     >
                         Print
+                    </button>
+                    <button
+                        onClick={saveAsPDF}
+                        className="control-button"
+                        style={{marginRight: '1rem'}}
+                    >
+                        Save as PDF
                     </button>
                 </div>
             </div>

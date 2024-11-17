@@ -16,7 +16,7 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
     const { user: loggedInUser, fetchUser } = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [isSticky, setIsSticky] = useState(false);
-    const [, setCurrentPage] = useState<"update-transaction" | "event-logs" | "dashboard" | "chart-of-accounts" | "journal-entry-form" | "general-ledger" | "inbox" | "send-email" | "journal-entry-requests" | "add-user" | "update-user-search">('dashboard'); // Default to 'dashboard'
+    const [showDropdown, setShowDropdown] = useState(false); // Track dropdown visibility
 
     useEffect(() => {
         const init = async () => {
@@ -36,48 +36,16 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const controlPanel = document.querySelector('.control-panel') as HTMLElement;
-            if (controlPanel) {
-                //let offsetTop = controlPanel.getBoundingClientRect().top;
-                if (window.scrollY > 169) {
-                    setIsSticky(true);
-                } else if (window.scrollY <= 169) {
-                    setIsSticky(false);
-                }
+            if (window.scrollY > 169) {
+                setIsSticky(true);
+            } else if (window.scrollY <= 169) {
+                setIsSticky(false);
             }
         };
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-
-      useEffect(() => {
-        // Update current page
-        const path = window.location.pathname;
-        if (path.includes("chart-of-accounts")) {
-            if (path.includes("update-transaction")) {
-                setCurrentPage("update-transaction");
-            } else if (path.includes("event-logs")) {
-                setCurrentPage("event-logs")
-            } else {
-                setCurrentPage("chart-of-accounts");
-            }
-        } else if (path.includes("general-ledger")) {
-          setCurrentPage("general-ledger");
-        } else if (path.includes("inbox")) {
-        setCurrentPage("inbox");
-        } else if (path.includes("send-email")) {
-        setCurrentPage("send-email");
-        } else if (path.includes("journal-entry-requests")) {
-        setCurrentPage("journal-entry-requests");
-        } else if (path.includes("add-user")) {
-        setCurrentPage("add-user");
-        } else if (path.includes("update-user-search")) {
-        setCurrentPage("update-user-search");
-        } else {
-          setCurrentPage("dashboard");
-        }
-      }, [window.location.pathname]);
 
     if (isLoading || !csrfToken) {
         return null;
@@ -87,25 +55,47 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ children }) => {
         <div className="dashboard">
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Calendar />
-                <HelpButton /> {/* Added HelpButton here */}
+                <HelpButton />
                 <img src={Logo} alt="Synergy" className="dashboard-logo" />
             </div>
-            <div style={{ flexDirection: "row", padding: "1.5625vmin" }} className={`control-panel ${isSticky ? 'sticky' : ''}`}>
-                <button style={{ marginRight: "1.5625vmin" }} className="control-button" onClick={() => navigate("/dashboard")}>
+            <div style={{flexDirection: "row", padding: "1.5625vmin"}}
+                 className={`control-panel ${isSticky ? 'sticky' : ''}`}>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button"
+                        onClick={() => navigate("/dashboard")}>
                     Home
                 </button>
-                <button style={{ marginRight: "1.5625vmin" }} className="control-button" onClick={() => navigate("/dashboard/chart-of-accounts")}>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button"
+                        onClick={() => navigate("/dashboard/chart-of-accounts")}>
                     Chart of Accounts
                 </button>
-                <button style={{ marginRight: "1.5625vmin" }} className="control-button" onClick={() => navigate("/dashboard/general-ledger")}>
+                <button style={{marginRight: "1.5625vmin"}} className="control-button"
+                        onClick={() => navigate("/dashboard/general-ledger")}>
                     General Ledger
                 </button>
+
+                {/* Dropdown Button for Statements */}
+                <div
+                    className="dropdown"
+                    onMouseEnter={() => setShowDropdown(true)}
+                    onMouseLeave={() => setShowDropdown(false)}
+                >
+                    <button className="control-button">Statements</button>
+                    {showDropdown && (
+                        <div className="dropdown-content">
+                            <button onClick={() => navigate("/dashboard/general-ledger/trial-balance")}>Trial Balance
+                            </button>
+                            <button onClick={() => navigate("/dashboard/income-statement")}>Income Statement</button>
+                            <button onClick={() => navigate("/dashboard/balance-sheet")}>Balance Sheet</button>
+                            <button onClick={() => navigate("/dashboard/retained-earnings")}>Retained Earnings</button>
+                        </div>
+                    )}
+                </div>
             </div>
             <div className={`dashboard-center ${isSticky ? 'margined' : ''}`}>
                 {children}
             </div>
             <div className="right-dashboard">
-                <div style={{ marginRight: "unset", marginBottom: "1vh" }} className="label large-font">{loggedInUser?.username}</div>
+                <div style={{marginRight: "unset", marginBottom: "1vh" }} className="label large-font">{loggedInUser?.username}</div>
                 <div className="profile-container" onClick={() => navigate('/upload-image')}>
                     <img
                         className="profile-icon"
