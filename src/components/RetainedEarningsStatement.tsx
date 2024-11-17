@@ -25,7 +25,7 @@ const RetainedEarningsStatement: React.FC = () => {
             }
             setIsLoading(false);
         };
-        init().then();
+        init();
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
@@ -64,10 +64,10 @@ const RetainedEarningsStatement: React.FC = () => {
         }
     };
 
-    const saveAsPDF = () => {
+    const generatePDFBlob = (): Blob | null => {
         if (!retainedEarnings) {
             alert("No retained earnings data to save as PDF.");
-            return;
+            return null;
         }
 
         const doc = new jsPDF();
@@ -92,8 +92,35 @@ const RetainedEarningsStatement: React.FC = () => {
             startY: 30,
         });
 
-        // Save the PDF
-        doc.save(`Retained_Earnings_Statement_${startDate}_to_${endDate}.pdf`);
+        // Return as Blob
+        return doc.output("blob");
+    };
+
+    const saveAsPDF = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Retained_Earnings_Statement_${startDate}_to_${endDate}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const sendAsEmail = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const file = new File(
+            [pdfBlob],
+            `Retained_Earnings_Statement_${startDate}_to_${endDate}.pdf`,
+            { type: "application/pdf" }
+        );
+
+        navigate('/dashboard/admin/send-email', {
+            state: { attachment: file },
+        });
     };
 
     const downloadCSV = () => {
@@ -221,6 +248,7 @@ const RetainedEarningsStatement: React.FC = () => {
                     <button onClick={downloadCSV} className="control-button" style={{ marginLeft: '1rem' }}>Download as CSV</button>
                     <button onClick={printRetainedEarnings} className="control-button">Print</button>
                     <button onClick={saveAsPDF} className="control-button" style={{ marginRight: '1rem' }}>Save as PDF</button>
+                    <button onClick={sendAsEmail} className="control-button" style={{ marginRight: '1rem' }}>Send as Email</button>
                 </div>
             </div>
         </RightDashboard>

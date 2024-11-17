@@ -71,11 +71,11 @@ const TrialBalance: React.FC = () => {
     const debitTotal = trialBalance.reduce((total, entry) => total + entry.debit, 0);
     const creditTotal = trialBalance.reduce((total, entry) => total + entry.credit, 0);
 
-    // Save as PDF
-    const saveAsPDF = () => {
+    // Generate a PDF blob for reusability
+    const generatePDFBlob = (): Blob | null => {
         if (trialBalance.length === 0) {
             alert("No trial balance data to save as PDF.");
-            return;
+            return null;
         }
 
         const doc = new jsPDF();
@@ -103,8 +103,38 @@ const TrialBalance: React.FC = () => {
             startY: 30,
         });
 
-        // Save the PDF
-        doc.save(`Trial_Balance_${startDate}_to_${endDate}.pdf`);
+        // Return PDF as a Blob
+        return doc.output("blob");
+    };
+
+    // Save as PDF
+    const saveAsPDF = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Trial_Balance_${startDate}_to_${endDate}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // Send as Email
+    const sendAsEmail = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const file = new File(
+            [pdfBlob],
+            `Trial_Balance_${startDate}_to_${endDate}.pdf`,
+            { type: "application/pdf" }
+        );
+
+        // Navigate to SendAdminEmail with attachment
+        navigate('/dashboard/admin/send-email', {
+            state: { attachment: file }
+        });
     };
 
     // Download CSV
@@ -169,30 +199,30 @@ const TrialBalance: React.FC = () => {
     return (
         <RightDashboard>
             <div className="chart-container">
-                <h1 style={{margin: 'unset'}}>Trial Balance</h1>
+                <h1 style={{ margin: 'unset' }}>Trial Balance</h1>
 
-                <div style={{width: '100%', display: 'flex', flexDirection: 'row', marginBottom: '1rem'}}
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'row', marginBottom: '1rem' }}
                      className="search-bar">
-                    <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                         <label>Start Date:</label>
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            style={{marginBottom: '1rem', width: '100%', padding: '8px'}}
+                            style={{ marginBottom: '1rem', width: '100%', padding: '8px' }}
                         />
                     </div>
-                    <div style={{display: 'flex', flexDirection: 'column', width: '100%', marginLeft: '1rem'}}>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginLeft: '1rem' }}>
                         <label>End Date:</label>
                         <input
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            style={{marginBottom: '1rem', width: '100%', padding: '8px'}}
+                            style={{ marginBottom: '1rem', width: '100%', padding: '8px' }}
                         />
                     </div>
-                    <div style={{display: 'flex', flexDirection: 'column', width: 'unset', marginLeft: '1rem'}}>
-                        <label style={{height: 'calc(10px + 2vmin)'}}> </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: 'unset', marginLeft: '1rem' }}>
+                        <label style={{ height: 'calc(10px + 2vmin)' }}> </label>
                         <button
                             onClick={fetchTrialBalance}
                             className="control-button"
@@ -226,19 +256,19 @@ const TrialBalance: React.FC = () => {
                             <td>{entry.credit.toFixed(2)}</td>
                         </tr>
                     ))}
-                    <tr className="chart-of-accounts-row" style={{fontWeight: 'bold'}}>
-                        <td style={{textAlign: 'right'}}>Totals</td>
+                    <tr className="chart-of-accounts-row" style={{ fontWeight: 'bold' }}>
+                        <td style={{ textAlign: 'right' }}>Totals</td>
                         <td>{debitTotal.toFixed(2)}</td>
                         <td>{creditTotal.toFixed(2)}</td>
                     </tr>
                     </tbody>
                 </table>
 
-                <div className="action-buttons" style={{display: 'flex', flexDirection: 'row-reverse', marginTop: '1rem'}}>
+                <div className="action-buttons" style={{ display: 'flex', flexDirection: 'row-reverse', marginTop: '1rem' }}>
                     <button
                         onClick={downloadCSV}
                         className="control-button"
-                        style={{marginLeft: '1rem'}}
+                        style={{ marginLeft: '1rem' }}
                     >
                         Download as CSV
                     </button>
@@ -251,9 +281,16 @@ const TrialBalance: React.FC = () => {
                     <button
                         onClick={saveAsPDF}
                         className="control-button"
-                        style={{marginRight: '1rem'}}
+                        style={{ marginRight: '1rem' }}
                     >
                         Save as PDF
+                    </button>
+                    <button
+                        onClick={sendAsEmail}
+                        className="control-button"
+                        style={{ marginRight: '1rem' }}
+                    >
+                        Send as Email
                     </button>
                 </div>
             </div>

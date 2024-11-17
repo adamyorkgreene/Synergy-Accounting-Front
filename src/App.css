@@ -502,6 +502,7 @@
   text-decoration: none;
   cursor: pointer;
 }
+
 .journal-entry-requests,
 .send-admin-email {
   display: flex;

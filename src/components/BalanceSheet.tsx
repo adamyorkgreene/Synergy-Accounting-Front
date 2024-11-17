@@ -25,7 +25,7 @@ const BalanceSheet: React.FC = () => {
             }
             setIsLoading(false);
         };
-        init().then();
+        init();
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
@@ -59,6 +59,88 @@ const BalanceSheet: React.FC = () => {
             console.error("Error fetching balance sheet:", error);
             alert("An error occurred while fetching the balance sheet.");
         }
+    };
+
+    const generatePDFBlob = (): Blob | null => {
+        if (!balanceSheet) {
+            alert("No balance sheet data to save as PDF.");
+            return null;
+        }
+
+        const doc = new jsPDF();
+
+        // Add header text
+        doc.setFontSize(18);
+        doc.text("Balance Sheet", 10, 10);
+        doc.setFontSize(12);
+        doc.text(`From: ${startDate} To: ${endDate}`, 10, 20);
+
+        // Prepare table data
+        const headers = [["Category", "Account", "Debit", "Credit"]];
+        const assetRows = balanceSheet.assets.map(entry => [
+            entry.accountCategory,
+            entry.accountName,
+            entry.debitBalance.toFixed(2),
+            entry.creditBalance.toFixed(2),
+        ]);
+        const liabilityRows = balanceSheet.liabilities.map(entry => [
+            entry.accountCategory,
+            entry.accountName,
+            entry.debitBalance.toFixed(2),
+            entry.creditBalance.toFixed(2),
+        ]);
+        const equityRows = balanceSheet.equity.map(entry => [
+            entry.accountCategory,
+            entry.accountName,
+            entry.debitBalance.toFixed(2),
+            entry.creditBalance.toFixed(2),
+        ]);
+        const rows = [
+            ...assetRows,
+            ["", "Total Assets", "", balanceSheet.totalAssets.toFixed(2)],
+            ...liabilityRows,
+            ["", "Total Liabilities", "", balanceSheet.totalLiabilities.toFixed(2)],
+            ...equityRows,
+            ["", "Total Equity", "", balanceSheet.totalEquity.toFixed(2)],
+            ["", "Total Liabilities + Equity", "", (balanceSheet.totalLiabilities + balanceSheet.totalEquity).toFixed(2)],
+        ];
+
+        // Generate table
+        doc.autoTable({
+            head: headers,
+            body: rows,
+            startY: 30,
+        });
+
+        // Return PDF blob
+        return doc.output("blob");
+    };
+
+    const saveAsPDF = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Balance_Sheet_${startDate}_to_${endDate}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const sendAsEmail = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const file = new File(
+            [pdfBlob],
+            `Balance_Sheet_${startDate}_to_${endDate}.pdf`,
+            { type: "application/pdf" }
+        );
+
+        navigate('/dashboard/admin/send-email', {
+            state: { attachment: file },
+        });
     };
 
     const downloadCSV = () => {
@@ -167,65 +249,6 @@ const BalanceSheet: React.FC = () => {
         newWindow?.print();
     };
 
-    const saveAsPDF = () => {
-        if (!balanceSheet) {
-            alert("No balance sheet data to save as PDF.");
-            return;
-        }
-
-        const doc = new jsPDF();
-
-        // Add header text
-        doc.setFontSize(18);
-        doc.text("Balance Sheet", 10, 10);
-        doc.setFontSize(12);
-        doc.text(`From: ${startDate} To: ${endDate}`, 10, 20);
-
-        // Prepare table data
-        const headers = [["Category", "Account", "Debit", "Credit"]];
-
-        const assetRows = balanceSheet.assets.map(entry => [
-            entry.accountCategory,
-            entry.accountName,
-            entry.debitBalance.toFixed(2),
-            entry.creditBalance.toFixed(2),
-        ]);
-
-        const liabilityRows = balanceSheet.liabilities.map(entry => [
-            entry.accountCategory,
-            entry.accountName,
-            entry.debitBalance.toFixed(2),
-            entry.creditBalance.toFixed(2),
-        ]);
-
-        const equityRows = balanceSheet.equity.map(entry => [
-            entry.accountCategory,
-            entry.accountName,
-            entry.debitBalance.toFixed(2),
-            entry.creditBalance.toFixed(2),
-        ]);
-
-        const rows = [
-            ...assetRows,
-            ["", "Total Assets", "", balanceSheet.totalAssets.toFixed(2)],
-            ...liabilityRows,
-            ["", "Total Liabilities", "", balanceSheet.totalLiabilities.toFixed(2)],
-            ...equityRows,
-            ["", "Total Equity", "", balanceSheet.totalEquity.toFixed(2)],
-            ["", "Total Liabilities + Equity", "", (balanceSheet.totalLiabilities + balanceSheet.totalEquity).toFixed(2)],
-        ];
-
-        // Generate table
-        doc.autoTable({
-            head: headers,
-            body: rows,
-            startY: 30,
-        });
-
-        // Save the PDF
-        doc.save(`Balance_Sheet_${startDate}_to_${endDate}.pdf`);
-    };
-
     const renderAccountRows = (accounts: Account[]) => (
         accounts.map((account, index) => {
             const balance = account.normalSide === AccountType.DEBIT
@@ -250,7 +273,6 @@ const BalanceSheet: React.FC = () => {
         }, 0);
     };
 
-
     if (isLoading || !csrfToken || !loggedInUser) {
         return <div>Loading...</div>;
     }
@@ -270,29 +292,29 @@ const BalanceSheet: React.FC = () => {
     return (
         <RightDashboard>
             <div className="chart-container">
-                <h1 style={{margin: 'unset'}}>Balance Sheet</h1>
+                <h1 style={{ margin: 'unset' }}>Balance Sheet</h1>
 
-                <div style={{width: '100%', display: 'flex', flexDirection: 'row'}} className="search-bar">
-                    <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }} className="search-bar">
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                         <label>Start Date:</label>
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            style={{marginBottom: '1rem', width: '100%', padding: '8px'}}
+                            style={{ marginBottom: '1rem', width: '100%', padding: '8px' }}
                         />
                     </div>
-                    <div style={{display: 'flex', flexDirection: 'column', width: '100%', marginLeft: '1rem'}}>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginLeft: '1rem' }}>
                         <label>End Date:</label>
                         <input
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            style={{marginBottom: '1rem', width: '100%', padding: '8px'}}
+                            style={{ marginBottom: '1rem', width: '100%', padding: '8px' }}
                         />
                     </div>
-                    <div style={{display: 'flex', flexDirection: 'column', width: 'unset', marginLeft: '1rem'}}>
-                        <label style={{height: 'calc(10px + 2vmin)'}}> </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: 'unset', marginLeft: '1rem' }}>
+                        <label style={{ height: 'calc(10px + 2vmin)' }}> </label>
                         <button
                             onClick={fetchBalanceSheet}
                             className="control-button"
@@ -309,8 +331,8 @@ const BalanceSheet: React.FC = () => {
                         </button>
                     </div>
                 </div>
-                <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                    <div style={{width: '48%'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ width: '48%' }}>
                         <table id="chartOfAccountsTable">
                             <thead>
                             <tr>
@@ -324,7 +346,7 @@ const BalanceSheet: React.FC = () => {
                             </tr>
                             </thead>
                             <thead>
-                            <tr style={{backgroundColor: '#d3d3d3', fontWeight: 'bold'}}>
+                            <tr style={{ backgroundColor: '#d3d3d3', fontWeight: 'bold' }}>
                                 <th>Current Assets</th>
                                 <th>Balance</th>
                             </tr>
@@ -337,7 +359,7 @@ const BalanceSheet: React.FC = () => {
                             </tr>
                             </tbody>
                             <thead>
-                            <tr style={{backgroundColor: '#d3d3d3', fontWeight: 'bold'}}>
+                            <tr style={{ backgroundColor: '#d3d3d3', fontWeight: 'bold' }}>
                                 <th>Long-Term Assets</th>
                                 <th>Balance</th>
                             </tr>
@@ -358,7 +380,7 @@ const BalanceSheet: React.FC = () => {
                         </table>
                     </div>
 
-                    <div style={{width: '48%'}}>
+                    <div style={{ width: '48%' }}>
                         <table id="chartOfAccountsTable">
                             <thead>
                             <tr>
@@ -372,7 +394,7 @@ const BalanceSheet: React.FC = () => {
                             </tr>
                             </thead>
                             <thead>
-                            <tr style={{backgroundColor: '#d3d3d3', fontWeight: 'bold'}}>
+                            <tr style={{ backgroundColor: '#d3d3d3', fontWeight: 'bold' }}>
                                 <th>Current Liabilities</th>
                                 <th>Balance</th>
                             </tr>
@@ -385,7 +407,7 @@ const BalanceSheet: React.FC = () => {
                             </tr>
                             </tbody>
                             <thead>
-                            <tr style={{backgroundColor: '#d3d3d3', fontWeight: 'bold'}}>
+                            <tr style={{ backgroundColor: '#d3d3d3', fontWeight: 'bold' }}>
                                 <th>Long-Term Liabilities</th>
                                 <th>Balance</th>
                             </tr>
@@ -402,7 +424,7 @@ const BalanceSheet: React.FC = () => {
                             </tr>
                             </tbody>
                             <thead>
-                            <tr style={{backgroundColor: '#d3d3d3', fontWeight: 'bold'}}>
+                            <tr style={{ backgroundColor: '#d3d3d3', fontWeight: 'bold' }}>
                                 <th>Equity</th>
                                 <th>Balance</th>
                             </tr>
@@ -424,15 +446,18 @@ const BalanceSheet: React.FC = () => {
                     </div>
                 </div>
                 <div className="action-buttons"
-                     style={{display: "flex", flexDirection: "row-reverse", marginTop: "1rem"}}>
-                    <button onClick={downloadCSV} className="control-button" style={{marginLeft: "1rem"}}>
+                     style={{ display: "flex", flexDirection: "row-reverse", marginTop: "1rem" }}>
+                    <button onClick={downloadCSV} className="control-button" style={{ marginLeft: "1rem" }}>
                         Download as CSV
                     </button>
                     <button onClick={printBalanceSheet} className="control-button">
                         Print
                     </button>
-                    <button onClick={saveAsPDF} className="control-button" style={{marginRight: "1rem"}}>
+                    <button onClick={saveAsPDF} className="control-button" style={{ marginRight: "1rem" }}>
                         Save as PDF
+                    </button>
+                    <button onClick={sendAsEmail} className="control-button" style={{ marginRight: "1rem" }}>
+                        Send as Email
                     </button>
                 </div>
             </div>

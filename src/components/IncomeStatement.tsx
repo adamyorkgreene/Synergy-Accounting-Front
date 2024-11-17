@@ -33,7 +33,7 @@ const IncomeStatement: React.FC = () => {
             }
             setIsLoading(false);
         };
-        init().then();
+        init();
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
@@ -89,10 +89,11 @@ const IncomeStatement: React.FC = () => {
         return { ...account, currentBalance: balance };
     };
 
-    const saveAsPDF = () => {
+    // Generate PDF Blob
+    const generatePDFBlob = (): Blob | null => {
         if (!incomeStatement) {
             alert("No income statement data to save as PDF.");
-            return;
+            return null;
         }
 
         const doc = new jsPDF();
@@ -133,10 +134,41 @@ const IncomeStatement: React.FC = () => {
             startY: 30,
         });
 
-        // Save the PDF
-        doc.save(`Income_Statement_${startDate}_to_${endDate}.pdf`);
+        // Return PDF as Blob
+        return doc.output("blob");
     };
 
+    // Save as PDF
+    const saveAsPDF = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Income_Statement_${startDate}_to_${endDate}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // Send as Email
+    const sendAsEmail = () => {
+        const pdfBlob = generatePDFBlob();
+        if (!pdfBlob) return;
+
+        const file = new File(
+            [pdfBlob],
+            `Income_Statement_${startDate}_to_${endDate}.pdf`,
+            { type: "application/pdf" }
+        );
+
+        // Navigate to SendAdminEmail with attachment
+        navigate('/dashboard/admin/send-email', {
+            state: { attachment: file }
+        });
+    };
+
+    // Download CSV
     const downloadCSV = () => {
         const headers = ["Account", "Amount"];
         const rows = [
@@ -172,54 +204,34 @@ const IncomeStatement: React.FC = () => {
     };
 
     const printIncomeStatement = () => {
-        const revenueRows = incomeStatement.revenue
-            .map(
-                entry =>
-                    `<tr><td>${entry.accountName}</td><td>${entry.currentBalance.toFixed(
-                        2
-                    )}</td></tr>`
-            )
-            .join("");
-        const expenseRows = incomeStatement.expenses
-            .map(
-                entry =>
-                    `<tr><td>${entry.accountName}</td><td>${entry.currentBalance.toFixed(
-                        2
-                    )}</td></tr>`
-            )
-            .join("");
+        const printContent = document.getElementById("chartOfAccountsTable")?.outerHTML;
+        if (!printContent) {
+            console.error("Print content not found");
+            alert("An error occurred while preparing the content for printing.");
+            return;
+        }
 
         const newWindow = window.open("", "_blank");
         newWindow?.document.write(`
-            <html lang="en">
-            <head>
-                <title>Income Statement</title>
-                <style>
-                    body, h1, table { font-family: Arial, sans-serif; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                    th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-                    th { background-color: #f2f2f2; }
-                    h1 { text-align: center; font-size: 1.5em; }
-                </style>
-            </head>
-            <body>
-                <h1>Income Statement</h1>
-                <p>From: ${startDate} To: ${endDate}</p>
-                <table>
-                    <thead><tr><th>Account</th><th>Amount</th></tr></thead>
-                    <tbody>
-                        <tr><th colspan="2">Revenue</th></tr>
-                        ${revenueRows}
-                        <tr><td><b>Total Revenue</b></td><td>${incomeStatement.totalRevenue.toFixed(2)}</td></tr>
-                        <tr><th colspan="2">Expenses</th></tr>
-                        ${expenseRows}
-                        <tr><td><b>Total Expenses</b></td><td>${incomeStatement.totalExpenses.toFixed(2)}</td></tr>
-                        <tr><td><b>Net Income</b></td><td>${incomeStatement.netIncome.toFixed(2)}</td></tr>
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `);
+        <html lang="en">
+        <head>
+            <title>Income Statement</title>
+            <style>
+                /* Print-specific styling */
+                body, h1, table { font-family: Arial, sans-serif; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                h1 { text-align: center; font-size: 1.5em; }
+            </style>
+        </head>
+        <body>
+            <h1>Income Statement</h1>
+            <div class="date-range">From: ${startDate} To: ${endDate}</div>
+            ${printContent}
+        </body>
+        </html>
+    `);
         newWindow?.document.close();
         newWindow?.print();
     };
@@ -367,6 +379,13 @@ const IncomeStatement: React.FC = () => {
                         style={{ marginRight: '1rem' }}
                     >
                         Save as PDF
+                    </button>
+                    <button
+                        onClick={sendAsEmail}
+                        className="control-button"
+                        style={{ marginRight: '1rem' }}
+                    >
+                        Send as Email
                     </button>
                 </div>
             </div>

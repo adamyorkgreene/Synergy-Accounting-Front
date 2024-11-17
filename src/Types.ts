@@ -68,6 +68,13 @@ export interface Email {
     subject: string;
     body: string;
     id: string;
+    attachments?: Attachment[];
+}
+
+export interface Attachment {
+    fileName: string;
+    contentType: string;
+    contentBase64: string;
 }
 
 export interface JournalEntryResponseDTO {
