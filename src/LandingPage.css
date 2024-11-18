@@ -1,0 +1,68 @@
+/* Styles scoped to landing page */
+.landing-page-container .landing-page-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.landing-page-container .financial-ratios {
+    display: flex;
+    flex-wrap: nowrap;  /* Prevent wrapping of the cards */
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.landing-page-container .ratio-card {
+    width: 180px;
+    height: 280px;  /* Increased height to fit the content better */
+    padding: 5px 15px 15px 15px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.landing-page-container .ratio-card h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.landing-page-container .chart-container {
+    width: 100%;
+    height: 120px;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.landing-page-container .ratio-description {
+    font-size: 0.85rem;
+    color: #fff;
+    background-color: #333;
+    padding: 5px;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Optional: Responsive styling for smaller screens */
+@media (max-width: 768px) {
+    .landing-page-container .ratio-card {
+        width: 150px;  /* Reduced width for small screens */
+        height: 180px;  /* Reduced height for small screens */
+    }
+
+    .landing-page-container .financial-ratios {
+        gap: 10px;
+    }
+}

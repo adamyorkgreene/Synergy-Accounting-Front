@@ -30,6 +30,7 @@ import TrialBalance from "./components/TrialBalance";
 import IncomeStatement from "./components/IncomeStatement";
 import BalanceSheet from "./components/BalanceSheet";
 import RetainedEarningsStatement from './components/RetainedEarningsStatement';
+import LandingPage from './components/LandingPage';
 
 
 function App() {
@@ -46,7 +47,8 @@ function App() {
                     <Route path="/forgot-password" element={<ResetPassword/>}/>
                     <Route path="/password-reset" element={<ResetPasswordForm/>}/>
                     <Route path="/confirm-user" element={<ConfirmUser/>}/>
-                    <Route path="/dashboard" element={<Dashboard/>}/>
+{/*                     <Route path="/dashboard" element={<Dashboard/>}/> */}
+                    <Route path="/dashboard" element={<LandingPage />} />
                     <Route path="/upload-image" element={<ImageUpload/>}/>
                     <Route path="/dashboard/admin/add-user" element={<AddUser/>}/>
                     <Route path="/dashboard/admin/update-user-search" element={<UpdateUserSearch/>}/>
