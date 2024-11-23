@@ -17,13 +17,23 @@ const LandingPage: React.FC = () => {
         returnOnEquity: 0.08,
     };
 
+    // Helper function to determine color based on value
+    const getColor = (value: number) => {
+        if (value > 1) {
+            return '#2a9d8f'; // Green for favorable
+        } else if (value > 0.5) {
+            return '#f4a261'; // Yellow for moderate
+        } else {
+            return '#e63946'; // Red for unfavorable
+        }
+    };
+
     // Chart data for Current Ratio (Pie Chart)
     const currentRatioData = {
         labels: ['Current Assets', 'Current Liabilities'],
         datasets: [{
-            data: [financialRatios.currentRatio > 1 ? financialRatios.currentRatio : 1 - financialRatios.currentRatio,
-                   financialRatios.currentRatio <= 1 ? 1 - financialRatios.currentRatio : financialRatios.currentRatio],
-            backgroundColor: ['#2a9d8f', '#e63946'],
+            data: [financialRatios.currentRatio, 1 - financialRatios.currentRatio],
+            backgroundColor: [getColor(financialRatios.currentRatio), getColor(1 - financialRatios.currentRatio)],
             hoverOffset: 4,
         }],
     };
@@ -32,9 +42,8 @@ const LandingPage: React.FC = () => {
     const quickRatioData = {
         labels: ['Quick Assets', 'Current Liabilities'],
         datasets: [{
-            data: [financialRatios.quickRatio > 1 ? financialRatios.quickRatio : 1 - financialRatios.quickRatio,
-                   financialRatios.quickRatio <= 1 ? 1 - financialRatios.quickRatio : financialRatios.quickRatio],
-            backgroundColor: ['#2a9d8f', '#e63946'],
+            data: [financialRatios.quickRatio, 1 - financialRatios.quickRatio],
+            backgroundColor: [getColor(financialRatios.quickRatio), getColor(1 - financialRatios.quickRatio)],
             hoverOffset: 4,
         }],
     };
@@ -45,7 +54,7 @@ const LandingPage: React.FC = () => {
         datasets: [{
             label: 'Debt-to-Equity Ratio',
             data: [financialRatios.debtEquityRatio],
-            backgroundColor: financialRatios.debtEquityRatio < 1 ? '#2a9d8f' : '#e63946',
+            backgroundColor: [getColor(financialRatios.debtEquityRatio)],
             borderColor: '#333',
             borderWidth: 1,
         }],
@@ -53,20 +62,20 @@ const LandingPage: React.FC = () => {
 
     // Chart data for Return on Assets (Doughnut Chart)
     const returnOnAssetsData = {
-        labels: ['Return on Assets'],
+        labels: ['Return on Assets', 'Other'],
         datasets: [{
             data: [financialRatios.returnOnAssets, 1 - financialRatios.returnOnAssets],
-            backgroundColor: ['#2a9d8f', '#e63946'],
+            backgroundColor: [getColor(financialRatios.returnOnAssets), getColor(1 - financialRatios.returnOnAssets)],
             hoverOffset: 4,
         }],
     };
 
     // Chart data for Return on Equity (Doughnut Chart)
     const returnOnEquityData = {
-        labels: ['Return on Equity'],
+        labels: ['Return on Equity', 'Other'],
         datasets: [{
             data: [financialRatios.returnOnEquity, 1 - financialRatios.returnOnEquity],
-            backgroundColor: ['#2a9d8f', '#e63946'],
+            backgroundColor: [getColor(financialRatios.returnOnEquity), getColor(1 - financialRatios.returnOnEquity)],
             hoverOffset: 4,
         }],
     };
