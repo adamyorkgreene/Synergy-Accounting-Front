@@ -14,7 +14,7 @@ const AddUser: React.FC = () => {
     const [lastName, setLastName] = useState<string>('');
     const [userType, setUserType] = useState<UserType>(UserType.USER);
 
-    const [birthDate, setBirthDate] = useState<Date>();
+    const [birthday, setBirthday] = useState<Date>();
     const [address, setAddress] = useState<string>('');
 
     const navigate = useNavigate();
@@ -77,17 +77,6 @@ const AddUser: React.FC = () => {
             alert('Please enter a valid email address.')
         }
 
-        let birthday, birthMonth, birthYear;
-        if (birthDate) {
-            birthday = birthDate.getDate() + 1;
-            birthMonth = birthDate.getMonth() + 1;
-            birthYear = birthDate.getFullYear();
-        } else {
-            birthday = undefined;
-            birthMonth = undefined;
-            birthYear = undefined;
-        }
-
         try {
 
             const response = await fetch('https://synergyaccounting.app/api/admin/create', {
@@ -104,8 +93,6 @@ const AddUser: React.FC = () => {
                     lastName,
                     userType,
                     birthday,
-                    birthMonth,
-                    birthYear,
                     address,
                 }),
             });
@@ -176,8 +163,8 @@ const AddUser: React.FC = () => {
                                 type="date"
                                 className="custom-input"
                                 name="birthday"
-                                value={birthDate ? birthDate.toISOString().substring(0, 10) : ""}
-                                onChange={(e) => setBirthDate(e.target.value ? new Date(e.target.value) : undefined)}
+                                value={birthday ? birthday.toISOString().substring(0, 10) : ""}
+                                onChange={(e) => setBirthday(e.target.value ? new Date(e.target.value) : undefined)}
                             />
                         </div>
                         <div className="input-group">

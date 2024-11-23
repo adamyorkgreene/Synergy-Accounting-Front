@@ -1,5 +1,5 @@
 export interface User {
-    userid: bigint;
+    userid: number;
     address: string;
     email: string;
     firstName: string;
@@ -11,9 +11,9 @@ export interface User {
 }
 
 export interface UserSecurity {
-    emailPassword: string;
     isVerified: boolean;
     isActive: boolean;
+    failedLoginAttempts: number;
 }
 
 export interface UserDate {
@@ -43,16 +43,6 @@ export interface Account {
     isActive: boolean;
 }
 
-export interface Transaction {
-    transactionId: number;
-    transactionAccount: Account;
-    transactionDate: Date;
-    transactionDescription: string;
-    transactionAmount: number;
-    transactionType: AccountType;
-    pr: number;
-}
-
 export interface TransactionForm {
     account: Account | undefined;
     transactionDate: Date;
@@ -78,11 +68,50 @@ export interface Email {
     subject: string;
     body: string;
     id: string;
+    attachments?: Attachment[];
+}
+
+export interface Attachment {
+    fileName: string;
+    contentType: string;
+    contentBase64: string;
 }
 
 export interface JournalEntryResponseDTO {
     messageResponse: MessageResponse;
     id: number;
+}
+
+export interface TrialBalanceDTO {
+    accountName: string;
+    debit: number;
+    credit: number;
+}
+
+export interface BalanceSheetDTO {
+    assets: Account[];
+    liabilities: Account[];
+    equity: Account[];
+    totalAssets: number;
+    totalLiabilities: number;
+    totalEquity: number;
+}
+
+export interface RetainedEarningsRow {
+    description: string;
+    amount: number;
+}
+
+export interface RetainedEarningsDTO {
+    rows: RetainedEarningsRow[];
+}
+
+export interface IncomeStatementDTO {
+    revenue: Account[];
+    expenses: Account[];
+    totalRevenue: number;
+    totalExpenses: number;
+    netIncome: number;
 }
 
 export enum AccountType {

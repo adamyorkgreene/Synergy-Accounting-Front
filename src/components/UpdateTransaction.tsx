@@ -1,16 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {Account, AccountType, MessageResponse, Transaction} from '../Types';
+import {AccountType, MessageResponse, TransactionForm} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
-import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
 import RightDashboard from "./RightDashboard";
 
 const UpdateTransaction: React.FC = () => {
 
-    const [transaction, setTransaction] = useState<Transaction>();
-
-    const [transactionId, setTransactionId] = useState<number>();
+    const [transactionId] = useState<number>();
+    const [, setTransaction] = useState<TransactionForm>();
     const [transactionDescription, setTransactionDescription] = useState<string>();
     const [transactionAmount, setTransactionAmount] = useState<number>();
     const [transactionType, setTransactionType] = useState<AccountType>(AccountType.DEBIT);
@@ -18,22 +16,30 @@ const UpdateTransaction: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const {csrfToken} = useCsrf();
+    const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
     const [isLoading, setIsLoading] = useState(true);
+    const account = location.state?.account;
+    const origin = location.state?.origin;
 
     useEffect(() => {
-        if (location.state && location.state.transaction) {
-            const transactionData = location.state.transaction as Transaction;
-            console.log("Transaction Data:", transactionData);
+        if (location.state?.transaction) {
+            const transactionData = location.state.transaction as TransactionForm;
             setTransaction(transactionData);
             setTransactionDescription(transactionData.transactionDescription);
             setTransactionAmount(transactionData.transactionAmount);
             setTransactionType(transactionData.transactionType);
-            setTransactionId(transactionData.transactionId);
         }
     }, [location.state]);
+
+    const handleGoBack = () => {
+        if (origin && account) {
+            navigate(`/dashboard/${origin}`, { state: { selectedAccount: account } });
+        } else {
+            navigate('/dashboard/chart-of-accounts');
+        }
+    };
 
     useEffect(() => {
         const init = async () => {
@@ -156,10 +162,7 @@ const UpdateTransaction: React.FC = () => {
                             <button type="submit" className="custom-button">Update Transaction</button>
                         </div>
                         <div className="input-group">
-                            <button onClick={() => navigate('/dashboard/chart-of-accounts', {
-                                state:
-                                    {account: transaction?.transactionAccount}
-                            })}
+                            <button onClick={handleGoBack}
                                     className="custom-button">Go Back
                             </button>
                         </div>

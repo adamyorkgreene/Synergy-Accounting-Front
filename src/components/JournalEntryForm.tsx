@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import RightDashboard from "./RightDashboard";
-import { Account, AccountType, JournalEntryResponseDTO, MessageResponse, TransactionForm, UserType } from "../Types";
+import {
+    Account,
+    AccountCategory,
+    AccountSubCategory,
+    AccountType,
+    JournalEntryResponseDTO,
+    TransactionForm,
+    UserType
+} from "../Types";
 import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -152,18 +160,6 @@ const JournalEntryForm: React.FC = () => {
         );
     };
 
-    const validateBalance = () => {
-        const totalDebit = transactions
-            .filter(tx => tx.transactionType === AccountType.DEBIT)
-            .reduce((sum, tx) => sum + tx.transactionAmount, 0);
-
-        const totalCredit = transactions
-            .filter(tx => tx.transactionType === AccountType.CREDIT)
-            .reduce((sum, tx) => sum + tx.transactionAmount, 0);
-
-        return totalDebit === totalCredit;
-    };
-
     const clearTransactions = () => {
         setTransactions([
             {
@@ -189,7 +185,6 @@ const JournalEntryForm: React.FC = () => {
 
     const handleSubmit = async () => {
         if (!validateBalance()) {
-            alert('Debits and credits must be equal.');
             return;
         }
         if (!csrfToken) {
@@ -259,6 +254,132 @@ const JournalEntryForm: React.FC = () => {
             alert("An error has occurred. Please try again later.");
         }
     };
+
+    const validateBalance = () => {
+
+        if (!transactions) {
+            alert("Transactions cannot be empty.");
+            return false;
+        }
+
+        // Rule #1: Total debits must equal total credits
+        const totalDebit = transactions
+            .filter(tx => tx.transactionType === AccountType.DEBIT)
+            .reduce((sum, tx) => sum + tx.transactionAmount, 0);
+
+        const totalCredit = transactions
+            .filter(tx => tx.transactionType === AccountType.CREDIT)
+            .reduce((sum, tx) => sum + tx.transactionAmount, 0);
+
+        if (totalDebit !== totalCredit) {
+            alert("Total debits and credits must be equal.");
+            return false;
+        }
+
+        // Categorize transactions by AccountCategory and AccountSubCategory
+        const hasRevenue = transactions.some(tx => tx.account && tx.account.accountCategory === AccountCategory.REVENUE);
+        const hasExpense = transactions.some(tx => tx.account && tx.account.accountCategory === AccountCategory.EXPENSE);
+        const hasAsset = transactions.some(tx => tx.account && tx.account.accountCategory === AccountCategory.ASSET);
+        const hasEquity = transactions.some(tx => tx.account && tx.account.accountCategory === AccountCategory.EQUITY);
+        const hasLiability = transactions.some(tx => tx.account && tx.account.accountCategory === AccountCategory.LIABILITY);
+
+        // Check Rule #2: Asset Transfer Restrictions (only if all transactions involve assets)
+        const assetTransactions = transactions.filter(tx => tx?.account?.accountCategory === AccountCategory.ASSET);
+
+        if (assetTransactions.length === transactions.length) {
+            // Only apply the rule if all transactions are assets with mixed subcategories
+            const hasInvalidAssetTransfer = assetTransactions.some((tx, _, arr) =>
+                arr.some(otherTx =>
+                    otherTx !== tx &&
+                    otherTx?.account?.accountSubCategory !== tx?.account?.accountSubCategory
+                )
+            );
+            if (hasInvalidAssetTransfer) {
+                alert("Asset transfers are only allowed within the same subcategory (e.g., Current or Long-term).");
+                return false;
+            }
+        }
+
+        const operationalExpense = transactions.some(tx =>
+            tx?.account?.accountCategory === AccountCategory.EXPENSE &&
+            tx?.account?.accountSubCategory === AccountSubCategory.OPERATING
+        );
+        const operationalRevenue = transactions.some(tx =>
+            tx?.account?.accountCategory === AccountCategory.REVENUE &&
+            tx?.account?.accountSubCategory === AccountSubCategory.OPERATING
+        );
+        const hasAssetOrLiability = transactions.some(tx =>
+            tx?.account?.accountCategory === AccountCategory.ASSET ||
+            tx?.account?.accountCategory === AccountCategory.LIABILITY
+        );
+
+        if (operationalExpense && !operationalRevenue && !hasAssetOrLiability) {
+            alert("Operational expenses can only balance with operational revenue, assets, or liabilities.");
+            return false;
+        }
+        if (operationalRevenue && !operationalExpense && !hasAssetOrLiability) {
+            alert("Operational revenue can only balance with operational expenses, assets, or liabilities.");
+            return false;
+        }
+
+        // Allow operational expense or revenue to balance with each other, or with assets or liabilities.
+        if (operationalExpense && !operationalRevenue && !hasAssetOrLiability) {
+            alert("Operational expenses can only balance with operational revenue, assets, or liabilities.");
+            return false;
+        }
+        if (operationalRevenue && !operationalExpense && !hasAssetOrLiability) {
+            alert("Operational revenue can only balance with operational expenses, assets, or liabilities.");
+            return false;
+        }
+
+        // Rule #4: Non-operational Expense and Revenue Restrictions
+        /*const nonOperating = transactions.some(tx =>
+            (tx?.account?.accountCategory === AccountCategory.REVENUE || tx?.account?.accountCategory === AccountCategory.EXPENSE) &&
+            tx?.account?.accountSubCategory === AccountSubCategory.NONOPERATING
+        );
+
+        if (nonOperating && hasAsset) {
+            alert("Non-operational expenses/revenue cannot be directly balanced with assets.");
+            return false;
+        }*/
+
+        // Check Rule #5: Liability to Revenue/Expense Restrictions
+
+        if (hasLiability && hasRevenue && !hasAsset && !hasEquity) {
+            alert("Liabilities cannot be directly balanced with revenues.");
+            return false;
+        }
+        if (hasLiability && hasExpense && !hasAsset && !hasEquity) {
+            alert("Liabilities cannot be directly balanced with expenses.");
+            return false;
+        }
+
+        // Check Rule #6: Equity Restriction with Expense and Revenue
+        if (hasEquity && hasRevenue && !hasAsset && !hasLiability) {
+            alert("Equity accounts cannot be directly balanced with revenue accounts.");
+            return false;
+        }
+        if (hasEquity && hasExpense && !hasAsset && !hasLiability) {
+            alert("Equity accounts cannot be directly balanced with expense accounts.");
+            return false;
+        }
+
+        // Check Rule #7: Owner’s Equity Withdrawals and Investments
+        const hasOwnersEquity = transactions.some(tx =>
+            tx?.account?.accountCategory === AccountCategory.EQUITY &&
+            tx?.account?.accountSubCategory === AccountSubCategory.OWNERS
+        );
+        const hasInvalidOwnersEquityBalance = hasOwnersEquity && !hasAsset;
+        if (hasInvalidOwnersEquityBalance) {
+            alert("Owner's equity transactions should only balance with assets (withdrawals or investments).");
+            return false;
+        }
+
+        // If conditions are met, allow the transaction
+        return true;
+
+    };
+
 
     return (
         <RightDashboard>

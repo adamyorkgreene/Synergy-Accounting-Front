@@ -15,7 +15,7 @@ const UpdateUserSearch: React.FC = () => {
     const navigate = useNavigate();
 
     const {csrfToken} = useCsrf();
-    const { user: loggedInUser, setUser: setLoggedInUser, fetchUser } = useUser();
+    const { user: loggedInUser, fetchUser } = useUser();
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -35,7 +35,7 @@ const UpdateUserSearch: React.FC = () => {
                 navigate('/login')
             }
             else if (loggedInUser.userType !== "ADMINISTRATOR"){
-                navigate('/dashboard/chart-of-accounts');
+                navigate('/dashboard');
                 alert('You do not have permission to search for users.')
             }
         }
@@ -74,20 +74,15 @@ const UpdateUserSearch: React.FC = () => {
                     username,
                 }),
             });
-
             if (response.ok) {
                 const userResponse: User = await response.json();
-                console.log('user: ',  userResponse);
+                console.log("Found user: ", userResponse)
                 navigate('/dashboard/admin/update-user', {state: {userResponse}});
             } else {
-                const msgResponse: MessageResponse = await response.json();
-                alert(msgResponse.message);
+                alert('This user does not exist in the database.');
             }
-
         } catch (error) {
             console.error('Error:', error);
-            alert('Your session has expired. Refreshing page..');
-            navigate('/login');
         }
     };
 

@@ -139,30 +139,25 @@ const AdminInbox: React.FC = () => {
         }
     };
 
-    const handleSort = async (key: keyof Email) => {
+    const handleSort = (key: keyof Email) => {
         if (emails) {
             const sortedEmails = [...emails].sort((a, b) => {
+                const aValue = a[key] ?? "";
+                const bValue = b[key] ?? "";
+
                 if (key === 'date') {
-                    if (new Date(a.date) < new Date(b.date)) {
-                        return 1;
-                    }
-                    if (new Date(a.date) > new Date(b.date)) {
-                        return -1;
-                    }
-                    return 0;
-                } else {
-                    if (a[key] < b[key]) {
-                        return -1;
-                    }
-                    if (a[key] > b[key]) {
-                        return 1;
-                    }
+                    const aDate = new Date(aValue as string).getTime();
+                    const bDate = new Date(bValue as string).getTime();
+                    return bDate - aDate; // Sort by most recent date
                 }
+
+                if (aValue < bValue) return -1;
+                if (aValue > bValue) return 1;
                 return 0;
             });
             setEmails(sortedEmails);
         }
-    }
+    };
 
     if (isLoading || !csrfToken) {
         return <div>Loading...</div>;
@@ -170,7 +165,7 @@ const AdminInbox: React.FC = () => {
 
     return (
             <RightDashboard>
-                <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column'}}
+                <div style={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}
                     className="chart-container">
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center',
                         justifyContent: 'space-between'}}>

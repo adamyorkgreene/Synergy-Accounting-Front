@@ -2,10 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {Account, AccountCategory, AccountSubCategory, AccountType, MessageResponse} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
-import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
 import RightDashboard from "./RightDashboard";
-import Calendar from "./Calandar";
 
 const AddAccount: React.FC = () => {
 
