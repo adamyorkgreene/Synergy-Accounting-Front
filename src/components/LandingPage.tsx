@@ -139,7 +139,7 @@ const LandingPage: React.FC = () => {
       try {
         const response = await fetch('https://synergyaccounting.app/api/dashboard/messages', {
           method: 'GET',
-          headers: { 'X-CSRF-TOKEN': csrfToken },
+          headers: { 'X-CSRF-TOKEN': csrfToken as string },
           credentials: 'include',
         });
 
