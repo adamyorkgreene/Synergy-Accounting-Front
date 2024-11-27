@@ -23,14 +23,18 @@ export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
                     method: 'GET',
                     credentials: 'include',
                 });
+
+                console.log("Response status:", response.status);
+                console.log("Response headers:", [...response.headers.entries()]);
+
                 if (response.ok) {
                     const csrfData = await response.json();
                     setCsrfToken(csrfData.token);
                     console.log("CSRF Token fetched successfully:", csrfData.token);
                     return;
                 } else {
-                    const message: MessageResponse = await response.json();
-                    console.error(message);
+                    const message = await response.text();
+                    console.error("Error response:", message);
                 }
             } catch (error) {
                 console.error('Error fetching CSRF token:', error);
@@ -40,6 +44,7 @@ export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
         }
         console.error('Failed to fetch CSRF token after multiple attempts.');
     };
+
 
     useEffect(() => {
         console.log("CsrfProvider mounting...");

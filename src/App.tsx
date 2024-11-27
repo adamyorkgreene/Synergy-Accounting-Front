@@ -47,7 +47,6 @@ function App() {
                     <Route path="/forgot-password" element={<ResetPassword/>}/>
                     <Route path="/password-reset" element={<ResetPasswordForm/>}/>
                     <Route path="/confirm-user" element={<ConfirmUser/>}/>
-{/*                     <Route path="/dashboard" element={<Dashboard/>}/> */}
                     <Route path="/dashboard" element={<LandingPage />} />
                     <Route path="/upload-image" element={<ImageUpload/>}/>
                     <Route path="/dashboard/admin/add-user" element={<AddUser/>}/>
