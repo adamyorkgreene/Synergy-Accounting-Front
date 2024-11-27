@@ -149,6 +149,12 @@ export interface ReturnOnEquityDTO {
     ratio: number;
 }
 
+export interface GeneralMessageDTO {
+    username: string;
+    date: string;
+    message: string;
+}
+
 export enum AccountType {
     DEBIT = "DEBIT",
     CREDIT = "CREDIT"
