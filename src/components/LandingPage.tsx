@@ -61,11 +61,11 @@ const LandingPage: React.FC = () => {
                 navigate('/login');
                 alert('You do not have permission to view this page.')
             } else {
-                getData().then(); => {
+                getData().then();  {
                   // Fetch additional data for journal entries and general messages
                      fetchPendingJournalEntries();
                      fetchGeneralMessages();
-                      });
+                      };
             }
         }
     }, [loggedInUser, isLoading, navigate]);
