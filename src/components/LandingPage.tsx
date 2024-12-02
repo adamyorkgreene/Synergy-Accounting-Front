@@ -37,6 +37,11 @@ const LandingPage: React.FC = () => {
         returnOnEquity: { netIncome: 0, totalEquity: 0, ratio: 0 },
     });
 
+    const [pendingJournalCount, setPendingJournalCount] = useState(0); // Journal entries count
+    const [generalMessages, setGeneralMessages] = useState([]); // General messages
+    const [isLoadingGeneralMessages, setIsLoadingGeneralMessages] = useState(true);
+    const [generalMessagesError, setGeneralMessagesError] = useState(null);
+
     useEffect(() => {
         const init = async () => {
             if (!loggedInUser) {
@@ -56,7 +61,11 @@ const LandingPage: React.FC = () => {
                 navigate('/login');
                 alert('You do not have permission to view this page.')
             } else {
-                getData().then()
+                getData().then();  {
+                  // Fetch additional data for journal entries and general messages
+                     fetchPendingJournalEntries();
+                     fetchGeneralMessages();
+                      };
             }
         }
     }, [loggedInUser, isLoading, navigate]);
@@ -105,6 +114,47 @@ const LandingPage: React.FC = () => {
         } catch (error) {
             console.error('Error fetching ratio data:', error);
         }
+    };
+
+    const fetchPendingJournalEntries = async () => {
+      try {
+        const response = await fetch('https://synergyaccounting.app/api/manager/journal-entry-requests/pending', {
+          method: 'GET',
+          headers: { 'X-CSRF-TOKEN': csrfToken },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch pending journal entries.');
+        }
+
+        const data = await response.json();
+        setPendingJournalCount(data.length); // Get the count of pending entries
+      } catch (error) {
+        console.error('Error fetching pending journal entries:', error);
+      }
+    };
+
+    const fetchGeneralMessages = async () => {
+      try {
+        const response = await fetch('https://synergyaccounting.app/api/dashboard/messages', {
+          method: 'GET',
+          headers: { 'X-CSRF-TOKEN': csrfToken as string },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch general messages.');
+        }
+
+        const data = await response.json();
+        setGeneralMessages(data); // Store the general messages
+        setIsLoadingGeneralMessages(false);
+      } catch (error) {
+        console.error('Error fetching general messages:', error);
+        setGeneralMessagesError('Could not load general messages.');
+        setIsLoadingGeneralMessages(false);
+      }
     };
 
 
@@ -303,6 +353,41 @@ const LandingPage: React.FC = () => {
                 <h1 style={{margin: 'unset'}}>Trial Balance</h1>
                 {/* Landing Page Content */}
                 <div className="landing-page-content">
+                 {/* Pending Journal Entries */}
+                                <div className="pending-journal-entries">
+                                  <h2>Pending Journal Entries</h2>
+                                  {pendingJournalCount > 0 ? (
+                                    <p>
+                                      <strong>{pendingJournalCount}</strong> journal entry/entries are waiting for approval.
+                                    </p>
+                                  ) : (
+                                    <p>All journal entries are approved!</p>
+                                  )}
+                                </div>
+
+                   {/* General Messages */}
+                   <div className="general-messages">
+                     <h2>General Messages</h2>
+                     {generalMessagesError ? (
+                       <p className="error-message">{generalMessagesError}</p>
+                     ) : isLoadingGeneralMessages ? (
+                       <p>Loading messages...</p>
+                     ) : generalMessages.length > 0 ? (
+                       <ul>
+                         {generalMessages.map((message, index) => (
+                           <li key={index}>
+                             <p>{message.message}</p>
+                             <small>
+                               Posted by: {message.user} on {new Date(message.date).toLocaleDateString()}
+                             </small>
+                           </li>
+                         ))}
+                       </ul>
+                     ) : (
+                       <p>No general messages available.</p>
+                     )}
+                   </div>
+
                     {/* Financial Ratios Section */}
                     <div className="financial-ratios">
                         {/* Current Ratio */}
