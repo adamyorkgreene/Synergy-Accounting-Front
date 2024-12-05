@@ -92,7 +92,37 @@ const AdminInbox: React.FC = () => {
         }
     }
 
-    const openEmail = (email: Email) => {
+    const openEmail = async (email: Email) => {
+        try {
+            if (!csrfToken) {
+                console.error('CSRF token is not available.');
+                return;
+            }
+            const response = await fetch(`https://synergyaccounting.app/api/email/mark-as-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                credentials: 'include',
+                body: JSON.stringify({ username: loggedInUser?.username, id: email.id }),
+            });
+
+            if (response.ok) {
+                console.log(`Email ${email.id} marked as read.`);
+
+                setEmails((prevEmails) =>
+                    prevEmails
+                        ? prevEmails.map((e) => (e.id === email.id ? { ...e, isRead: true } : e))
+                        : prevEmails // Return null if prevEmails is null
+                );
+
+            } else {
+                console.error(`Failed to mark email ${email.id} as read:`, response.statusText);
+            }
+        } catch (error) {
+            console.error('Error marking email as read:', error);
+        }
         setClickedEmail(email);
         setIsEmailOpen(true);
     };
@@ -164,7 +194,7 @@ const AdminInbox: React.FC = () => {
     }
 
     return (
-            <RightDashboard>
+            <RightDashboard propUnreadCount={emails ? emails.filter((email) => !email.isRead).length : 0}>
                 <div style={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}
                     className="chart-container">
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center',
@@ -184,7 +214,7 @@ const AdminInbox: React.FC = () => {
                         </button>
                     </div>
                     <table id="chartOfAccountsTable">
-                    <thead>
+                        <thead>
                         <tr>
                             <th>Select</th>
                             <th onClick={() => handleSort('date')}>Date</th>
@@ -193,20 +223,28 @@ const AdminInbox: React.FC = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {emails?.map((email) => (
-                            <tr key={email.date} onClick={() => openEmail(email)}>
-                            <td>
-                                    <input type="checkbox"
-                                           id={email.id}
-                                           onClick={(e) => e.stopPropagation()}
-                                           onChange={(e) => handleChange(email, e.target.checked)}>
-                                    </input>
-                                </td>
-                                <td>{new Date(email.date).toLocaleString()}</td>
-                                <td>{email.from}</td>
-                                <td>{email.subject}</td>
-                            </tr>
-                        ))}
+                        {emails?.map((email) => {
+                            console.log(`Email ID: ${email.id}, isRead: ${email.isRead}`);
+                            return (
+                                <tr
+                                    key={email.date}
+                                    onClick={() => openEmail(email)}
+                                    className={email.isRead ? 'read-email' : 'unread-email'} // Apply conditional class
+                                >
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            id={email.id}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(e) => handleChange(email, e.target.checked)}
+                                        />
+                                    </td>
+                                    <td>{new Date(email.date).toLocaleString()}</td>
+                                    <td>{email.from}</td>
+                                    <td>{email.subject}</td>
+                                </tr>
+                            );
+                        })}
                         </tbody>
                     </table>
                     {isEmailOpen && clickedEmail && (
@@ -214,7 +252,6 @@ const AdminInbox: React.FC = () => {
                     )}
                 </div>
             </RightDashboard>
-    );
-};
-
+        );
+    };
 export default AdminInbox;

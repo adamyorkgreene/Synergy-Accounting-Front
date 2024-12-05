@@ -573,6 +573,7 @@
 .dropdown {
   position: relative;
   display: inline-block;
+  margin-right: 1.5625vmin;
 }
 
 .dropdown button.control-button {
@@ -656,3 +657,33 @@
   font-weight: bold;
 }
 
+.read-email {
+  font-weight: normal;
+  color: gray; /* Subdued color */
+}
+
+.unread-email {
+  font-weight: bold;
+  color: black; /* Standard color */
+}
+
+.badge {
+  position: absolute;
+  background-color: red;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  color: white;
+  border-radius: 50%;
+  padding: 0.2em 0.5em;
+  font-size: 0.8em;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 10px;
+  min-height: 10px;
+  height: 12px;
+  width: 12px;
+}

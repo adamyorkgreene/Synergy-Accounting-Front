@@ -69,6 +69,7 @@ export interface Email {
     body: string;
     id: string;
     attachments?: Attachment[];
+    isRead: boolean;
 }
 
 export interface Attachment {
@@ -112,41 +113,6 @@ export interface IncomeStatementDTO {
     totalRevenue: number;
     totalExpenses: number;
     netIncome: number;
-}
-
-export interface CurrentRatioDTO {
-    assets: number;
-    liabilities: number;
-    ratio: number;
-}
-
-export interface DebtToEquityRatioDTO {
-    assets: number;
-    liabilities: number;
-    ratio: number;
-}
-
-export interface NumberDTO {
-    number: number;
-}
-
-export interface QuickRatioDTO {
-    assets: number;
-    liabilities: number;
-    inventory: number;
-    ratio: number;
-}
-
-export interface ReturnOnAssetsDTO {
-    netIncome: number;
-    totalAssets: number;
-    ratio: number;
-}
-
-export interface ReturnOnEquityDTO {
-    netIncome: number;
-    totalEquity: number;
-    ratio: number;
 }
 
 export interface GeneralMessageDTO {
