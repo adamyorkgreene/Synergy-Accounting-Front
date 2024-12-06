@@ -245,8 +245,8 @@
   justify-content: start;
   background-color: #aabdb8;
   width: 100%; /* Make sure it stays full width */
-  height: 10vmin;
-  padding: 1.5625vmin 3.213vmin 3.213vmin;
+  height: 10vh;
+  padding: 1.5625vh 3.213vh 3.213vh;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
   border-top: 1px solid #000;
@@ -259,9 +259,9 @@
   top: 0; /* Aligns at the top */
   right: 0;
   width: 100%; /* Adjust width */
-  height: 10vmin;
+  height: 10vh;
   z-index: 1000; /* Ensure it stays on top */
-  margin-bottom: 10vmin;
+  margin-bottom: 10vh;
 }
 
 .margined {
@@ -686,4 +686,76 @@
   min-height: 10px;
   height: 12px;
   width: 12px;
+}
+
+/* General Container */
+.landing-page-container {
+  padding: 2vmin 5vmin 5vmin;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* General Container */
+.general-messages {
+  background-color: #f7f7f7; /* Light background for contrast */
+  border-radius: 10px; /* Rounded corners */
+  padding: 2vmin; /* Add padding inside the box */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  margin-bottom: 2vmin; /* Space between the announcements and other sections */
+  margin-top: 2vmin;
+  width: 94%;
+}
+
+/* Message List */
+.messages-list {
+  padding: 0; /* Remove default list padding */
+  margin: 0; /* Remove default list margin */
+}
+
+.message-item {
+  display: flex; /* Align profile picture and text horizontally */
+  align-items: flex-start; /* Align items to the top */
+  margin-bottom: 1.5vmin; /* Space between announcements */
+  border-bottom: 1px solid #ddd; /* Divider between items */
+  padding-bottom: 1.5vmin; /* Add padding below each item */
+}
+
+.message-item:last-child {
+  border-bottom: none; /* Remove border for the last item */
+}
+
+/* Profile Picture */
+.small-profile-icon {
+  width: 3vmin; /* Set a fixed size for profile pictures */
+  height: 3vmin;
+  border-radius: 50%; /* Make it circular */
+  object-fit: cover; /* Ensure the image fills the circle */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+  border: 2px solid #ddd; /* Optional border for contrast */
+}
+
+/* Message Content */
+.message-content {
+  margin-left: 1vmin; /* Space between profile picture and message text */
+  color: #333; /* Dark gray text for better readability */
+  width: 100%;
+}
+
+.message-text {
+  margin: 0; /* Remove default margins for tighter layout */
+  font-size: 1em; /* Standard font size */
+  font-weight: normal; /* Regular weight */
+  color: #333; /* Ensure good contrast */
+}
+
+.message-metadata {
+  color: #555; /* Slightly lighter gray for metadata */
+  font-size: 0.9em; /* Smaller font for posted details */
+  margin-top: 0.5vmin; /* Add some spacing above */
+  display: block; /* Ensure it's on a new line */
+}
+
+.error-message {
+  color: #333; /* Ensure good contrast */
 }

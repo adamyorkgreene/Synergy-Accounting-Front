@@ -94,7 +94,7 @@ const AccountLedger: React.FC<AccountLedgerProps> = ({
                     )}
                     <button
                         style={{ position: 'relative', right: '0', height: '2rem' }}
-                        onClick={() => navigate('/dashboard/chart-of-accounts/update-account', { state: { account } })}
+                        onClick={() => navigate('/dashboard/chart-of-accounts/update-account', { state: { selectedAccount: account } })}
                         className="control-button add-account-button"
                     >
                         Update Account

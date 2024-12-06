@@ -1,18 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {Account, MessageResponse} from '../Types';
+import {Account, AccountCategory, AccountSubCategory, AccountType, MessageResponse} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
-import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
 import RightDashboard from "./RightDashboard";
 
-const UpdateTransaction: React.FC = () => {
+const UpdateAccount: React.FC = () => {
 
-    const [accountData, setAccountData] = useState<Account>();
+    const [, setAccountData] = useState<Account>();
 
     const [accountNumber, setAccountNumber] = useState<number>();
-    const [accountName, setAccountName] = useState<string>();
-    const [accountDescription, setAccountDescription] = useState<string>();
+    const [accountName, setAccountName] = useState<string>('');
+    const [accountDescription, setAccountDescription] = useState<string>('');
+    const [normalSide, setNormalSide] = useState<AccountType>(AccountType.DEBIT);
+    const [accountCategory, setAccountCategory] = useState<AccountCategory>(AccountCategory.ASSET);
+    const [accountSubCategory, setAccountSubcategory] = useState<AccountSubCategory>(AccountSubCategory.CURRENT);
+    const [initialBalance, setInitialBalance] = useState<number>();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -29,6 +32,10 @@ const UpdateTransaction: React.FC = () => {
             setAccountData(accountData);
             setAccountName(accountData.accountName);
             setAccountDescription(accountData.accountDescription);
+            setAccountCategory(accountData.accountCategory);
+            setAccountSubcategory(accountData.accountSubCategory);
+            setInitialBalance(accountData.initialBalance)
+            setNormalSide(accountData.normalSide);
             setAccountNumber(accountData.accountNumber);
         }
     }, [location.state]);
@@ -55,10 +62,37 @@ const UpdateTransaction: React.FC = () => {
         }
     }, [loggedInUser, isLoading, navigate]);
 
+    const handleTypeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setNormalSide(e.target.value as AccountType);
+    }
+
+    const handleCategoryChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setAccountCategory(e.target.value as AccountCategory);
+    }
+
+    const handleSubCategoryChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setAccountSubcategory(e.target.value as AccountSubCategory);
+    }
+
+    const getStatementType = (accountCategory: AccountCategory): string => {
+        switch (accountCategory) {
+            case AccountCategory.ASSET:
+            case AccountCategory.LIABILITY:
+            case AccountCategory.EQUITY:
+                return 'Balance Sheet (BS)';
+            case AccountCategory.REVENUE:
+            case AccountCategory.EXPENSE:
+                return 'Income Statement (IS)';
+            default:
+                return 'Retained Earnings (RE)';
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!accountDescription || !accountName) {
+        if (!accountName || !accountDescription || !normalSide || !accountCategory || !accountSubCategory
+            || initialBalance === undefined) {
             alert('All fields must be filled out!');
             return;
         }
@@ -84,9 +118,14 @@ const UpdateTransaction: React.FC = () => {
                 },
                 credentials: 'include',
                 body: JSON.stringify({
-                    accountNumber,
                     accountName,
+                    accountNumber,
                     accountDescription,
+                    normalSide,
+                    accountCategory,
+                    accountSubCategory,
+                    initialBalance: initialBalance || null,
+                    creator: loggedInUser?.userid || null
                 }),
             });
             if (response.ok) {
@@ -110,47 +149,103 @@ const UpdateTransaction: React.FC = () => {
     }
 
     return (
-            <RightDashboard>
-                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'absolute',
-                top: '0'}}
-                     className="dashboard-center-container">
-                    <h1 style={{margin: 'unset', marginTop: '2vmin'}}>Update an Account</h1>
+        <RightDashboard>
+            <div className="dashboard-center-container">
+                <h1 style={{margin: 'unset'}}>Update Current Account</h1>
+                <div className="extra-margin"></div>
+                <form onSubmit={handleSubmit}>
+                    {[
+                        {label: 'Account Name', value: accountName, setValue: setAccountName},
+                        {
+                            label: 'Account Description',
+                            value: accountDescription,
+                            setValue: setAccountDescription
+                        },
+                    ].map(({label, value, setValue}, index) => (
+                        <div className="input-group" key={index}>
+                            <label htmlFor={"addaccount" + label} className="label">{label}</label>
+                            <input type="text" className="custom-input" name={label} value={value}
+                                   id={"addaccount" + label}
+                                   autoComplete={label.toString()} onChange={(e) => setValue(e.target.value)}/>
+                        </div>
+                    ))}
+                    <div className="input-group">
+                        <label htmlFor="addaccountinitialbal" className="label">Initial Balance</label>
+                        <input type='number' className="custom-input" name="Initial Balance"
+                               value={initialBalance}
+                               id="addaccountinitialbal"
+                               autoComplete="Initial Balance"
+                               onChange={(e) => setInitialBalance(e.target.valueAsNumber)}/>
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="addaccounttype" className="label">Account Type </label>
+                        <select
+                            id="addaccounttype"
+                            value={normalSide}
+                            onChange={handleTypeChange}
+                            className="custom-input"
+                            name="accountType"
+                        >
+                            <option value={AccountType.DEBIT}>Debit</option>
+                            <option value={AccountType.CREDIT}>Credit</option>
+                        </select>
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="addaccountcategory" className="label">Account Category </label>
+                        <select
+                            id="addaccountcategory"
+                            value={accountCategory}
+                            onChange={handleCategoryChange}
+                            className="custom-input"
+                            name="accountCategory"
+                        >
+                            <option value={AccountCategory.ASSET}>Asset</option>
+                            <option value={AccountCategory.EQUITY}>Equity</option>
+                            <option value={AccountCategory.EXPENSE}>Expense</option>
+                            <option value={AccountCategory.REVENUE}>Revenue</option>
+                            <option value={AccountCategory.LIABILITY}>Liability</option>
+                        </select>
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="addaccountsubcategory" className="label">Account Subcategory </label>
+                        <select
+                            id="addaccountsubcategory"
+                            value={accountSubCategory}
+                            onChange={handleSubCategoryChange}
+                            className="custom-input"
+                            name="accountSubCategory"
+                        >
+                            <option value={AccountSubCategory.CURRENT}>Current</option>
+                            <option value={AccountSubCategory.LONGTERM}>Long-term</option>
+                            <option value={AccountSubCategory.OPERATING}>Operating</option>
+                            <option value={AccountSubCategory.NONOPERATING}>Non-Operating</option>
+                            <option value={AccountSubCategory.SHAREHOLDERS}>Shareholders</option>
+                            <option value={AccountSubCategory.OWNERS}>Owners</option>
+                        </select>
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="statementType" className="label">Statement Type</label>
+                        <input
+                            type="text"
+                            className="custom-input"
+                            id="statementType"
+                            value={getStatementType(accountCategory)}
+                            readOnly
+                        />
+                    </div>
                     <div className="extra-margin"></div>
-                    <form onSubmit={handleSubmit}>
-                        <div className="input-group">
-                            <label htmlFor="updateaccountname" className="label">Account Name</label>
-                            <input type='text' className="custom-input" name="Account Name"
-                                   value={accountName}
-                                   id="updateaccountdescription"
-                                   autoComplete="Account Description"
-                                   onChange={(e) => setAccountName(e.target.value)}/>
-                        </div>
-                        <div className="input-group">
-                            <label htmlFor="updateaccountdescription" className="label">Account Description</label>
-                            <input type='text' className="custom-input" name="Account Description"
-                                   value={accountDescription}
-                                   id="updateaccountdescription"
-                                   autoComplete="Account Description"
-                                   onChange={(e) => setAccountDescription(e.target.value)}/>
-                        </div>
-                        <div className="extra-margin"></div>
-                        <div className="input-group">
-                            <button type="submit" className="custom-button">Update Account</button>
-                        </div>
-                        <div className="input-group">
-                            <button onClick={() => navigate('/dashboard/chart-of-accounts', {
-                                state: {account: accountData}
-                            })}
-                                    className="custom-button">Go Back
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </RightDashboard>
+                    <div className="input-group">
+                        <button type="submit" className="custom-button">Update Account</button>
+                    </div>
+                    <div className="input-group">
+                        <button onClick={() => navigate('/dashboard/chart-of-accounts/')}
+                                className="custom-button">Go Back
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </RightDashboard>
     );
 };
 
-export default UpdateTransaction;
-
-
-
+export default UpdateAccount;

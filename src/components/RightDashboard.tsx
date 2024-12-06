@@ -41,16 +41,16 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 169) {
+            const scrollPercentage = window.scrollY / window.innerHeight;
+            if (scrollPercentage > 0.25) {
                 setIsSticky(true);
-            } else if (window.scrollY <= 169) {
+            } else {
                 setIsSticky(false);
             }
         };
-
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    });
 
     useEffect(() => {
         if (propUnreadCount !== undefined) {
@@ -208,6 +208,10 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                             {pendingJournalCount > 0 && (
                                 <span className="badge">{pendingJournalCount}</span>
                             )}
+                        </button>
+                        <button onClick={() => navigate('/dashboard/manager/post-announcement')}
+                                className="control-button">
+                            Post Announcement
                         </button>
                     </>
                 )}

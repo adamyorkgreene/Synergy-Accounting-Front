@@ -31,6 +31,7 @@ import IncomeStatement from "./components/IncomeStatement";
 import BalanceSheet from "./components/BalanceSheet";
 import RetainedEarningsStatement from './components/RetainedEarningsStatement';
 import LandingPage from './components/LandingPage';
+import PostAnnouncement from "./components/PostAnnouncement";
 
 
 function App() {
@@ -68,6 +69,7 @@ function App() {
                     <Route path="/dashboard/general-ledger/trial-balance" element={<TrialBalance/>} />
                     <Route path="/dashboard/income-statement" element={<IncomeStatement/>} />
                     <Route path="/dashboard/balance-sheet" element={<BalanceSheet/>} />
+                    <Route path="/dashboard/manager/post-announcement" element={<PostAnnouncement/>} />
                     <Route path="/dashboard/retained-earnings" element={<RetainedEarningsStatement/>} />
                 </Routes>
             </Router>

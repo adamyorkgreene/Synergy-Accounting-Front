@@ -44,13 +44,21 @@ const EventLogViewer: React.FC = () => {
 
         try {
             const parsedState = JSON.parse(state);
+            const { creditBalance, debitBalance, normalSide } = parsedState;
+            let currentBalance: number;
+
+            if (normalSide === "DEBIT") {
+                currentBalance = debitBalance - creditBalance;
+            } else {
+                currentBalance = creditBalance - debitBalance;
+            }
             return (
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
                     <tbody>
                     <tr><td><strong>Account Name:</strong></td><td>{parsedState.accountName}</td></tr>
                     <tr><td><strong>Account Number:</strong></td><td>{parsedState.accountNumber}</td></tr>
                     <tr><td><strong>Description:</strong></td><td>{parsedState.accountDescription}</td></tr>
-                    <tr><td><strong>Balance:</strong></td><td>{parsedState.initialBalance}</td></tr>
+                    <tr><td><strong>Balance:</strong></td><td>{currentBalance.toFixed(2)}</td></tr>
                     <tr><td><strong>Category:</strong></td><td>{parsedState.accountCategory}</td></tr>
                     </tbody>
                 </table>

@@ -38,8 +38,7 @@ const LandingPage: React.FC = () => {
         returnOnEquity: { netIncome: 0, totalEquity: 0, ratio: 0 },
     });
 
-    const [, setPendingJournalCount] = useState(0); // Journal entries count
-    const [generalMessages, setGeneralMessages] = useState<GeneralMessageDTO[]>([]); // General messages
+    const [generalMessages, setGeneralMessages] = useState<GeneralMessageDTO[]>([]);
     const [isLoadingGeneralMessages, setIsLoadingGeneralMessages] = useState(true);
     const [generalMessagesError, setGeneralMessagesError] = useState<string>('');
 
@@ -152,7 +151,7 @@ const LandingPage: React.FC = () => {
                 console.error('Failed to fetch general messages..')
             }
             const data = await response.json();
-            setGeneralMessages(data); // Store the general messages
+            setGeneralMessages(data.reverse());
             setIsLoadingGeneralMessages(false);
         } catch (error) {
             console.error('Error fetching general messages:', error);
@@ -358,21 +357,32 @@ const LandingPage: React.FC = () => {
 
     return (
         <RightDashboard>
-            <div className="landing-page-container" style={{justifyContent: 'flex-start', padding: '2vmin 5vmin 5vmin'}}>
+            <div className="landing-page-container">
+                {/* Announcements Header */}
                 <h1 style={{margin: 'unset'}}>Announcements</h1>
+
+                {/* Announcements Section */}
                 <div className="general-messages">
                     {generalMessagesError ? (
                         <p className="error-message">{generalMessagesError}</p>
                     ) : isLoadingGeneralMessages ? (
                         <p>Loading messages...</p>
                     ) : generalMessages.length > 0 ? (
-                        <ul style={{listStyle: 'none'}}>
+                        <ul className="messages-list">
                             {generalMessages.map((message, index) => (
-                                <li key={index}>
-                                    <p>{message.message}</p>
-                                    <small>
-                                        Posted by: {message.username} on {new Date(message.date).toLocaleDateString()}
-                                    </small>
+                                <li key={index} className="message-item">
+                                    <img
+                                        className="small-profile-icon"
+                                        src={`https://synergyaccounting.app/api/dashboard/uploads/${message.username}.jpg`}
+                                        alt={`${message.username}'s Profile`}
+                                    />
+                                    <div className="message-content">
+                                        <p className="message-text">{message.message}</p>
+                                        <small className="message-metadata">
+                                            Posted by: {message.username} on{' '}
+                                            {new Date(message.date).toLocaleDateString()}
+                                        </small>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
@@ -380,6 +390,7 @@ const LandingPage: React.FC = () => {
                         <p>No general messages available.</p>
                     )}
                 </div>
+                <h1 style={{margin: 'unset'}}>Financial Overview</h1>
                 <div className="landing-page-content">
                     <div className="financial-ratios">
                         <div className="ratio-card">
