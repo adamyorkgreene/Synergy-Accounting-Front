@@ -6,6 +6,7 @@ import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import {formatCurrency} from "../utilities/Formatter";
 
 const TrialBalance: React.FC = () => {
     const navigate = useNavigate();
@@ -90,11 +91,11 @@ const TrialBalance: React.FC = () => {
         const headers = [["Account", "Debit", "Credit"]];
         const rows = trialBalance.map(entry => [
             entry.accountName,
-            entry.debit.toFixed(2),
-            entry.credit.toFixed(2),
+            formatCurrency(entry.debit),
+            formatCurrency(entry.credit),
         ]);
 
-        rows.push(["Totals", debitTotal.toFixed(2), creditTotal.toFixed(2)]);
+        rows.push(["Totals", formatCurrency(debitTotal), formatCurrency(creditTotal)]);
 
         // Generate table
         doc.autoTable({
@@ -252,14 +253,14 @@ const TrialBalance: React.FC = () => {
                     {trialBalance.map((entry: TrialBalanceDTO, index: number) => (
                         <tr key={index} className="chart-of-accounts-row">
                             <td>{entry.accountName}</td>
-                            <td>{entry.debit.toFixed(2)}</td>
-                            <td>{entry.credit.toFixed(2)}</td>
+                            <td>{formatCurrency(entry.debit)}</td>
+                            <td>{formatCurrency(entry.credit)}</td>
                         </tr>
                     ))}
                     <tr className="chart-of-accounts-row" style={{ fontWeight: 'bold' }}>
                         <td style={{ textAlign: 'right' }}>Totals</td>
-                        <td>{debitTotal.toFixed(2)}</td>
-                        <td>{creditTotal.toFixed(2)}</td>
+                        <td>{formatCurrency(debitTotal)}</td>
+                        <td>{formatCurrency(creditTotal)}</td>
                     </tr>
                     </tbody>
                 </table>

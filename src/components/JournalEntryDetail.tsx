@@ -4,6 +4,7 @@ import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import { JournalEntry, TransactionForm, AccountType } from "../Types";
 import RightDashboard from "./RightDashboard";
+import {formatCurrency} from "../utilities/Formatter";
 
 const JournalEntryDetail: React.FC = () => {
     const navigate = useNavigate();
@@ -121,8 +122,8 @@ const JournalEntryDetail: React.FC = () => {
                                 day: '2-digit'
                             })}</td>
                             <td>{transaction.transactionDescription}</td>
-                            <td>{transaction.transactionType === AccountType.DEBIT ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                            <td>{transaction.transactionType === AccountType.CREDIT ? transaction.transactionAmount.toFixed(2) : ''}</td>
+                            <td>{transaction.transactionType === AccountType.DEBIT ? formatCurrency(transaction.transactionAmount) : '$0.00'}</td>
+                            <td>{transaction.transactionType === AccountType.CREDIT ? formatCurrency(transaction.transactionAmount) : '$0.00'}</td>
                         </tr>
                     ))}
                     </tbody>

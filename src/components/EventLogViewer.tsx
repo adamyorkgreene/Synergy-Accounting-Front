@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import RightDashboard from "./RightDashboard";
 import { useLocation } from "react-router-dom";
+import {formatCurrency} from "../utilities/Formatter";
 
 interface EventLog {
     id: number;
@@ -41,7 +42,6 @@ const EventLogViewer: React.FC = () => {
 
     const renderState = (state: string | null) => {
         if (!state) return 'N/A';
-
         try {
             const parsedState = JSON.parse(state);
             const { creditBalance, debitBalance, normalSide } = parsedState;
@@ -53,13 +53,28 @@ const EventLogViewer: React.FC = () => {
                 currentBalance = creditBalance - debitBalance;
             }
             return (
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+                <table style={{width: '100%', borderCollapse: 'collapse', marginTop: '10px'}}>
                     <tbody>
-                    <tr><td><strong>Account Name:</strong></td><td>{parsedState.accountName}</td></tr>
-                    <tr><td><strong>Account Number:</strong></td><td>{parsedState.accountNumber}</td></tr>
-                    <tr><td><strong>Description:</strong></td><td>{parsedState.accountDescription}</td></tr>
-                    <tr><td><strong>Balance:</strong></td><td>{currentBalance.toFixed(2)}</td></tr>
-                    <tr><td><strong>Category:</strong></td><td>{parsedState.accountCategory}</td></tr>
+                    <tr>
+                        <td><strong>Account Name:</strong></td>
+                        <td>{parsedState.accountName}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Account Number:</strong></td>
+                        <td>{parsedState.accountNumber}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Description:</strong></td>
+                        <td>{parsedState.accountDescription}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Balance:</strong></td>
+                        <td>{formatCurrency(currentBalance)}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Category:</strong></td>
+                        <td>{parsedState.accountCategory}</td>
+                    </tr>
                     </tbody>
                 </table>
             );
@@ -74,7 +89,7 @@ const EventLogViewer: React.FC = () => {
             `ID: ${log.id}, AccountID: ${log.accountId}, Action: ${log.action}, Before: ${log.beforeState || 'N/A'}, After: ${log.afterState}, UserID: ${log.userId}, Timestamp: ${log.timestamp}`
         ).join('\n');
 
-        const blob = new Blob([logText], { type: 'text/plain' });
+        const blob = new Blob([logText], {type: 'text/plain'});
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = 'event_logs.txt';

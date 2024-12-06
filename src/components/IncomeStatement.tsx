@@ -6,6 +6,7 @@ import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import {formatCurrency} from "../utilities/Formatter";
 
 const IncomeStatement: React.FC = () => {
 
@@ -108,23 +109,23 @@ const IncomeStatement: React.FC = () => {
         const headers = [["Account", "Amount"]];
         const revenueRows = incomeStatement.revenue.map(entry => [
             entry.accountName,
-            entry.currentBalance.toFixed(2),
+            formatCurrency(entry.currentBalance),
         ]);
         const expenseRows = incomeStatement.expenses.map(entry => [
             entry.accountName,
-            entry.currentBalance.toFixed(2),
+            formatCurrency(entry.currentBalance),
         ]);
 
         const rows = [
             ["Revenue", ""],
             ...revenueRows,
-            ["Total Revenue", incomeStatement.totalRevenue.toFixed(2)],
+            ["Total Revenue", formatCurrency(incomeStatement.totalRevenue)],
             ["", ""],
             ["Expenses", ""],
             ...expenseRows,
-            ["Total Expenses", incomeStatement.totalExpenses.toFixed(2)],
+            ["Total Expenses", formatCurrency(incomeStatement.totalExpenses)],
             ["", ""],
-            ["Net Income", incomeStatement.netIncome.toFixed(2)],
+            ["Net Income", formatCurrency(incomeStatement.netIncome)],
         ];
 
         // Generate table
@@ -319,14 +320,14 @@ const IncomeStatement: React.FC = () => {
                     {incomeStatement.revenue.map((entry, index) => (
                         <tr key={`revenue-${index}`}>
                             <td>{entry.accountName}</td>
-                            <td>{entry.currentBalance.toFixed(2)}</td>
+                            <td>{formatCurrency(entry.currentBalance)}</td>
                         </tr>
                     ))}
                     <tr>
                         <td>
                             <b>Total Revenue</b>
                         </td>
-                        <td>{incomeStatement.totalRevenue.toFixed(2)}</td>
+                        <td>{formatCurrency(incomeStatement.totalRevenue)}</td>
                     </tr>
                     <tr>
                         <th colSpan={2}>Expenses</th>
@@ -334,20 +335,20 @@ const IncomeStatement: React.FC = () => {
                     {incomeStatement.expenses.map((entry, index) => (
                         <tr key={`expense-${index}`}>
                             <td>{entry.accountName}</td>
-                            <td>{entry.currentBalance.toFixed(2)}</td>
+                            <td>{formatCurrency(entry.currentBalance)}</td>
                         </tr>
                     ))}
                     <tr>
                         <td>
                             <b>Total Expenses</b>
                         </td>
-                        <td>{incomeStatement.totalExpenses.toFixed(2)}</td>
+                        <td>{formatCurrency(incomeStatement.totalExpenses)}</td>
                     </tr>
                     <tr>
                         <td>
                             <b>Net Income</b>
                         </td>
-                        <td>{incomeStatement.netIncome.toFixed(2)}</td>
+                        <td>{formatCurrency(incomeStatement.netIncome)}</td>
                     </tr>
                     </tbody>
                 </table>

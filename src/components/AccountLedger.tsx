@@ -2,6 +2,7 @@ import React from 'react';
 import {Account, User, TransactionForm} from "../Types";
 import trashCanIcon from "../assets/trashcan.png";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { formatCurrency } from '../utilities/Formatter';
 
 interface AccountLedgerProps {
     account: Account;
@@ -183,9 +184,9 @@ const AccountLedger: React.FC<AccountLedgerProps> = ({
                             </td>
                             <td>{new Date(transaction.transactionDate).toLocaleDateString()}</td>
                             <td>{transaction.transactionDescription}</td>
-                            <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                            <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                            <td>{runningBalance.toFixed(2)}</td>
+                            <td>{transaction.transactionType === "DEBIT" ? formatCurrency(transaction.transactionAmount) : '$0.00'}</td>
+                            <td>{transaction.transactionType === "CREDIT" ? formatCurrency(transaction.transactionAmount) : '$0.00'}</td>
+                            <td>{formatCurrency(runningBalance)}</td>
                             <td
                                 className="pr-column"
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}

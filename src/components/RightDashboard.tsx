@@ -199,19 +199,32 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                         alt="Profile Picture"
                     />
                 </div>
+                {(loggedInUser?.userType === "ADMINISTRATOR") && (
+                    <>
+                        <div style={{marginRight: "unset"}} className="label large-font">Admin Panel</div>
+                        <button onClick={() => navigate('/dashboard/admin/add-user')}
+                                className="control-button" style={{position: 'relative'}}>
+                            Add New User
+                        </button>
+                        <button onClick={() => navigate('/dashboard/admin/update-user-search')}
+                                className="control-button">
+                            Update User
+                        </button>
+                    </>
+                )}
                 {(loggedInUser?.userType === "MANAGER" || loggedInUser?.userType === "ADMINISTRATOR") && (
                     <>
                         <div style={{marginRight: "unset"}} className="label large-font">Manager Panel</div>
                         <button onClick={() => navigate('/dashboard/manager/journal-entry-requests')}
                                 className="control-button" style={{position: 'relative'}}>
-                            Pending Journal Entries
+                            Journal Entries
                             {pendingJournalCount > 0 && (
                                 <span className="badge">{pendingJournalCount}</span>
                             )}
                         </button>
                         <button onClick={() => navigate('/dashboard/manager/post-announcement')}
                                 className="control-button">
-                            Post Announcement
+                            Announcements
                         </button>
                     </>
                 )}
@@ -227,7 +240,6 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                         </button>
                     </>
                 )}
-                <button className="control-button">Settings</button>
                 <button className="control-button" onClick={() => navigate("/logout")}>Log Out</button>
             </div>
         </div>

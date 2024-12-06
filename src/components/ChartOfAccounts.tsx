@@ -5,6 +5,7 @@ import {useUser} from '../utilities/UserContext';
 import {Account, AccountCategory, AccountType, MessageResponse, TransactionForm, UserType} from "../Types";
 import RightDashboard from "./RightDashboard";
 import AccountLedger from './AccountLedger';
+import {formatCurrency} from "../utilities/Formatter";
 
 const ChartOfAccounts: React.FC = () => {
 
@@ -300,7 +301,7 @@ const ChartOfAccounts: React.FC = () => {
                                             <td>{account.normalSide}</td>
                                             <td>{account.accountCategory}</td>
                                             <td>{account.accountSubCategory}</td>
-                                            <td>{currentBalance.toFixed(2)}</td>
+                                            <td>{formatCurrency(currentBalance)}</td>
                                             <td>{new Date(account.dateAdded).toLocaleDateString()}</td>
                                             <td>{statementType}</td>
                                             <td>{account.username}</td>

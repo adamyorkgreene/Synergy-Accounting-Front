@@ -5,6 +5,7 @@ import { useUser } from '../utilities/UserContext';
 import RightDashboard from "./RightDashboard";
 import {Account, JournalEntry, MessageResponse, TransactionForm, UserType} from "../Types";
 import AccountLedger from "./AccountLedger";
+import { formatCurrency } from '../utilities/Formatter';
 
 const GeneralLedger: React.FC = () => {
     const navigate = useNavigate();
@@ -335,9 +336,9 @@ const GeneralLedger: React.FC = () => {
                                                         day: '2-digit'
                                                     })}</td>
                                                     <td>{transaction.transactionDescription}</td>
-                                                    <td>{transaction.transactionType === "DEBIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                                    <td>{transaction.transactionType === "CREDIT" ? transaction.transactionAmount.toFixed(2) : ''}</td>
-                                                    <td>{runningBalance.toFixed(2)}</td>
+                                                    <td>{transaction.transactionType === "DEBIT" ? formatCurrency(transaction.transactionAmount) : '$0.00'}</td>
+                                                    <td>{transaction.transactionType === "CREDIT" ? formatCurrency(transaction.transactionAmount) : '$0.00'}</td>
+                                                    <td>{formatCurrency(runningBalance)}</td>
                                                 </tr>
                                             );
                                         })}

@@ -6,6 +6,7 @@ import { Account, AccountSubCategory, AccountType, BalanceSheetDTO } from '../Ty
 import { useUser } from "../utilities/UserContext";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import {formatCurrency} from "../utilities/Formatter";
 
 const BalanceSheet: React.FC = () => {
     const navigate = useNavigate();
@@ -80,29 +81,29 @@ const BalanceSheet: React.FC = () => {
         const assetRows = balanceSheet.assets.map(entry => [
             entry.accountCategory,
             entry.accountName,
-            entry.debitBalance.toFixed(2),
-            entry.creditBalance.toFixed(2),
+            formatCurrency(entry.debitBalance),
+            formatCurrency(entry.creditBalance),
         ]);
         const liabilityRows = balanceSheet.liabilities.map(entry => [
             entry.accountCategory,
             entry.accountName,
-            entry.debitBalance.toFixed(2),
-            entry.creditBalance.toFixed(2),
+            formatCurrency(entry.debitBalance),
+            formatCurrency(entry.creditBalance),
         ]);
         const equityRows = balanceSheet.equity.map(entry => [
             entry.accountCategory,
             entry.accountName,
-            entry.debitBalance.toFixed(2),
-            entry.creditBalance.toFixed(2),
+            formatCurrency(entry.debitBalance),
+            formatCurrency(entry.creditBalance),
         ]);
         const rows = [
             ...assetRows,
-            ["", "Total Assets", "", balanceSheet.totalAssets.toFixed(2)],
+            ["", "Total Assets", "", formatCurrency(balanceSheet.totalAssets)],
             ...liabilityRows,
-            ["", "Total Liabilities", "", balanceSheet.totalLiabilities.toFixed(2)],
+            ["", "Total Liabilities", "", formatCurrency(balanceSheet.totalLiabilities)],
             ...equityRows,
-            ["", "Total Equity", "", balanceSheet.totalEquity.toFixed(2)],
-            ["", "Total Liabilities + Equity", "", (balanceSheet.totalLiabilities + balanceSheet.totalEquity).toFixed(2)],
+            ["", "Total Equity", "", formatCurrency(balanceSheet.totalEquity)],
+            ["", "Total Liabilities + Equity", "", formatCurrency(balanceSheet.totalLiabilities + balanceSheet.totalEquity)],
         ];
 
         // Generate table
@@ -184,24 +185,24 @@ const BalanceSheet: React.FC = () => {
         <tr>
             <td>${entry.accountCategory}</td>
             <td>${entry.accountName}</td>
-            <td>${entry.debitBalance.toFixed(2)}</td>
-            <td>${entry.creditBalance.toFixed(2)}</td>
+            <td>${formatCurrency(entry.debitBalance)}</td>
+            <td>${formatCurrency(entry.creditBalance)}</td>
         </tr>`).join("");
 
         const liabilityRows = balanceSheet.liabilities.map(entry => `
         <tr>
             <td>${entry.accountCategory}</td>
             <td>${entry.accountName}</td>
-            <td>${entry.debitBalance.toFixed(2)}</td>
-            <td>${entry.creditBalance.toFixed(2)}</td>
+            <td>${formatCurrency(entry.debitBalance)}</td>
+            <td>${formatCurrency(entry.creditBalance)}</td>
         </tr>`).join("");
 
         const equityRows = balanceSheet.equity.map(entry => `
         <tr>
             <td>${entry.accountCategory}</td>
             <td>${entry.accountName}</td>
-            <td>${entry.debitBalance.toFixed(2)}</td>
-            <td>${entry.creditBalance.toFixed(2)}</td>
+            <td>${formatCurrency(entry.debitBalance)}</td>
+            <td>${formatCurrency(entry.creditBalance)}</td>
         </tr>`).join("");
 
         const printContent = `
@@ -231,13 +232,13 @@ const BalanceSheet: React.FC = () => {
             <tbody>
                 <tr><td colspan="4">Assets</td></tr>
                 ${assetRows}
-                <tr><td colspan="3"><b>Total Assets</b></td><td>${balanceSheet.totalAssets.toFixed(2)}</td></tr>
+                <tr><td colspan="3"><b>Total Assets</b></td><td>${formatCurrency(balanceSheet.totalAssets)}</td></tr>
                 <tr><td colspan="4">Liabilities</td></tr>
                 ${liabilityRows}
-                <tr><td colspan="3"><b>Total Liabilities</b></td><td>${balanceSheet.totalLiabilities.toFixed(2)}</td></tr>
+                <tr><td colspan="3"><b>Total Liabilities</b></td><td>${formatCurrency(balanceSheet.totalLiabilities)}</td></tr>
                 <tr><td colspan="4">Equity</td></tr>
                 ${equityRows}
-                <tr><td colspan="3"><b>Total Equity</b></td><td>${balanceSheet.totalEquity.toFixed(2)}</td></tr>
+                <tr><td colspan="3"><b>Total Equity</b></td><td>${formatCurrency(balanceSheet.totalEquity)}</td></tr>
             </tbody>
         </table>
     </body>
@@ -258,19 +259,21 @@ const BalanceSheet: React.FC = () => {
             return (
                 <tr key={index}>
                     <td>{account.accountName}</td>
-                    <td>{balance.toFixed(2)}</td>
+                    <td>{formatCurrency(balance)}</td>
                 </tr>
             );
         })
     );
 
-    const calculateTotal = (accounts: Account[]): number => {
-        return accounts.reduce((sum, account) => {
+    const calculateTotal = (accounts: Account[]): string => {
+        const total = accounts.reduce((sum, account) => {
             const balance = account.normalSide === AccountType.DEBIT
                 ? account.debitBalance - account.creditBalance
                 : account.creditBalance - account.debitBalance;
             return sum + balance;
         }, 0);
+
+        return formatCurrency(total);
     };
 
     if (isLoading || !csrfToken || !loggedInUser) {
@@ -286,14 +289,17 @@ const BalanceSheet: React.FC = () => {
     const equityAccounts = balanceSheet?.equity || [];
     const totalEquity = balanceSheet?.totalEquity || 0;
 
-    const totalLiabilities = calculateTotal(currentLiabilities) + calculateTotal(longTermLiabilities);
-    const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
+    const totalLiabilities = calculateTotal([...currentLiabilities, ...longTermLiabilities]);
+    const totalLiabilitiesAndEquity = calculateTotal([
+        ...currentLiabilities,
+        ...longTermLiabilities,
+        ...equityAccounts
+    ]);
 
     return (
         <RightDashboard>
             <div className="chart-container">
                 <h1 style={{ margin: 'unset' }}>Balance Sheet</h1>
-
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }} className="search-bar">
                     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                         <label>Start Date:</label>
@@ -355,7 +361,7 @@ const BalanceSheet: React.FC = () => {
                             {renderAccountRows(currentAssets)}
                             <tr>
                                 <td><b>Total Current Assets</b></td>
-                                <td>{calculateTotal(currentAssets).toFixed(2)}</td>
+                                <td>{calculateTotal(currentAssets)}</td>
                             </tr>
                             </tbody>
                             <thead>
@@ -368,13 +374,15 @@ const BalanceSheet: React.FC = () => {
                             {renderAccountRows(longTermAssets)}
                             <tr>
                                 <td><b>Total Long-Term Assets</b></td>
-                                <td>{calculateTotal(longTermAssets).toFixed(2)}</td>
+                                <td>{calculateTotal(longTermAssets)}</td>
                             </tr>
                             </tbody>
                             <tfoot>
                             <tr>
                                 <td><b>Total Assets</b></td>
-                                <td>{balanceSheet?.totalAssets.toFixed(2)}</td>
+                                <td>
+                                    {balanceSheet ? formatCurrency(balanceSheet.totalAssets) : '$0.00'}
+                                </td>
                             </tr>
                             </tfoot>
                         </table>
@@ -403,7 +411,7 @@ const BalanceSheet: React.FC = () => {
                             {renderAccountRows(currentLiabilities)}
                             <tr>
                                 <td><b>Total Current Liabilities</b></td>
-                                <td>{calculateTotal(currentLiabilities).toFixed(2)}</td>
+                                <td>{calculateTotal(currentLiabilities)}</td>
                             </tr>
                             </tbody>
                             <thead>
@@ -416,11 +424,11 @@ const BalanceSheet: React.FC = () => {
                             {renderAccountRows(longTermLiabilities)}
                             <tr>
                                 <td><b>Total Long-Term Liabilities</b></td>
-                                <td>{calculateTotal(longTermLiabilities).toFixed(2)}</td>
+                                <td>{calculateTotal(longTermLiabilities)}</td>
                             </tr>
                             <tr>
                                 <td><b>Total Liabilities</b></td>
-                                <td>{totalLiabilities.toFixed(2)}</td>
+                                <td>{totalLiabilities}</td>
                             </tr>
                             </tbody>
                             <thead>
@@ -433,13 +441,13 @@ const BalanceSheet: React.FC = () => {
                             {renderAccountRows(equityAccounts)}
                             <tr>
                                 <td><b>Total Equity</b></td>
-                                <td>{totalEquity.toFixed(2)}</td>
+                                <td>{formatCurrency(totalEquity)}</td>
                             </tr>
                             </tbody>
                             <tfoot>
                             <tr>
                                 <td><b>Total Liabilities + Equity</b></td>
-                                <td>{totalLiabilitiesAndEquity.toFixed(2)}</td>
+                                <td>{totalLiabilitiesAndEquity}</td>
                             </tr>
                             </tfoot>
                         </table>

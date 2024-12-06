@@ -6,6 +6,7 @@ import { useUser } from "../utilities/UserContext";
 import { RetainedEarningsDTO } from "../Types";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import {formatCurrency} from "../utilities/Formatter";
 
 const RetainedEarningsStatement: React.FC = () => {
     const navigate = useNavigate();
@@ -82,7 +83,7 @@ const RetainedEarningsStatement: React.FC = () => {
         const headers = [["Description", "Amount"]];
         const rows = retainedEarnings.rows.map(row => [
             row.description,
-            row.amount.toFixed(2),
+            formatCurrency(row.amount),
         ]);
 
         // Generate table
@@ -146,7 +147,7 @@ const RetainedEarningsStatement: React.FC = () => {
         if (!retainedEarnings) return;
 
         const rows = retainedEarnings.rows.map(row => `
-            <tr><td>${row.description}</td><td>${row.amount.toFixed(2)}</td></tr>
+            <tr><td>${row.description}</td><td>${formatCurrency(row.amount)}</td></tr>
         `).join("");
 
         const newWindow = window.open("", "_blank");
@@ -238,7 +239,7 @@ const RetainedEarningsStatement: React.FC = () => {
                     {retainedEarnings?.rows.map((row, index) => (
                         <tr key={index}>
                             <td>{row.description}</td>
-                            <td>{row.amount.toFixed(2)}</td>
+                            <td>{formatCurrency(row.amount)}</td>
                         </tr>
                     ))}
                     </tbody>

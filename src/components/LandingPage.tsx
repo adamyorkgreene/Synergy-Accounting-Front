@@ -9,7 +9,7 @@ import {
     Title,
     Tooltip,
     Legend,
-    ChartData, ChartOptions
+    ChartOptions
 } from 'chart.js';
 import RightDashboard from './RightDashboard';
 import '../LandingPage.css';
@@ -17,6 +17,7 @@ import {useCsrf} from "../utilities/CsrfContext";
 import {useUser} from "../utilities/UserContext";
 import {useNavigate} from "react-router-dom";
 import { GeneralMessageDTO } from '../Types';
+import {formatCurrency} from "../utilities/Formatter";
 
 // Register chart components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -235,6 +236,32 @@ const LandingPage: React.FC = () => {
         }],
     };
 
+    const currentRatioOptions = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context: { raw: any; }) {
+                        const value = context.raw; // Access the raw data value
+                        return formatCurrency(value); // Format it as currency
+                    }
+                }
+            }
+        }
+    };
+
+    const quickRatioOptions = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context: { raw: any; }) {
+                        const value = context.raw; // Access the raw data value
+                        return formatCurrency(value); // Format it as currency
+                    }
+                }
+            }
+        }
+    };
+
     // Chart data for Debt to Equity Ratio (Bar Chart)
     const debtEquityOptions = {
         responsive: true,
@@ -395,12 +422,12 @@ const LandingPage: React.FC = () => {
                     <div className="financial-ratios">
                         <div className="ratio-card">
                             <h3>Current Ratio</h3>
-                            <Pie data={currentRatioData} width={120} height={120}/>
+                            <Pie data={currentRatioData} options={currentRatioOptions} width={120} height={120}/>
                             <div className="ratio-description">Current Assets vs Current Liabilities</div>
                         </div>
                         <div className="ratio-card">
                             <h3>Quick Ratio</h3>
-                            <Pie data={quickRatioData} width={120} height={120}/>
+                            <Pie data={quickRatioData} options={quickRatioOptions} width={120} height={120}/>
                             <div className="ratio-description">Quick Assets vs Current Liabilities</div>
                         </div>
                         <div className="ratio-card">
