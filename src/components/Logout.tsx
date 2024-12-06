@@ -21,10 +21,8 @@ const Logout: React.FC = () => {
                 });
                 if (response.ok) {
                     setUser(null);
-                    navigate('/login');
-                } else {
-                    alert('Logout failed. Please try again.');
                 }
+                navigate('/login');
             } catch (error) {
                 console.error('Error during logout:', error);
                 alert('An error occurred. Please try again.');

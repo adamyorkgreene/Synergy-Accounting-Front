@@ -32,6 +32,11 @@ import BalanceSheet from "./components/BalanceSheet";
 import RetainedEarningsStatement from './components/RetainedEarningsStatement';
 import LandingPage from './components/LandingPage';
 import PostAnnouncement from "./components/PostAnnouncement";
+import Alert from "./components/Alert";
+import VerifySuccess from "./components/VerifySuccess";
+import VerifyFail from "./components/VerifyFail";
+import ConfirmSuccess from "./components/ConfirmSuccess";
+import ConfirmFail from "./components/ConfirmFail";
 
 
 function App() {
@@ -45,6 +50,10 @@ function App() {
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/register" element={<Register/>}/>
                     <Route path="/verify" element={<Verify/>}/>
+                    <Route path="/verify-success" element={<VerifySuccess/>}/>
+                    <Route path="/verify-fail" element={<VerifyFail/>}/>
+                    <Route path="/confirm-success" element={<ConfirmSuccess/>}/>
+                    <Route path="/confirm-fail" element={<ConfirmFail/>}/>
                     <Route path="/forgot-password" element={<ResetPassword/>}/>
                     <Route path="/password-reset" element={<ResetPasswordForm/>}/>
                     <Route path="/confirm-user" element={<ConfirmUser/>}/>

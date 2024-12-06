@@ -9,7 +9,6 @@ const ConfirmUser: React.FC = () => {
 
     const token = searchParams.get('token');
 
-    const {csrfToken, fetchCsrfToken} = useCsrf();
     const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -22,22 +21,15 @@ const ConfirmUser: React.FC = () => {
                 return;
             }
             try {
-                try {
-                    if (!csrfToken) {
-                        await fetchCsrfToken();
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch CSRF token:', error);
-                }
                 const response = await fetch(`https://synergyaccounting.app/api/users/confirm-user?token=${token}`, {
                     method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken || ''
-                    },
                     credentials: 'include'
                 });
-                const message: MessageResponse = await response.json();
-                alert(message.message);
+                if (response.ok) {
+                    navigate("/confirm-success")
+                } else {
+                    navigate("/confirm-fail")
+                }
             } catch (error) {
                 console.error('Error validating token:', error);
                 alert('An error has occurred. Please try again.');
@@ -48,7 +40,7 @@ const ConfirmUser: React.FC = () => {
         if (token) {
             validateToken().then();
         }
-    }, [csrfToken, fetchCsrfToken, token, navigate]);
+    }, [token, navigate]);
 
     if (isLoading) {
         return <div>Loading...</div>;
