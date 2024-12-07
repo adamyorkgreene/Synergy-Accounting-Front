@@ -15,9 +15,6 @@ const AddTransaction: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const {csrfToken} = useCsrf();
-    const { user: loggedInUser, fetchUser } = useUser();
-
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -25,6 +22,9 @@ const AddTransaction: React.FC = () => {
             setSelectedAccount(location.state.selectedAccount as Account);
         }
     }, [location.state, selectedAccount, setSelectedAccount]);
+
+    const {csrfToken} = useCsrf();
+    const { user: loggedInUser, fetchUser } = useUser();
 
     useEffect(() => {
         const init = async () => {
@@ -42,7 +42,7 @@ const AddTransaction: React.FC = () => {
                 navigate('/login')
             }
             else if (loggedInUser.userType !== "ADMINISTRATOR") {
-                if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT") {
+                if (loggedInUser.userType === "DEFAULT") {
                     navigate('/dashboard');
                     alert('You do not have permission to add transactions.')
                 } else {

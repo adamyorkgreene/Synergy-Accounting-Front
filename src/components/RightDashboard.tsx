@@ -1,6 +1,5 @@
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, {useEffect, useState, ReactNode, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import Logo from "../assets/synergylogo.png";
 import Calendar from "./Calandar";
@@ -13,15 +12,18 @@ interface RightDashboardProps {
 
 const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, children }) => {
     const navigate = useNavigate();
-    const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [isSticky, setIsSticky] = useState(false);
-    const [showDropdown, setShowDropdown] = useState(false); // Track dropdown visibility
-    const [showDropdown1, setShowDropdown1] = useState(false); // Track dropdown visibility
-    const [showDropdown2, setShowDropdown2] = useState(false); // Track dropdown visibility
-    const [unreadCount, setUnreadCount] = useState<number>(propUnreadCount ?? 0); // Fallback to prop value
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [showDropdown1, setShowDropdown1] = useState(false);
+    const [showDropdown2, setShowDropdown2] = useState(false);
+    const [showLeftDropdown, setShowLeftDropdown] = useState(false);
+    const [unreadCount, setUnreadCount] = useState<number>(propUnreadCount ?? 0);
     const [pendingJournalCount, setPendingJournalCount] = useState<number>(0);
+
+    const initCalled = useRef(false);
+    const dataFetched = useRef(false);
 
     useEffect(() => {
         const init = async () => {
@@ -30,14 +32,28 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
             }
             setIsLoading(false);
         };
-        init().then();
+        if (!initCalled.current) {
+            initCalled.current = true;
+            init();
+        }
     }, [loggedInUser, fetchUser]);
 
     useEffect(() => {
-        if (!isLoading && (!loggedInUser || loggedInUser.userType === "DEFAULT")) {
-            navigate('/login');
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login');
+            } else if (loggedInUser.userType === 'DEFAULT') {
+                navigate('/login');
+                alert('You do not have permission to view this page.');
+            }
         }
     }, [loggedInUser, isLoading, navigate]);
+
+    useEffect(() => {
+        if (!isLoading && loggedInUser && !dataFetched.current) {
+            dataFetched.current = true;
+        }
+    }, [isLoading, loggedInUser]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -50,23 +66,24 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    });
+    }, [dataFetched]);
 
     useEffect(() => {
         if (propUnreadCount !== undefined) {
             setUnreadCount(propUnreadCount);
-            return; // Use the provided prop value
+            return;
         }
         const fetchUnreadCount = async () => {
-            if (!csrfToken || !loggedInUser) return;
+            if (!loggedInUser) {
+                console.error('User has been logged out, please log in and try again.');
+                navigate('/')
+                return;
+            }
             try {
                 const response = await fetch(
                     `https://synergyaccounting.app/api/email/emails/unread/${loggedInUser.username}`,
                     {
                         method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                        },
                         credentials: 'include',
                     }
                 );
@@ -80,26 +97,23 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                 console.error('Error fetching unread email count:', error);
             }
         };
-
         fetchUnreadCount();
-
-        const interval = setInterval(fetchUnreadCount, 60000); // 60 seconds
-        return () => clearInterval(interval); // Cleanup interval on unmount
-    }, [propUnreadCount, csrfToken, loggedInUser]);
+        const interval = setInterval(fetchUnreadCount, 60000);
+        return () => clearInterval(interval);
+    }, [propUnreadCount, loggedInUser, dataFetched]);
 
     useEffect(() => {
         const fetchPendingJournalEntries = async () => {
-            if (!csrfToken || !loggedInUser) {
-                console.error('CSRF token is not available or user is not logged in.');
+            if (!loggedInUser) {
+                console.error('User has been logged out, please log in and try again.');
+                navigate('/')
                 return;
             }
-
             try {
                 const response = await fetch(
                     'https://synergyaccounting.app/api/manager/journal-entry-requests/pending',
                     {
                         method: 'GET',
-                        headers: { 'X-CSRF-TOKEN': csrfToken },
                         credentials: 'include',
                     }
                 );
@@ -115,13 +129,15 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
             }
         };
 
-        fetchPendingJournalEntries();
+        if (loggedInUser?.userType !== "ACCOUNTANT") {
+            fetchPendingJournalEntries();
+        }
 
-        const interval = setInterval(fetchPendingJournalEntries, 60000); // 60 seconds
-        return () => clearInterval(interval); // Cleanup interval on unmount
-    }, [csrfToken, loggedInUser]);
+        const interval = setInterval(fetchPendingJournalEntries, 60000);
+        return () => clearInterval(interval);
+    }, [loggedInUser, dataFetched]);
 
-    if (isLoading || !csrfToken) {
+    if (isLoading) {
         return null;
     }
 
@@ -138,7 +154,6 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                         onClick={() => navigate("/dashboard")}>
                     Home
                 </button>
-                {/* Dropdown Button for Accounts */}
                 <div
                     className="dropdown"
                     onMouseEnter={() => setShowDropdown1(true)}
@@ -153,7 +168,6 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                         </div>
                     )}
                 </div>
-                {/* Dropdown Button for Ledgers */}
                 <div
                     className="dropdown"
                     onMouseEnter={() => setShowDropdown2(true)}
@@ -168,7 +182,6 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                         </div>
                     )}
                 </div>
-                {/* Dropdown Button for Statements */}
                 <div
                     className="dropdown"
                     onMouseEnter={() => setShowDropdown(true)}
@@ -199,9 +212,9 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                         alt="Profile Picture"
                     />
                 </div>
-                {(loggedInUser?.userType === "ADMINISTRATOR") && (
+                {(loggedInUser?.userType === "MANAGER" || loggedInUser?.userType === "ADMINISTRATOR") && (
                     <>
-                        <div style={{marginRight: "unset"}} className="label large-font">Admin Panel</div>
+                        <div style={{marginRight: "unset"}} className="label large-font">Manager Panel</div>
                         <button onClick={() => navigate('/dashboard/admin/add-user')}
                                 className="control-button" style={{position: 'relative'}}>
                             Add New User
@@ -210,11 +223,23 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                                 className="control-button">
                             Update User
                         </button>
-                    </>
-                )}
-                {(loggedInUser?.userType === "MANAGER" || loggedInUser?.userType === "ADMINISTRATOR") && (
-                    <>
-                        <div style={{marginRight: "unset"}} className="label large-font">Manager Panel</div>
+                        <div className="dropdown"
+                             style={{marginRight: 'unset'}}
+                             onMouseEnter={() => setShowLeftDropdown(true)}
+                             onMouseLeave={() => setShowLeftDropdown(false)}>
+                            <button className="control-button"
+                                    style={{height: '5.355vh'}}>
+                                User Reports
+                            </button>
+                            {showLeftDropdown && (
+                                <div className="dropdown-content left-aligned">
+                                    <button onClick={() => navigate("/dashboard/admin/user-report")}>All Users</button>
+                                    <button onClick={() => navigate("/dashboard/admin/expired-passwords")}>Expired
+                                        Passwords
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                         <button onClick={() => navigate('/dashboard/manager/journal-entry-requests')}
                                 className="control-button" style={{position: 'relative'}}>
                             Journal Entries
@@ -228,10 +253,10 @@ const RightDashboard: React.FC<RightDashboardProps> = ({ propUnreadCount, childr
                         </button>
                     </>
                 )}
-                {loggedInUser?.userType !== "USER" && loggedInUser?.userType !== "DEFAULT" && (
+                {loggedInUser?.userType !== "DEFAULT" && (
                     <>
                         <div style={{marginRight: "unset"}} className="label large-font">User Panel</div>
-                        <button onClick={() => navigate('/dashboard/admin/inbox')} className="control-button"
+                        <button onClick={() => navigate('/dashboard/inbox')} className="control-button"
                                 style={{position: 'relative'}}>
                             Mailbox
                             {unreadCount > 0 && (

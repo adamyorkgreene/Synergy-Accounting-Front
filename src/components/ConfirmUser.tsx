@@ -1,16 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MessageResponse } from "../Types";
-import { useCsrf } from '../utilities/CsrfContext';
 
 const ConfirmUser: React.FC = () => {
 
     const [searchParams] = useSearchParams();
-
     const token = searchParams.get('token');
-
     const navigate = useNavigate();
-
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -44,8 +39,6 @@ const ConfirmUser: React.FC = () => {
 
     if (isLoading) {
         return <div>Loading...</div>;
-    } else {
-        navigate('/login');
     }
 
     return null;

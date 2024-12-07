@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useCsrf } from "../utilities/CsrfContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import RightDashboard from './RightDashboard';
 import { Account, AccountSubCategory, AccountType, BalanceSheetDTO } from '../Types';
@@ -11,7 +10,6 @@ import {formatCurrency} from "../utilities/Formatter";
 const BalanceSheet: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
     const [startDate, setStartDate] = useState<string>('');
@@ -46,12 +44,9 @@ const BalanceSheet: React.FC = () => {
             return;
         }
 
-        if (!csrfToken) return;
-
         try {
             const response = await fetch(`/api/accounts/balance-sheet?startDate=${startDate}&endDate=${endDate}`, {
                 method: 'GET',
-                headers: { 'X-CSRF-TOKEN': csrfToken },
                 credentials: 'include'
             });
             const data: BalanceSheetDTO = await response.json();
@@ -139,7 +134,7 @@ const BalanceSheet: React.FC = () => {
             { type: "application/pdf" }
         );
 
-        navigate('/dashboard/admin/send-email', {
+        navigate('/dashboard/send-email', {
             state: { attachment: file },
         });
     };
@@ -276,7 +271,7 @@ const BalanceSheet: React.FC = () => {
         return formatCurrency(total);
     };
 
-    if (isLoading || !csrfToken || !loggedInUser) {
+    if (isLoading || !loggedInUser) {
         return <div>Loading...</div>;
     }
 

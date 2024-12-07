@@ -8,6 +8,7 @@ const ResetPassword: React.FC = () => {
 
     const navigate = useNavigate();
     const [email, setEmail] = useState<string>('');
+
     const {csrfToken, fetchCsrfToken} = useCsrf();
 
     useEffect(() => {

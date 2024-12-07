@@ -36,7 +36,7 @@ const UpdateUser: React.FC = () => {
         if (!isLoading) {
             if (!loggedInUser) {
                 navigate('/login');
-            } else if (loggedInUser.userType !== "ADMINISTRATOR") {
+            } else if (loggedInUser.userType !== "ADMINISTRATOR" && loggedInUser.userType !== "MANAGER"){
                 navigate('/dashboard/chart-of-accounts');
                 alert('You do not have permission to update users.');
             }
@@ -199,10 +199,11 @@ const UpdateUser: React.FC = () => {
                         <div style={{ margin: 'unset', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '3.771vmin' }} className="input-group">
                             <label htmlFor="updaterole" className="label">Role </label>
                             <select id="updaterole" value={userResponse?.userType} onChange={(e) => handleInputChange('userType', e.target.value as UserType)} className="dropdown-custom" style={{ height: "3.771vmin" }} name="role">
-                                <option value={UserType.USER}>User</option>
                                 <option value={UserType.ACCOUNTANT}>Accountant</option>
                                 <option value={UserType.MANAGER}>Manager</option>
-                                <option value={UserType.ADMINISTRATOR}>Administrator</option>
+                                {loggedInUser?.userType === "ADMINISTRATOR" && (
+                                    <option value={UserType.ADMINISTRATOR}>Administrator</option>
+                                )}
                             </select>
                         </div>
                         <div style={{ margin: 'unset', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '3.771vmin' }} className="input-group">

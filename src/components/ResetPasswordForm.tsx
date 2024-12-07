@@ -27,18 +27,8 @@ const ResetPasswordForm: React.FC = () => {
                 return;
             }
             try {
-                try {
-                    if (!csrfToken) {
-                        await fetchCsrfToken();
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch CSRF token:', error);
-                }
                 const response = await fetch(`/api/users/password-reset?token=${token}`, {
                     method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken || ''
-                    },
                     credentials: 'include'
                 });
                 if (response.ok) {

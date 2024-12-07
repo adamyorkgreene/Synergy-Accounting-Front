@@ -1,5 +1,3 @@
-import DOMPurify from 'dompurify';
-
 import React from "react";
 import {User} from "../Types";
 

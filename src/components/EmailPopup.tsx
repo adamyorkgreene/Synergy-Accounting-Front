@@ -1,5 +1,3 @@
-import DOMPurify from 'dompurify';
-
 import React from "react";
 import { Email, Attachment } from "../Types";
 

@@ -1,65 +1,61 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { User } from "../Types";
-import { useCsrf } from "./CsrfContext";
+import React, {createContext, useContext, useState, ReactNode, useEffect, useCallback} from "react";
+import {User} from "../Types";
 
 interface UserContextProps {
     user: User | null;
     setUser: (user: User | null) => void;
     fetchUser: () => Promise<void>;
+    logout: () => void;
 }
 
-export const UserContext = createContext<UserContextProps | undefined>(undefined);
+const UserContext = createContext<UserContextProps | undefined>(undefined);
 
 interface UserProviderProps {
     children: ReactNode;
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-    const { csrfToken } = useCsrf();
-    const [user, setUser] = useState<User | null>(() => {
-        const storedUser = localStorage.getItem('loggedInUser');
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+    const [user, setUser] = useState<User | null>(null);
 
-    const fetchUser = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is missing.');
-            return;
-        }
+    const fetchUser = useCallback(async () => {
         try {
-            const response = await fetch('https://synergyaccounting.app/api/users/validate', {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken || '',
-                }
+            const response = await fetch("https://synergyaccounting.app/api/users/validate", {
+                method: "GET",
+                credentials: "include",
             });
 
             if (response.ok) {
                 const userData = await response.json();
                 setUser(userData);
-                localStorage.setItem('loggedInUser', JSON.stringify(userData));
-
             } else {
-                console.error('Failed to fetch user data:', response.status);
+                console.error("Failed to validate user:", response.status);
                 setUser(null);
-                localStorage.removeItem('loggedInUser');
             }
         } catch (error) {
-            console.error("Error fetching user:", error);
+            console.error("Error refreshing user:", error);
             setUser(null);
-            localStorage.removeItem('loggedInUser');
         }
-    };
+    }, []);
+
+    const logout = useCallback(async () => {
+        try {
+            await fetch("https://synergyaccounting.app/api/users/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (error) {
+            console.error("Error during logout:", error);
+        } finally {
+            setUser(null);
+        }
+    }, []);
 
     useEffect(() => {
-        if (csrfToken && !user) {
-            fetchUser().then();
-        }
-    }, [csrfToken]);
+        fetchUser();
+    }, []);
 
     return (
-        <UserContext.Provider value={{ user, setUser, fetchUser }}>
+        <UserContext.Provider value={{ user, setUser, fetchUser, logout }}>
             {children}
         </UserContext.Provider>
     );
@@ -67,7 +63,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
 export const useUser = (): UserContextProps => {
     const context = useContext(UserContext);
-    if (context === undefined) {
+    if (!context) {
         throw new Error("useUser must be used within a UserProvider");
     }
     return context;

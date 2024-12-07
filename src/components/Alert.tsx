@@ -1,8 +1,4 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {MessageResponse, User, UserType} from '../Types';
-import {useCsrf} from '../utilities/CsrfContext';
-import {useUser} from "../utilities/UserContext";
+import React from 'react';
 import Logo from "../assets/synergylogo.png";
 
 interface AlertProps {

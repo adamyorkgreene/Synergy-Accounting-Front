@@ -1,19 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MessageResponse } from "../Types";
-import { useCsrf } from "../utilities/CsrfContext"
 
 const ApproveJournalEntry: React.FC = () => {
 
     const [searchParams] = useSearchParams();
-
     const token = searchParams.get('token');
-
     const navigate = useNavigate();
-    const  {csrfToken, fetchCsrfToken}  = useCsrf();
-
     const [isLoading, setIsLoading] = useState<boolean>(true);
-
 
     useEffect(() => {
         const validateToken = async () => {
@@ -23,18 +17,8 @@ const ApproveJournalEntry: React.FC = () => {
                 return;
             }
             try {
-                try {
-                    if (!csrfToken) {
-                        await fetchCsrfToken();
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch CSRF token:', error);
-                }
                 const response = await fetch(`https://synergyaccounting.app/api/accounts/approve-journal-entry?token=${token}`, {
                     method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken || ''
-                    },
                     credentials: 'include'
                 });
 
@@ -50,7 +34,7 @@ const ApproveJournalEntry: React.FC = () => {
         if (token) {
             validateToken().then();
         }
-    }, [csrfToken, fetchCsrfToken, token, navigate]);
+    }, [token, navigate]);
 
     if (isLoading) {
         return <div>Loading...</div>;

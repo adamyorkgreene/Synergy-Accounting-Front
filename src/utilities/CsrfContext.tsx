@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import {MessageResponse} from "../Types";
 
 interface CsrfContextType {
     csrfToken: string | null;
@@ -15,46 +14,32 @@ interface CsrfProviderProps {
 export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
     const [csrfToken, setCsrfToken] = useState<string | null>(null);
 
-    const fetchCsrfTokenWithRetry = async (retries: number = 3, delay: number = 1000) => {
-        for (let i = 0; i < retries; i++) {
-            console.log(`Attempt ${i + 1} to fetch CSRF Token...`);
-            try {
-                const response = await fetch('https://synergyaccounting.app/api/csrf', {
-                    method: 'GET',
-                    credentials: 'include',
-                });
+    const fetchCsrfToken = async () => {
+        try {
+            const response = await fetch("https://synergyaccounting.app/api/csrf", {
+                method: "GET",
+                credentials: "include",
+            });
 
-                console.log("Response status:", response.status);
-                console.log("Response headers:", [...response.headers.entries()]);
-
-                if (response.ok) {
-                    const csrfData = await response.json();
-                    setCsrfToken(csrfData.token);
-                    console.log("CSRF Token fetched successfully:", csrfData.token);
-                    return;
-                } else {
-                    const message = await response.text();
-                    console.error("Error response:", message);
-                }
-            } catch (error) {
-                console.error('Error fetching CSRF token:', error);
+            if (response.ok) {
+                const { token } = await response.json();
+                setCsrfToken(token);
+            } else {
+                console.error("Failed to fetch CSRF token:", response.status);
+                setCsrfToken(null);
             }
-
-            await new Promise(res => setTimeout(res, delay));
+        } catch (error) {
+            console.error("Error fetching CSRF token:", error);
+            setCsrfToken(null);
         }
-        console.error('Failed to fetch CSRF token after multiple attempts.');
     };
 
-
     useEffect(() => {
-        console.log("CsrfProvider mounting...");
-        fetchCsrfTokenWithRetry().then(() => {
-            console.log("CsrfProvider mounted successfully.");
-        });
+        fetchCsrfToken();
     }, []);
 
     return (
-        <CsrfContext.Provider value={{ csrfToken, fetchCsrfToken: fetchCsrfTokenWithRetry }}>
+        <CsrfContext.Provider value={{ csrfToken, fetchCsrfToken }}>
             {children}
         </CsrfContext.Provider>
     );
@@ -62,9 +47,8 @@ export const CsrfProvider: React.FC<CsrfProviderProps> = ({ children }) => {
 
 export const useCsrf = (): CsrfContextType => {
     const context = useContext(CsrfContext);
-    if (context) {
-        return context;
+    if (!context) {
+        throw new Error("useCsrf must be used within a CsrfProvider");
     }
-    console.error("useCsrf was called outside of a CsrfProvider.");
-    throw new Error("useCsrf must be used within a CsrfProvider");
+    return context;
 };

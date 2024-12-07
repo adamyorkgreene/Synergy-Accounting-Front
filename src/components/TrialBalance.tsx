@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { TrialBalanceDTO } from '../Types';
 import RightDashboard from './RightDashboard';
 import { useLocation, useNavigate } from "react-router-dom";
-import { useCsrf } from "../utilities/CsrfContext";
 import { useUser } from "../utilities/UserContext";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -11,7 +10,6 @@ import {formatCurrency} from "../utilities/Formatter";
 const TrialBalance: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
     const [startDate, setStartDate] = useState<string>('');
@@ -46,18 +44,11 @@ const TrialBalance: React.FC = () => {
             alert("Please select both start and end dates.");
             return;
         }
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const formattedStartDate = new Date(startDate).toISOString().split('T')[0];
             const formattedEndDate = new Date(endDate).toISOString().split('T')[0];
             const response = await fetch(`/api/accounts/trial-balance?startDate=${formattedStartDate}&endDate=${formattedEndDate}`, {
                 method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 credentials: 'include'
             });
             const data: TrialBalanceDTO[] = await response.json();
@@ -133,7 +124,7 @@ const TrialBalance: React.FC = () => {
         );
 
         // Navigate to SendAdminEmail with attachment
-        navigate('/dashboard/admin/send-email', {
+        navigate('/dashboard/send-email', {
             state: { attachment: file }
         });
     };
@@ -193,7 +184,7 @@ const TrialBalance: React.FC = () => {
         newWindow?.print();
     };
 
-    if (isLoading || !csrfToken || !loggedInUser) {
+    if (isLoading || !loggedInUser) {
         return <div>Loading...</div>;
     }
 

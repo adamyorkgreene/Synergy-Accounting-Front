@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {MessageResponse, User, UserType} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
@@ -10,21 +10,30 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
-    const { setUser } = useUser();
+    const { user, setUser, fetchUser } = useUser();
     const { csrfToken, fetchCsrfToken} = useCsrf();
 
     const navigate = useNavigate();
+    const initCalled = useRef(false);
 
     useEffect(() => {
-        const initCsrf = async () => {
+        const init = async () => {
             try {
                 await fetchCsrfToken();
+                if (!user) {
+                    await fetchUser();
+                } else {
+                    navigate('/dashboard');
+                }
             } catch (error) {
-                console.error('Failed to fetch CSRF token:', error);
+                console.error('Initialization error:', error);
             }
         };
-        initCsrf().then();
-    }, []);
+        if (!initCalled.current) {
+            initCalled.current = true;
+            init();
+        }
+    }, [user, fetchCsrfToken, fetchUser, navigate]);
 
     const validateEmail = (email: string) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,6 +75,7 @@ const Login: React.FC = () => {
                 if (isUserVerified) {
                     if (userType === UserType.DEFAULT) {
                         alert('Your account has not yet been confirmed by an administrator.');
+                        navigate('/logout');
                         return;
                     } else {
                         const leaveDate: Date = new Date(loggedInUser.user_date?.tempLeaveStart || '');

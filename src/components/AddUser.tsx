@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {MessageResponse, User, UserType} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
-import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
 import RightDashboard from "./RightDashboard";
 
@@ -12,7 +11,7 @@ const AddUser: React.FC = () => {
     const [confEmail, setConfEmail] = useState<string>('');
     const [firstName, setFirstName] = useState<string>('');
     const [lastName, setLastName] = useState<string>('');
-    const [userType, setUserType] = useState<UserType>(UserType.USER);
+    const [userType, setUserType] = useState<UserType>(UserType.ACCOUNTANT);
 
     const [birthday, setBirthday] = useState<Date>();
     const [address, setAddress] = useState<string>('');
@@ -39,7 +38,7 @@ const AddUser: React.FC = () => {
             if (!loggedInUser) {
                 navigate('/login')
             }
-            else if (loggedInUser.userType !== "ADMINISTRATOR"){
+            else if (loggedInUser.userType !== "ADMINISTRATOR" && loggedInUser.userType !== "MANAGER"){
                 navigate('/dashboard');
                 alert('You do not have permission to create users.')
             }
@@ -78,9 +77,7 @@ const AddUser: React.FC = () => {
         }
 
         try {
-
             const response = await fetch('https://synergyaccounting.app/api/admin/create', {
-
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -150,10 +147,11 @@ const AddUser: React.FC = () => {
                                 className="custom-input"
                                 name="role"
                             >
-                                <option value={UserType.USER}>User</option>
                                 <option value={UserType.ACCOUNTANT}>Accountant</option>
                                 <option value={UserType.MANAGER}>Manager</option>
-                                <option value={UserType.ADMINISTRATOR}>Administrator</option>
+                                {loggedInUser?.userType === "ADMINISTRATOR" && (
+                                    <option value={UserType.ADMINISTRATOR}>Administrator</option>
+                                )}
                             </select>
                         </div>
                         <div style={{margin: '1vmin o'}} className="input-group">

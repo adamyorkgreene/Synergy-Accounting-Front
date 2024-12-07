@@ -67,7 +67,7 @@ const JournalEntryForm: React.FC = () => {
         if (!isLoading) {
             if (!loggedInUser) {
                 navigate('/login');
-            } else if (loggedInUser.userType === "USER" || loggedInUser.userType === "DEFAULT") {
+            } else if (loggedInUser.userType === "DEFAULT") {
                 navigate('/dashboard');
                 alert('You do not have permission to create journal entries.');
             } else {
@@ -77,20 +77,13 @@ const JournalEntryForm: React.FC = () => {
     }, [loggedInUser, isLoading, navigate]);
 
     const getAccounts = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
-        if (!loggedInUser || loggedInUser.userType === UserType.USER) {
+        if (!loggedInUser || loggedInUser.userType === UserType.DEFAULT) {
             alert('You do not have permission to make a journal entry.');
             return;
         }
         try {
             const response = await fetch(`https://synergyaccounting.app/api/accounts/chart-of-accounts`, {
                 method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 credentials: 'include'
             });
 
@@ -195,7 +188,7 @@ const JournalEntryForm: React.FC = () => {
             alert('You cannot submit an empty set of transactions.');
             return;
         }
-        if (!loggedInUser || loggedInUser.userType === UserType.USER) {
+        if (!loggedInUser || loggedInUser.userType === UserType.DEFAULT) {
             alert('You do not have permission to make a journal entry.');
             return;
         }
@@ -331,17 +324,6 @@ const JournalEntryForm: React.FC = () => {
             alert("Operational revenue can only balance with operational expenses, assets, or liabilities.");
             return false;
         }
-
-        // Rule #4: Non-operational Expense and Revenue Restrictions
-        /*const nonOperating = transactions.some(tx =>
-            (tx?.account?.accountCategory === AccountCategory.REVENUE || tx?.account?.accountCategory === AccountCategory.EXPENSE) &&
-            tx?.account?.accountSubCategory === AccountSubCategory.NONOPERATING
-        );
-
-        if (nonOperating && hasAsset) {
-            alert("Non-operational expenses/revenue cannot be directly balanced with assets.");
-            return false;
-        }*/
 
         // Check Rule #5: Liability to Revenue/Expense Restrictions
 

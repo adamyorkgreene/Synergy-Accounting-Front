@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useCsrf } from '../utilities/CsrfContext';
 import { useUser } from '../utilities/UserContext';
 import { JournalEntry, TransactionForm, AccountType } from "../Types";
 import RightDashboard from "./RightDashboard";
@@ -10,7 +9,6 @@ const JournalEntryDetail: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
     const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +31,7 @@ const JournalEntryDetail: React.FC = () => {
         if (!isLoading) {
             if (!loggedInUser) {
                 navigate('/login');
-            } else if (loggedInUser.userType === "DEFAULT" || loggedInUser.userType === "USER") {
+            } else if (loggedInUser.userType === "DEFAULT") {
                 navigate('/dashboard');
                 alert('You do not have permission to view the general ledger.');
             } else {
@@ -43,16 +41,9 @@ const JournalEntryDetail: React.FC = () => {
     }, [loggedInUser, isLoading, navigate]);
 
     const fetchJournalEntry = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const response = await fetch(`/api/accounts/journal-entry/${token}`, {
                 method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 credentials: 'include'
             });
 
@@ -69,16 +60,9 @@ const JournalEntryDetail: React.FC = () => {
     };
 
     const fetchAttachments = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const response = await fetch(`/api/accounts/uploads/${token}`, {
                 method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 credentials: 'include'
             });
             if (response.ok) {
@@ -93,7 +77,7 @@ const JournalEntryDetail: React.FC = () => {
         }
     };
 
-    if (isLoading || !csrfToken || !journalEntry) {
+    if (isLoading || !journalEntry) {
         return <div>Loading...</div>;
     }
 

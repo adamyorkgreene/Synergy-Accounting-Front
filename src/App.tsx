@@ -7,7 +7,6 @@ import ResetPassword from "./components/ResetPassword";
 import ResetPasswordForm from './components/ResetPasswordForm';
 import ConfirmUser from "./components/ConfirmUser";
 import Verify from "./components/Verify";
-import Dashboard from "./components/Dashboard";
 import ImageUpload from "./components/ImageUploader";
 import AddUser from "./components/AddUser";
 import UpdateUserSearch from "./components/UpdateUserSearch";
@@ -32,11 +31,12 @@ import BalanceSheet from "./components/BalanceSheet";
 import RetainedEarningsStatement from './components/RetainedEarningsStatement';
 import LandingPage from './components/LandingPage';
 import PostAnnouncement from "./components/PostAnnouncement";
-import Alert from "./components/Alert";
 import VerifySuccess from "./components/VerifySuccess";
 import VerifyFail from "./components/VerifyFail";
 import ConfirmSuccess from "./components/ConfirmSuccess";
 import ConfirmFail from "./components/ConfirmFail";
+import UserReport from "./components/UserReport";
+import ExpiredPasswords from "./components/ExpiredPasswords";
 
 
 function App() {
@@ -62,8 +62,10 @@ function App() {
                     <Route path="/dashboard/admin/add-user" element={<AddUser/>}/>
                     <Route path="/dashboard/admin/update-user-search" element={<UpdateUserSearch/>}/>
                     <Route path="/dashboard/admin/update-user" element={<UpdateUser/>}/>
-                    <Route path="/dashboard/admin/send-email" element={<SendAdminEmail/>}/>
-                    <Route path="/dashboard/admin/inbox" element={<AdminInbox/>}/>
+                    <Route path="/dashboard/admin/user-report" element={<UserReport/>}/>
+                    <Route path="/dashboard/admin/expired-passwords" element={<ExpiredPasswords/>}/>
+                    <Route path="/dashboard/send-email" element={<SendAdminEmail/>}/>
+                    <Route path="/dashboard/inbox" element={<AdminInbox/>}/>
                     <Route path="/dashboard/chart-of-accounts" element={<ChartOfAccounts/>}/>
                     <Route path="/dashboard/chart-of-accounts/add" element={<AddAccount/>}/>
                     <Route path="/dashboard/chart-of-accounts/add-transaction" element={<AddTransaction/>}/>

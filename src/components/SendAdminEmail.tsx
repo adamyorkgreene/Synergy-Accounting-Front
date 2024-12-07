@@ -36,7 +36,7 @@ const SendAdminEmail: React.FC = () => {
         if (!isLoading) {
             if (!loggedInUser) {
                 navigate('/login');
-            } else if (loggedInUser.userType === 'USER' || loggedInUser.userType === 'DEFAULT') {
+            } else if (loggedInUser.userType === 'DEFAULT') {
                 navigate('/dashboard');
                 alert('You do not have permission to send emails.');
             } else {
@@ -112,7 +112,7 @@ const SendAdminEmail: React.FC = () => {
             const response = await fetch('https://synergyaccounting.app/api/email/send-email', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken, // CSRF token is still required
+                    'X-CSRF-TOKEN': csrfToken,
                 },
                 credentials: 'include',
                 body: formData,
@@ -120,7 +120,7 @@ const SendAdminEmail: React.FC = () => {
 
             if (response.ok) {
                 alert('Email has been sent successfully.');
-                navigate('/dashboard/admin/inbox');
+                navigate('/dashboard/inbox');
             } else {
                 const errorResponse = await response.json();
                 alert(`Failed to send email: ${errorResponse.message}`);

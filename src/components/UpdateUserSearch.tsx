@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {MessageResponse, User} from '../Types';
+import {User} from '../Types';
 import {useCsrf} from '../utilities/CsrfContext';
-import Logo from "../assets/synergylogo.png";
 import {useUser} from "../utilities/UserContext";
 import RightDashboard from "./RightDashboard";
 
@@ -34,7 +33,7 @@ const UpdateUserSearch: React.FC = () => {
             if (!loggedInUser) {
                 navigate('/login')
             }
-            else if (loggedInUser.userType !== "ADMINISTRATOR"){
+            else if (loggedInUser.userType !== "ADMINISTRATOR" && loggedInUser.userType !== "MANAGER"){
                 navigate('/dashboard');
                 alert('You do not have permission to search for users.')
             }
@@ -61,7 +60,6 @@ const UpdateUserSearch: React.FC = () => {
         try {
 
             const response = await fetch('https://synergyaccounting.app/api/admin/usersearch', {
-
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -127,6 +125,7 @@ const UpdateUserSearch: React.FC = () => {
 };
 
 export default UpdateUserSearch;
+
 
 
 

@@ -5,7 +5,9 @@ import { useUser } from '../utilities/UserContext';
 import RightDashboard from './RightDashboard';
 
 const PostAnnouncement: React.FC = () => {
+
     const navigate = useNavigate();
+
     const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
@@ -27,8 +29,7 @@ const PostAnnouncement: React.FC = () => {
         if (!isLoading) {
             if (!loggedInUser) {
                 navigate('/login');
-            } else if (loggedInUser.userType === 'USER' || loggedInUser.userType === 'DEFAULT' ||
-                loggedInUser.userType === 'ACCOUNTANT') {
+            } else if (loggedInUser.userType === 'DEFAULT' || loggedInUser.userType === 'ACCOUNTANT') {
                 navigate('/dashboard');
                 alert('You do not have permission to post announcements.');
             }
@@ -71,8 +72,8 @@ const PostAnnouncement: React.FC = () => {
                 }),
             });
             if (response.ok) {
-                alert('Email has been sent successfully.');
-                navigate('/dashboard/admin/inbox');
+                alert('Announcement has been successfully posted.');
+                navigate('/dashboard');
             } else {
                 const errorResponse = await response.json();
                 alert(`Failed to send email: ${errorResponse.message}`);

@@ -110,7 +110,6 @@ const UpdateAccount: React.FC = () => {
             }
 
             const response = await fetch('https://synergyaccounting.app/api/accounts/chart-of-accounts/update-account', {
-
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -624,6 +624,13 @@
   color: white;
 }
 
+/* Additional positioning for left-aligned dropdowns */
+.left-aligned {
+  right: 100%; /* Position to the left of the parent button */
+  top: 0; /* Align vertically with the button */
+}
+
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -758,4 +765,48 @@
 
 .error-message {
   color: #333; /* Ensure good contrast */
+}
+
+.user-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-top: 2.538vmin;
+  font-size: calc(8px + 0.5vmin);
+  font-family: 'Copperplate', serif;
+  color: black;
+  background-color: #ffffff;
+}
+
+.user-table th,
+.user-table td {
+  border: 1px solid #ccc;
+  padding: 1.5vmin;
+  text-align: left;
+}
+
+.user-table th {
+  background-color: #aabdb8;
+  color: black;
+  font-weight: bold;
+}
+
+.user-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.user-table tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.user-table tr:hover {
+  background-color: #104d42;
+  color: white;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.user-table th:hover {
+  background-color: #136b57;
+  cursor: pointer;
 }

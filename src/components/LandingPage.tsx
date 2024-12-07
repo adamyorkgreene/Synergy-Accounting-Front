@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Pie, Bar, Doughnut } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -13,20 +13,16 @@ import {
 } from 'chart.js';
 import RightDashboard from './RightDashboard';
 import '../LandingPage.css';
-import {useCsrf} from "../utilities/CsrfContext";
 import {useUser} from "../utilities/UserContext";
 import {useNavigate} from "react-router-dom";
 import { GeneralMessageDTO } from '../Types';
 import {formatCurrency} from "../utilities/Formatter";
 
-// Register chart components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const LandingPage: React.FC = () => {
 
     const navigate = useNavigate();
-
-    const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
     const [isLoading, setIsLoading] = useState(true);
@@ -43,29 +39,43 @@ const LandingPage: React.FC = () => {
     const [isLoadingGeneralMessages, setIsLoadingGeneralMessages] = useState(true);
     const [generalMessagesError, setGeneralMessagesError] = useState<string>('');
 
+    const initCalled = useRef(false);
+    const dataFetched = useRef(false);
+
     useEffect(() => {
         const init = async () => {
-            if (!loggedInUser) {
-                await fetchUser();
+            if (!initCalled.current) {
+                initCalled.current = true;
+                if (!loggedInUser) {
+                    await fetchUser();
+                }
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
-        init().then();
-    }, [loggedInUser, fetchUser]);
+        init();
+    }, [fetchUser]);
 
     useEffect(() => {
         if (!isLoading) {
             if (!loggedInUser) {
-                navigate('/login')
-            }
-            else if (loggedInUser.userType === "DEFAULT"){
                 navigate('/login');
-                alert('You do not have permission to view this page.')
-            } else {
-                getData().then(() => fetchGeneralMessages());
+            } else if (loggedInUser.userType === 'DEFAULT') {
+                navigate('/login');
+                alert('You do not have permission to view this page.');
             }
         }
-    }, [loggedInUser, isLoading, navigate]);
+    }, [isLoading, loggedInUser, navigate]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!dataFetched.current && loggedInUser && !isLoading) {
+                dataFetched.current = true;
+                await getData();
+                await fetchGeneralMessages();
+            }
+        };
+        fetchData();
+    }, [loggedInUser, isLoading]);
 
     const ratioThresholds: { [key: string]: Thresholds } = {
         currentRatio: { good: [1.5, 2.5], warning: [1.0, 1.5], bad: [0, 1.0] },
@@ -84,19 +94,15 @@ const LandingPage: React.FC = () => {
 
     const getRatioColor = (value: number, thresholds: Thresholds): string => {
         if (value >= thresholds.good[0] && value <= thresholds.good[1]) {
-            return '#2a9d8f'; // Green (Good)
+            return '#2a9d8f';
         }
         if (value >= thresholds.warning[0] && value <= thresholds.warning[1]) {
-            return '#f4a261'; // Yellow (Warning)
+            return '#f4a261';
         }
-        return '#e63946'; // Red (Needs closer look)
+        return '#e63946';
     };
 
     const getData = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const urls = [
                 'https://synergyaccounting.app/api/accounts/current-ratio',
@@ -109,9 +115,6 @@ const LandingPage: React.FC = () => {
             const requests = urls.map((url) =>
                 fetch(url, {
                     method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
                     credentials: 'include',
                 })
             );
@@ -138,14 +141,9 @@ const LandingPage: React.FC = () => {
     };
 
     const fetchGeneralMessages = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const response = await fetch('https://synergyaccounting.app/api/dashboard/messages', {
                 method: 'GET',
-                headers: { 'X-CSRF-TOKEN': csrfToken as string },
                 credentials: 'include',
             });
             if (!response.ok) {
@@ -170,7 +168,7 @@ const LandingPage: React.FC = () => {
                 ratios.currentRatio.assets ?? 0,
                 ratios.currentRatio.liabilities ?? 0,
             ],
-            backgroundColor: [currentRatioColor, '#d3d3d3'], // Dynamic color
+            backgroundColor: [currentRatioColor, '#d3d3d3'],
             hoverOffset: 4,
         }],
     };
@@ -181,8 +179,8 @@ const LandingPage: React.FC = () => {
         labels: ['Quick Assets', 'Current Liabilities'],
         datasets: [{
             data: [
-                ratios.quickRatio.assets - ratios.quickRatio.inventory, // Quick Assets
-                ratios.quickRatio.liabilities, // Current Liabilities
+                ratios.quickRatio.assets - ratios.quickRatio.inventory,
+                ratios.quickRatio.liabilities,
             ],
             backgroundColor: [quickRatioColor, '#d3d3d3'],
             hoverOffset: 4,
@@ -219,8 +217,6 @@ const LandingPage: React.FC = () => {
         }],
     };
 
-
-// Chart data for Return on Equity (Doughnut Chart)
     const returnOnEquityValue = Math.min(ratios?.returnOnEquity.ratio ?? 0, 1);
     const returnOnEquityColor = getRatioColor(returnOnEquityValue, ratioThresholds.returnOnEquity);
 
@@ -241,8 +237,8 @@ const LandingPage: React.FC = () => {
             tooltip: {
                 callbacks: {
                     label: function (context: { raw: any; }) {
-                        const value = context.raw; // Access the raw data value
-                        return formatCurrency(value); // Format it as currency
+                        const value = context.raw;
+                        return formatCurrency(value);
                     }
                 }
             }
@@ -254,22 +250,21 @@ const LandingPage: React.FC = () => {
             tooltip: {
                 callbacks: {
                     label: function (context: { raw: any; }) {
-                        const value = context.raw; // Access the raw data value
-                        return formatCurrency(value); // Format it as currency
+                        const value = context.raw;
+                        return formatCurrency(value);
                     }
                 }
             }
         }
     };
 
-    // Chart data for Debt to Equity Ratio (Bar Chart)
     const debtEquityOptions = {
         responsive: true,
         plugins: {
             datalabels: {
                 anchor: 'end',
                 align: 'top',
-                formatter: (value: number) => value.toFixed(2), // Format datalabels to two decimal places
+                formatter: (value: number) => value.toFixed(2),
                 color: '#333',
                 font: {
                     weight: 'bold',
@@ -283,7 +278,7 @@ const LandingPage: React.FC = () => {
                         yMax: 1,
                         borderColor: '#000',
                         borderWidth: 1,
-                        borderDash: [5, 5], // Dashed line for benchmark
+                        borderDash: [5, 5],
                         label: {
                             content: 'Benchmark: 1.0',
                             enabled: true,
@@ -304,7 +299,7 @@ const LandingPage: React.FC = () => {
                 ticks: {
                     callback: (value: string | number) => {
                         if (typeof value === 'number') {
-                            return value.toFixed(2); // Format y-axis tick labels
+                            return value.toFixed(2);
                         }
                         return value;
                     },
@@ -315,14 +310,14 @@ const LandingPage: React.FC = () => {
 
     const returnOnAssetsOptions = {
         responsive: true,
-        cutout: '70%', // Adjust the doughnut thickness
+        cutout: '70%',
         plugins: {
             datalabels: {
                 formatter: (value: number, context: any) => {
-                    if (context.dataIndex === 0) { // Only for the first segment
+                    if (context.dataIndex === 0) {
                         return `${(value * 100).toFixed(2)}%`;
                     }
-                    return ''; // Hide for other segments
+                    return '';
                 },
                 color: '#000',
                 font: {
@@ -333,8 +328,8 @@ const LandingPage: React.FC = () => {
             tooltip: {
                 callbacks: {
                     label: (tooltipItem: any) => {
-                        const value = tooltipItem.raw as number; // Access the raw value
-                        return `${(value * 100).toFixed(2)}%`; // Convert to percentage
+                        const value = tooltipItem.raw as number;
+                        return `${(value * 100).toFixed(2)}%`;
                     },
                 },
             },
@@ -343,14 +338,14 @@ const LandingPage: React.FC = () => {
 
     const returnOnEquityOptions = {
         responsive: true,
-        cutout: '70%', // Adjust the doughnut thickness
+        cutout: '70%',
         plugins: {
             datalabels: {
                 formatter: (value: number, context: any) => {
-                    if (context.dataIndex === 0) { // Only for the first segment
+                    if (context.dataIndex === 0) {
                         return `${(value * 100).toFixed(2)}%`;
                     }
-                    return ''; // Hide for other segments
+                    return '';
                 },
                 color: '#000',
                 font: {
@@ -361,8 +356,8 @@ const LandingPage: React.FC = () => {
             tooltip: {
                 callbacks: {
                     label: (tooltipItem: any) => {
-                        const value = tooltipItem.raw as number; // Access the raw value
-                        return `${(value * 100).toFixed(2)}%`; // Convert to percentage
+                        const value = tooltipItem.raw as number;
+                        return `${(value * 100).toFixed(2)}%`;
                     },
                 },
             },
@@ -371,7 +366,6 @@ const LandingPage: React.FC = () => {
 
     if (
         isLoading ||
-        !csrfToken ||
         !loggedInUser ||
         !ratios.currentRatio ||
         !ratios.quickRatio ||
@@ -385,10 +379,7 @@ const LandingPage: React.FC = () => {
     return (
         <RightDashboard>
             <div className="landing-page-container">
-                {/* Announcements Header */}
                 <h1 style={{margin: 'unset'}}>Announcements</h1>
-
-                {/* Announcements Section */}
                 <div className="general-messages">
                     {generalMessagesError ? (
                         <p className="error-message">{generalMessagesError}</p>
@@ -414,7 +405,7 @@ const LandingPage: React.FC = () => {
                             ))}
                         </ul>
                     ) : (
-                        <p>No general messages available.</p>
+                        <p style={{color: 'black'}}>No general messages available.</p>
                     )}
                 </div>
                 <h1 style={{margin: 'unset'}}>Financial Overview</h1>

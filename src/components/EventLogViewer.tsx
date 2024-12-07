@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import RightDashboard from "./RightDashboard";
-import { useLocation } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {formatCurrency} from "../utilities/Formatter";
+import {useUser} from "../utilities/UserContext";
 
 interface EventLog {
     id: number;
@@ -22,9 +23,33 @@ const EventLogViewer: React.FC = () => {
     const location = useLocation();
     const token = location.state?.token;
 
+    const navigate = useNavigate();
+
+    const { user: loggedInUser, fetchUser } = useUser();
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
-        if (token) fetchEventLogs(token).then();
-    }, [token]);
+        const init = async () => {
+            if (!loggedInUser) {
+                await fetchUser();
+            }
+            setIsLoading(false);
+        };
+        init().then();
+    }, [loggedInUser, fetchUser]);
+
+    useEffect(() => {
+        if (!isLoading) {
+            if (!loggedInUser) {
+                navigate('/login')
+            } else if (loggedInUser.userType === "DEFAULT") {
+                navigate('/dashboard');
+                alert('You do not have permission to view an account event log.')
+            } else if (token) {
+                fetchEventLogs(token).then()
+            }
+        }
+    }, [loggedInUser, isLoading, navigate, token]);
 
     const fetchEventLogs = async (accountId: string) => {
         try {
@@ -52,6 +77,9 @@ const EventLogViewer: React.FC = () => {
             } else {
                 currentBalance = creditBalance - debitBalance;
             }
+
+            if (isLoading) return;
+
             return (
                 <table style={{width: '100%', borderCollapse: 'collapse', marginTop: '10px'}}>
                     <tbody>
@@ -96,6 +124,10 @@ const EventLogViewer: React.FC = () => {
         link.click();
         URL.revokeObjectURL(link.href); // Clean up the URL object
     };
+
+    if (isLoading || !loggedInUser) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <RightDashboard>

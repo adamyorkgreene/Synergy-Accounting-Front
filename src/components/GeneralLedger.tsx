@@ -35,7 +35,7 @@ const GeneralLedger: React.FC = () => {
         if (!isLoading) {
             if (!loggedInUser) {
                 navigate('/login');
-            } else if (loggedInUser.userType === "DEFAULT" || loggedInUser.userType === "USER") {
+            } else if (loggedInUser.userType === "DEFAULT") {
                 navigate('/dashboard');
                 alert('You do not have permission to view the general ledger.');
             } else if (!selectedAccount) {
@@ -46,16 +46,9 @@ const GeneralLedger: React.FC = () => {
 
 
     const getJournalEntries = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const response = await fetch(`https://synergyaccounting.app/api/accounts/general-ledger`, {
                 method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 credentials: 'include'
             });
 
@@ -78,16 +71,9 @@ const GeneralLedger: React.FC = () => {
     };
 
     const handleAccountClick = async (account: Account) => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         setSelectedAccount(account);
         const response = await fetch(`/api/accounts/chart-of-accounts/${account.accountNumber}`, {
             method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
             credentials: 'include'
         });
 
@@ -248,7 +234,7 @@ const GeneralLedger: React.FC = () => {
 
     const sortedAccounts = getSortedTransactionsByAccount();
 
-    if (isLoading || !csrfToken || !loggedInUser) {
+    if (isLoading || !loggedInUser) {
         return <div>Loading...</div>;
     }
 

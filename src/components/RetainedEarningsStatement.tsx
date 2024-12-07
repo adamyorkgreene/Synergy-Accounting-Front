@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useCsrf } from "../utilities/CsrfContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import RightDashboard from './RightDashboard';
 import { useUser } from "../utilities/UserContext";
@@ -11,7 +10,6 @@ import {formatCurrency} from "../utilities/Formatter";
 const RetainedEarningsStatement: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { csrfToken } = useCsrf();
     const { user: loggedInUser, fetchUser } = useUser();
 
     const [startDate, setStartDate] = useState<string>('');
@@ -45,16 +43,9 @@ const RetainedEarningsStatement: React.FC = () => {
             alert("Please select both start and end dates.");
             return;
         }
-
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
-
         try {
             const response = await fetch(`/api/accounts/retained-earnings?startDate=${startDate}&endDate=${endDate}`, {
                 method: 'GET',
-                headers: { 'X-CSRF-TOKEN': csrfToken },
                 credentials: 'include',
             });
             const data: RetainedEarningsDTO = await response.json();
@@ -119,7 +110,7 @@ const RetainedEarningsStatement: React.FC = () => {
             { type: "application/pdf" }
         );
 
-        navigate('/dashboard/admin/send-email', {
+        navigate('/dashboard/send-email', {
             state: { attachment: file },
         });
     };
@@ -181,7 +172,7 @@ const RetainedEarningsStatement: React.FC = () => {
         newWindow?.print();
     };
 
-    if (isLoading || !csrfToken || !loggedInUser) {
+    if (isLoading || !loggedInUser) {
         return <div>Loading...</div>;
     }
 

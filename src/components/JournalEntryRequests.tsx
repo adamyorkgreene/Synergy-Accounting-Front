@@ -43,25 +43,18 @@ const JournalEntryRequests: React.FC = () => {
     }, [loggedInUser, isLoading, navigate]);
 
     const getJournalEntries = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const [approvedRes, rejectedRes, pendingRes] = await Promise.all([
                 fetch(`https://synergyaccounting.app/api/manager/journal-entry-requests/approved`, {
                     method: 'GET',
-                    headers: { 'X-CSRF-TOKEN': csrfToken },
                     credentials: 'include'
                 }),
                 fetch(`https://synergyaccounting.app/api/manager/journal-entry-requests/rejected`, {
                     method: 'GET',
-                    headers: { 'X-CSRF-TOKEN': csrfToken },
                     credentials: 'include'
                 }),
                 fetch(`https://synergyaccounting.app/api/manager/journal-entry-requests/pending`, {
                     method: 'GET',
-                    headers: { 'X-CSRF-TOKEN': csrfToken },
                     credentials: 'include'
                 })
             ]);
@@ -89,14 +82,9 @@ const JournalEntryRequests: React.FC = () => {
     };
 
     const fetchAttachments = async (journalEntryId: number) => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const response = await fetch(`https://synergyaccounting.app/api/accounts/uploads/${journalEntryId}`, {
                 method: 'GET',
-                headers: { 'X-CSRF-TOKEN': csrfToken },
                 credentials: 'include'
             });
             if (response.ok) {
@@ -180,7 +168,7 @@ const JournalEntryRequests: React.FC = () => {
         );
     };
 
-    if (isLoading || !csrfToken || !approvedJournalEntries || !rejectedJournalEntries || !pendingJournalEntries) {
+    if (isLoading || !approvedJournalEntries || !rejectedJournalEntries || !pendingJournalEntries) {
         return <div>Loading...</div>;
     }
 

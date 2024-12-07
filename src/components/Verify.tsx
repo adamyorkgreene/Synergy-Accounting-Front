@@ -1,8 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MessageResponse } from "../Types";
-import { useCsrf } from "../utilities/CsrfContext"
-import Alert from "./Alert";
 
 const Verify: React.FC = () => {
 
@@ -16,12 +13,14 @@ const Verify: React.FC = () => {
 
     useEffect(() => {
         const validateToken = async () => {
+
             if (!token) {
                 alert('Confirmation token is missing. Please check your confirmation link.');
                 navigate('/login');
                 return;
             }
             try {
+
                 const response = await fetch(`https://synergyaccounting.app/api/users/verify?token=${token}`, {
                     method: 'GET',
                     credentials: 'include'
@@ -34,10 +33,14 @@ const Verify: React.FC = () => {
                 }
 
             } catch (error) {
+
                 console.error('Error validating verification token:', error);
                 alert('An error has occurred. Please try again.');
+
             } finally {
+
                 setIsLoading(false);
+
             }
         };
         if (token) {
@@ -47,8 +50,6 @@ const Verify: React.FC = () => {
 
     if (isLoading) {
         return <div>Loading...</div>;
-    } else {
-        navigate('/login');
     }
 
     return null;

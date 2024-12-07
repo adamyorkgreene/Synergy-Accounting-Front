@@ -35,7 +35,7 @@ const AdminInbox: React.FC = () => {
             if (!loggedInUser) {
                 navigate('/login')
             }
-            else if (loggedInUser.userType === "DEFAULT" || loggedInUser.userType === "USER"){
+            else if (loggedInUser.userType === "DEFAULT"){
                 navigate('/dashboard');
             } else {
                 getEmails().then();
@@ -44,16 +44,9 @@ const AdminInbox: React.FC = () => {
     }, [loggedInUser, isLoading, navigate]);
 
     const getEmails = async () => {
-        if (!csrfToken) {
-            console.error('CSRF token is not available.');
-            return;
-        }
         try {
             const response = await fetch(`https://synergyaccounting.app/api/email/emails/${loggedInUser?.username}`, {
                 method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 credentials: 'include'
             });
 
@@ -189,7 +182,7 @@ const AdminInbox: React.FC = () => {
         }
     };
 
-    if (isLoading || !csrfToken) {
+    if (isLoading) {
         return <div>Loading...</div>;
     }
 
@@ -210,7 +203,7 @@ const AdminInbox: React.FC = () => {
                         <button className="control-button add-account-button"
                                 style={{right: "unset", left: "unset", position: 'relative', margin: 'unset',
                                     height: '5vmin'}}
-                                onClick={() => navigate("/dashboard/admin/send-email")}>Compose New Email
+                                onClick={() => navigate("/dashboard/send-email")}>Compose New Email
                         </button>
                     </div>
                     <table id="chartOfAccountsTable">

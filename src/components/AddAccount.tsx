@@ -16,32 +16,30 @@ const AddAccount: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const {csrfToken} = useCsrf();
-    const { user: loggedInUser, fetchUser } = useUser();
-
     const [isLoading, setIsLoading] = useState(true);
+
+    const { csrfToken} = useCsrf(); // Ensure the CSRF context includes refresh logic
+    const { user: loggedInUser, fetchUser } = useUser(); // Updated for consistency with the new context API
 
     useEffect(() => {
         const init = async () => {
-            if (!loggedInUser) {
-                await fetchUser();
-            }
+            await fetchUser(); // Refresh user instead of fetchUser for updated logic
             setIsLoading(false);
         };
-        init().then();
-    }, [loggedInUser, fetchUser]);
+        init();
+    }, [fetchUser]); // Updated dependency array to match the new function
 
     useEffect(() => {
         if (!isLoading) {
             if (!loggedInUser) {
-                navigate('/login')
-            }
-            else if (loggedInUser.userType !== "ADMINISTRATOR"){
+                navigate('/login');
+            } else if (loggedInUser.userType !== "ADMINISTRATOR") {
                 navigate('/dashboard/chart-of-accounts');
-                alert('You do not have permission to create accounts.')
+                alert('You do not have permission to create accounts.');
             }
         }
     }, [loggedInUser, isLoading, navigate]);
+
 
     const handleTypeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         setNormalSide(e.target.value as AccountType);
